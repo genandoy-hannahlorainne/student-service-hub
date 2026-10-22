@@ -78,30 +78,36 @@ class AppTheme {
       ),
       textTheme: base.textTheme.copyWith(
         headlineLarge: const TextStyle(
+          fontFamily: 'Inter',
           fontSize: 32,
           fontWeight: FontWeight.w800,
           color: neutral900,
         ),
         headlineMedium: const TextStyle(
+          fontFamily: 'Inter',
           fontSize: 26,
           fontWeight: FontWeight.w700,
           color: neutral900,
         ),
         titleLarge: const TextStyle(
+          fontFamily: 'Inter',
           fontSize: 22,
           fontWeight: FontWeight.w700,
           color: neutral900,
         ),
         titleMedium: const TextStyle(
+          fontFamily: 'Inter',
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: neutral900,
         ),
         bodyLarge: const TextStyle(
+          fontFamily: 'Inter',
           fontSize: 16,
           color: neutral700,
         ),
         bodyMedium: const TextStyle(
+          fontFamily: 'Inter',
           fontSize: 14,
           color: neutral700,
         ),

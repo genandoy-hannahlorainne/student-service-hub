@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../components/app_surface.dart';
+import '../theme/app_spacing.dart';
 import '../theme/app_theme.dart';
 
 class PrintingServiceScreen extends StatelessWidget {
@@ -13,7 +15,7 @@ class PrintingServiceScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: AppSpacing.pagePadding,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -25,13 +27,7 @@ class PrintingServiceScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppTheme.neutral100),
-                ),
+              AppSurface(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -55,13 +51,7 @@ class PrintingServiceScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppTheme.neutral100),
-                ),
+              AppSurface(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'app_routes.dart';
 import '../screens/landing_screen.dart';
 import '../theme/app_theme.dart';
 
@@ -13,6 +14,7 @@ class PasoaApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme(),
       home: const LandingScreen(),
+      onGenerateRoute: AppRoutes.onGenerateRoute,
     );
   }
 }
