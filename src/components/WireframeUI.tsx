@@ -1,5 +1,5 @@
 import { ReactNode, useState } from "react";
-import pasoaLogo from "../assets/images/PASOA_logo.jpg";
+import organizationLogo from "../assets/images/org_ssh_logo.png";
 
 // â”€â”€â”€ Primitives â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -245,7 +245,7 @@ export function WirePublicNav({ navigate }: { navigate: (s: string) => void }) {
     <nav className="relative z-40 border-b border-[#4B3621]/20 bg-white text-[#4B3621]">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
-          <img src={pasoaLogo} alt="University Organization logo" className="h-9 w-9 rounded-xl object-cover" />
+          <img src={organizationLogo} alt="University Organization logo" className="h-9 w-9 rounded-xl object-cover" />
           <span className="text-sm font-bold">University Organization Student Services Hub</span>
         </div>
 

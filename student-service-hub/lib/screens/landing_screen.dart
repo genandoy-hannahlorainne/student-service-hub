@@ -82,22 +82,13 @@ class _LandingHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
       child: Row(
         children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: AppTheme.navy,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Center(
-              child: Text(
-                'P',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 21,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: Image.asset(
+              'assets/images/org_ssh_logo.png',
+              width: 42,
+              height: 42,
+              fit: BoxFit.cover,
             ),
           ),
           const SizedBox(width: 12),

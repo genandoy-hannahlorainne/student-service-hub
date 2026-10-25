@@ -1,4 +1,4 @@
-import pasoaLogo from "../assets/images/PASOA_logo.jpg";
+import organizationLogo from "../assets/images/org_ssh_logo.png";
 import { WireBtn, WirePublicNav } from "../components/WireframeUI";
 
 type LandingProps = { navigate: (screen: string) => void };
@@ -80,7 +80,7 @@ export default function Landing({ navigate }: LandingProps) {
               <div className="absolute -bottom-40 right-12 h-80 w-80 rounded-full border-[42px] border-[#E3C565]/20" />
               <div className="relative flex h-full flex-col justify-between">
                 <div className="flex items-center gap-3">
-                  <img src={pasoaLogo} alt="University Organization logo" className="h-12 w-12 rounded-2xl object-cover ring-2 ring-white/20" />
+                  <img src={organizationLogo} alt="University Organization logo" className="h-12 w-12 rounded-2xl object-cover ring-2 ring-white/20" />
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#E3C565]">PUP Taguig</p>
                     <p className="font-semibold">University Organization Student Services Hub</p>
@@ -242,7 +242,7 @@ export default function Landing({ navigate }: LandingProps) {
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
             <div className="flex items-center gap-3">
-              <img src={pasoaLogo} alt="" className="h-10 w-10 rounded-xl object-cover" />
+              <img src={organizationLogo} alt="" className="h-10 w-10 rounded-xl object-cover" />
               <span className="font-bold text-white">University Organization Student Services Hub</span>
             </div>
             <p className="mt-3 max-w-sm text-xs leading-5">A student service and resource platform for PUP Taguig.</p>
