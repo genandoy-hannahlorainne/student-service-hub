@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react";
 import pasoaLogo from "../assets/images/PASOA_logo.jpg";
 
-// ─── Primitives ──────────────────────────────────────────────────────
+// â”€â”€â”€ Primitives â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function WireBox({ className = "", children }: { className?: string; children?: ReactNode }) {
   return <div className={`border border-gray-300 ${className}`}>{children}</div>;
@@ -191,7 +191,7 @@ export function WireRadioGroup({ label, options, name }: { label?: string; optio
   );
 }
 
-// ─── Progress tracker — vertical on mobile, horizontal on sm+ ────────
+// â”€â”€â”€ Progress tracker â€” vertical on mobile, horizontal on sm+ â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function WireProgressTracker({ steps, current }: { steps: string[]; current: number }) {
   return (
@@ -204,7 +204,7 @@ export function WireProgressTracker({ steps, current }: { steps: string[]; curre
               <div className={`absolute top-4 left-1/2 w-full h-0.5 ${i < current ? "bg-gray-700" : "bg-gray-300"}`} />
             )}
             <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold z-10 ${i < current ? "bg-gray-700 border-gray-700 text-white" : i === current ? "bg-gray-300 border-gray-700 text-gray-800" : "bg-white border-gray-300 text-gray-400"}`}>
-              {i < current ? "✓" : i + 1}
+              {i < current ? "âœ“" : i + 1}
             </div>
             <span className={`text-xs mt-1 text-center leading-tight ${i <= current ? "text-gray-800 font-medium" : "text-gray-400"}`}>{step}</span>
           </div>
@@ -216,7 +216,7 @@ export function WireProgressTracker({ steps, current }: { steps: string[]; curre
           <div key={step} className="flex items-start gap-3">
             <div className="flex flex-col items-center">
               <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs font-bold shrink-0 ${i < current ? "bg-gray-700 border-gray-700 text-white" : i === current ? "bg-gray-300 border-gray-700 text-gray-800" : "bg-white border-gray-300 text-gray-400"}`}>
-                {i < current ? "✓" : i + 1}
+                {i < current ? "âœ“" : i + 1}
               </div>
               {i < steps.length - 1 && <div className={`w-0.5 h-6 ${i < current ? "bg-gray-700" : "bg-gray-300"}`} />}
             </div>
@@ -228,7 +228,7 @@ export function WireProgressTracker({ steps, current }: { steps: string[]; curre
   );
 }
 
-// ─── Public nav with mobile hamburger ────────────────────────────────
+// â”€â”€â”€ Public nav with mobile hamburger â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function WirePublicNav({ navigate }: { navigate: (s: string) => void }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -245,8 +245,8 @@ export function WirePublicNav({ navigate }: { navigate: (s: string) => void }) {
     <nav className="sticky top-0 z-40 border-b border-[#D9E2EC] bg-white/95 text-[#123B5D] backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
-          <img src={pasoaLogo} alt="PASOA logo" className="h-9 w-9 rounded-xl object-cover" />
-          <span className="text-sm font-bold">PASOA Student Services</span>
+          <img src={pasoaLogo} alt="University Organization logo" className="h-9 w-9 rounded-xl object-cover" />
+          <span className="text-sm font-bold">University Organization Student Services Hub</span>
         </div>
 
         {/* Desktop links */}
@@ -295,7 +295,7 @@ export function WirePublicNav({ navigate }: { navigate: (s: string) => void }) {
   );
 }
 
-// ─── Authenticated layouts with mobile drawer sidebar ─────────────────
+// â”€â”€â”€ Authenticated layouts with mobile drawer sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 type NavItem = { label: string; screen?: string; icon?: string };
 
@@ -319,16 +319,16 @@ function AuthHeader({ role, onMenuToggle, navigate }: { role: string; onMenuTogg
       <div className="flex items-center gap-2 min-w-0">
         <HamburgerBtn onClick={onMenuToggle} />
         <WirePlaceholder label="LOGO" className="w-7 h-7 shrink-0" />
-        <span className="font-bold text-sm hidden sm:block truncate">PASOA Student Services</span>
+        <span className="font-bold text-sm hidden sm:block truncate">University Organization Student Services Hub</span>
       </div>
       <div className="flex items-center gap-2 shrink-0">
         <div className="hidden md:flex items-center border border-gray-500 bg-gray-700 px-2 py-1">
-          <span className="text-gray-400 text-xs mr-1">🔍</span>
+          <span className="text-gray-400 text-xs mr-1">ðŸ”</span>
           <input placeholder="Search..." className="bg-transparent text-sm text-white placeholder-gray-400 focus:outline-none w-32" />
         </div>
-        <button className="text-gray-300 hover:text-white text-sm w-8 h-8 flex items-center justify-center">🔔</button>
+        <button className="text-gray-300 hover:text-white text-sm w-8 h-8 flex items-center justify-center">ðŸ””</button>
         <button className="flex items-center gap-1 text-sm hover:text-gray-300">
-          <WirePlaceholder label="👤" className="w-7 h-7 text-xs shrink-0" />
+          <WirePlaceholder label="ðŸ‘¤" className="w-7 h-7 text-xs shrink-0" />
           <span className="hidden sm:block text-xs max-w-[100px] truncate">{role}</span>
         </button>
       </div>
@@ -440,47 +440,47 @@ function AppLayout({
 
 export function StudentLayout({ children, active, navigate }: { children: ReactNode; active: string; navigate: (s: string) => void }) {
   const items: NavItem[] = [
-    { label: "Dashboard", screen: "student-dashboard", icon: "⊞" },
-    { label: "Browse Services", screen: "browse-services", icon: "◫" },
-    { label: "— Printing", screen: "printing-service", icon: "" },
-    { label: "— School Supplies", screen: "school-supplies", icon: "" },
-    { label: "— Resource Rental", screen: "resource-rental", icon: "" },
-    { label: "My Orders", screen: "order-tracking", icon: "◈" },
-    { label: "My Rental Posts", screen: "rental-post-status", icon: "◉" },
+    { label: "Dashboard", screen: "student-dashboard", icon: "âŠž" },
+    { label: "Browse Services", screen: "browse-services", icon: "â—«" },
+    { label: "â€” Printing", screen: "printing-service", icon: "" },
+    { label: "â€” School Supplies", screen: "school-supplies", icon: "" },
+    { label: "â€” Resource Rental", screen: "resource-rental", icon: "" },
+    { label: "My Orders", screen: "order-tracking", icon: "â—ˆ" },
+    { label: "My Rental Posts", screen: "rental-post-status", icon: "â—‰" },
     { label: "Transaction History", screen: "transaction-receipt", icon: "◌" },
-    { label: "Profile", screen: "student-dashboard", icon: "◎" },
-    { label: "Logout", screen: "landing", icon: "◁" },
+    { label: "Profile", screen: "student-dashboard", icon: "â—Ž" },
+    { label: "Logout", screen: "landing", icon: "â—" },
   ];
   return <AppLayout items={items} active={active} navigate={navigate} role="Juan dela Cruz" accentColor="border-gray-700">{children}</AppLayout>;
 }
 
 export function ProviderLayout({ children, active, navigate }: { children: ReactNode; active: string; navigate: (s: string) => void }) {
   const items: NavItem[] = [
-    { label: "Dashboard", screen: "provider-dashboard", icon: "⊞" },
-    { label: "Orders", screen: "provider-dashboard", icon: "◈" },
-    { label: "Services", screen: "provider-profile", icon: "◫" },
-    { label: "Availability", screen: "provider-profile", icon: "◉" },
+    { label: "Dashboard", screen: "provider-dashboard", icon: "âŠž" },
+    { label: "Orders", screen: "provider-dashboard", icon: "â—ˆ" },
+    { label: "Services", screen: "provider-profile", icon: "â—«" },
+    { label: "Availability", screen: "provider-profile", icon: "â—‰" },
     { label: "Delivery Settings", screen: "provider-profile", icon: "◌" },
     { label: "Transaction History", screen: "transaction-receipt", icon: "◌" },
-    { label: "Profile", screen: "provider-profile", icon: "◎" },
-    { label: "Logout", screen: "landing", icon: "◁" },
+    { label: "Profile", screen: "provider-profile", icon: "â—Ž" },
+    { label: "Logout", screen: "landing", icon: "â—" },
   ];
   return <AppLayout items={items} active={active} navigate={navigate} role="Speedy Print Shop" accentColor="border-gray-600">{children}</AppLayout>;
 }
 
 export function AdminLayout({ children, active, navigate }: { children: ReactNode; active: string; navigate: (s: string) => void }) {
   const items: NavItem[] = [
-    { label: "Dashboard", screen: "admin-dashboard", icon: "⊞" },
-    { label: "Users", screen: "admin-dashboard", icon: "◎" },
-    { label: "Service Providers", screen: "admin-providers", icon: "◫" },
-    { label: "Services", screen: "admin-dashboard", icon: "◈" },
+    { label: "Dashboard", screen: "admin-dashboard", icon: "âŠž" },
+    { label: "Users", screen: "admin-dashboard", icon: "â—Ž" },
+    { label: "Service Providers", screen: "admin-providers", icon: "â—«" },
+    { label: "Services", screen: "admin-dashboard", icon: "â—ˆ" },
     { label: "Orders", screen: "admin-orders", icon: "◌" },
-    { label: "Rental Posts", screen: "admin-rental-approval", icon: "◉" },
-    { label: "Approvals", screen: "admin-rental-approval", icon: "◇" },
-    { label: "Transactions", screen: "transaction-receipt", icon: "◆" },
-    { label: "Website Content", screen: "admin-website", icon: "◰" },
-    { label: "Settings", screen: "admin-dashboard", icon: "⊙" },
-    { label: "Logout", screen: "landing", icon: "◁" },
+    { label: "Rental Posts", screen: "admin-rental-approval", icon: "â—‰" },
+    { label: "Approvals", screen: "admin-rental-approval", icon: "â—‡" },
+    { label: "Transactions", screen: "transaction-receipt", icon: "â—†" },
+    { label: "Website Content", screen: "admin-website", icon: "â—°" },
+    { label: "Settings", screen: "admin-dashboard", icon: "âŠ™" },
+    { label: "Logout", screen: "landing", icon: "â—" },
   ];
   return <AppLayout items={items} active={active} navigate={navigate} role="Admin" accentColor="border-gray-900">{children}</AppLayout>;
 }

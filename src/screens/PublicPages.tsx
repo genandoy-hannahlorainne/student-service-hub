@@ -18,13 +18,13 @@ function PublicShell({
     <div className="min-h-screen bg-gray-50">
       <WirePublicNav navigate={navigate} />
       <header className="bg-[#0057B8] px-6 py-14 text-center text-white">
-        <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-[#FFD700]">PASOA Student Services</p>
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-[#FFD700]">University Organization Student Services Hub</p>
         <h1 className="text-3xl font-bold">{title}</h1>
         <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-gray-300">{intro}</p>
       </header>
       <main className="mx-auto max-w-5xl px-6 py-12">{children}</main>
       <footer className="border-t border-gray-300 bg-white px-6 py-8 text-center text-xs text-gray-500">
-        <p className="font-semibold text-gray-700">PASOA Student Services</p>
+        <p className="font-semibold text-gray-700">University Organization Student Services Hub</p>
         <p className="mt-1">A student service and resource platform for PUP Taguig.</p>
       </footer>
     </div>
@@ -45,7 +45,7 @@ export function PublicServices({ navigate }: { navigate: PublicNavigate }) {
       <PublicCards>
         {[
           ["Printing Services", "Submit documents for printing and track your order from request to release.", "printing-service"],
-          ["School Supplies", "Browse essential school supplies from PASOA-approved providers.", "school-supplies"],
+          ["School Supplies", "Browse essential school supplies from University Organization-approved providers.", "school-supplies"],
           ["Resource Rental", "Find, rent, or post academic resources for the PUP Taguig community.", "resource-rental"],
         ].map(([title, description, screen]) => (
           <WireCard key={title} className="flex flex-col">
@@ -71,15 +71,15 @@ export function About({ navigate }: { navigate: PublicNavigate }) {
   return (
     <PublicShell
       navigate={navigate}
-      title="About PASOA"
-      intro="PASOA brings everyday student services and academic resources into one organized platform."
+      title="About University Organization"
+      intro="University Organization brings everyday student services and academic resources into one organized platform."
     >
       <div className="grid gap-8 md:grid-cols-2">
         <div>
-          <WireSectionTitle>What PASOA solves</WireSectionTitle>
+          <WireSectionTitle>What University Organization solves</WireSectionTitle>
           <p className="text-sm leading-7 text-gray-600">
             Students often need printing, school supplies, and academic resources at the same time.
-            PASOA gives them one trusted place to discover services, submit requests, and follow
+            University Organization gives them one trusted place to discover services, submit requests, and follow
             updates without relying on scattered messages or posts.
           </p>
         </div>
@@ -141,7 +141,7 @@ export function Contact({ navigate }: { navigate: PublicNavigate }) {
     <PublicShell
       navigate={navigate}
       title="Contact and Support"
-      intro="Need help with an order, account, or provider request? Send the PASOA team a message."
+      intro="Need help with an order, account, or provider request? Send the University Organization team a message."
     >
       <div className="mx-auto grid max-w-4xl gap-8 md:grid-cols-2">
         <WireCard>
@@ -176,11 +176,11 @@ export function ProviderPartnership({ navigate }: { navigate: PublicNavigate }) 
     <PublicShell
       navigate={navigate}
       title="Provider Partnership"
-      intro="Partner with PASOA to serve PUP Taguig students through a trusted, organized platform."
+      intro="Partner with University Organization to serve PUP Taguig students through a trusted, organized platform."
     >
       <div className="grid gap-8 md:grid-cols-2">
         <div>
-          <WireSectionTitle>Why partner with PASOA?</WireSectionTitle>
+          <WireSectionTitle>Why partner with University Organization?</WireSectionTitle>
           <ul className="space-y-4 text-sm leading-6 text-gray-600">
             <li>• Reach students looking for printing, supplies, and academic resources.</li>
             <li>• Receive structured orders instead of scattered chat requests.</li>
@@ -192,7 +192,7 @@ export function ProviderPartnership({ navigate }: { navigate: PublicNavigate }) 
           <WireSectionTitle>Partnership steps</WireSectionTitle>
           <ol className="space-y-3 text-sm text-gray-600">
             <li><strong>1.</strong> Submit your provider application.</li>
-            <li><strong>2.</strong> PASOA reviews your business details.</li>
+            <li><strong>2.</strong> University Organization reviews your business details.</li>
             <li><strong>3.</strong> Approved providers receive portal access.</li>
             <li><strong>4.</strong> Start managing student service orders.</li>
           </ol>

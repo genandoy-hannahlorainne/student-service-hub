@@ -4,11 +4,11 @@ import {
 } from "../../components/WireframeUI";
 
 const ALL_POSTS = [
-  { id: "POST-2025-014", user: "Juan dela Cruz", type: "Available for Rent", cat: "Typewriter", title: "Typewriter for Rent — Good Working Condition", desc: "Typewriter available for rent, ideal for academic projects. Keys are fully functional and recently serviced. Available on weekdays. ₱50/day. Can arrange campus meetup.", date: "Dec 8, 2025", status: "Pending" },
-  { id: "POST-2025-013", user: "Ana Reyes", type: "Looking For", cat: "Laptop", title: "Need laptop for thesis presentation — Dec 18", desc: "Looking for a laptop to borrow for one day for a thesis presentation. Windows preferred. Willing to leave collateral. Please message as soon as possible.", date: "Dec 9, 2025", status: "Pending" },
-  { id: "POST-2025-012", user: "Pedro Santos", type: "Available for Rent", cat: "Calculator", title: "Scientific Calculator Casio FX-991 for Rent", desc: "Casio FX-991ES Plus scientific calculator. Good condition. ₱30/day. Available after 5pm weekdays and all day weekends. Ideal for engineering and math subjects.", date: "Dec 10, 2025", status: "Pending" },
-  { id: "POST-2025-008", user: "Maria Cruz", type: "Available for Rent", cat: "Books", title: "Thermodynamics Textbook — Cengel 8th Edition", desc: "Complete Thermodynamics: An Engineering Approach by Cengel, 8th edition. All pages present. ₱20/day, please return on agreed date.", date: "Nov 20, 2025", status: "Approved" },
-  { id: "POST-2025-006", user: "Roberto Flores", type: "Looking For", cat: "Projector", title: "Need projector for club presentation Dec 20", desc: "Student org needs projector for presentation. Will return same day. MOU from adviser available.", date: "Nov 10, 2025", status: "Rejected", reason: "Post description needs exact specifications — resolution, connectivity type required, and proof of club authorization must be attached." },
+  { id: "POST-2025-014", user: "Juan dela Cruz", type: "Available for Rent", cat: "Typewriter", title: "Typewriter for Rent â€” Good Working Condition", desc: "Typewriter available for rent, ideal for academic projects. Keys are fully functional and recently serviced. Available on weekdays. â‚±50/day. Can arrange campus meetup.", date: "Dec 8, 2025", status: "Pending" },
+  { id: "POST-2025-013", user: "Ana Reyes", type: "Looking For", cat: "Laptop", title: "Need laptop for thesis presentation â€” Dec 18", desc: "Looking for a laptop to borrow for one day for a thesis presentation. Windows preferred. Willing to leave collateral. Please message as soon as possible.", date: "Dec 9, 2025", status: "Pending" },
+  { id: "POST-2025-012", user: "Pedro Santos", type: "Available for Rent", cat: "Calculator", title: "Scientific Calculator Casio FX-991 for Rent", desc: "Casio FX-991ES Plus scientific calculator. Good condition. â‚±30/day. Available after 5pm weekdays and all day weekends. Ideal for engineering and math subjects.", date: "Dec 10, 2025", status: "Pending" },
+  { id: "POST-2025-008", user: "Maria Cruz", type: "Available for Rent", cat: "Books", title: "Thermodynamics Textbook â€” Cengel 8th Edition", desc: "Complete Thermodynamics: An Engineering Approach by Cengel, 8th edition. All pages present. â‚±20/day, please return on agreed date.", date: "Nov 20, 2025", status: "Approved" },
+  { id: "POST-2025-006", user: "Roberto Flores", type: "Looking For", cat: "Projector", title: "Need projector for club presentation Dec 20", desc: "Student org needs projector for presentation. Will return same day. MOU from adviser available.", date: "Nov 10, 2025", status: "Rejected", reason: "Post description needs exact specifications â€” resolution, connectivity type required, and proof of club authorization must be attached." },
 ];
 
 type TabType = "Pending" | "Approved" | "Rejected";
@@ -72,8 +72,8 @@ export default function AdminRentalApproval({ navigate }: { navigate: (s: string
                   <WireBtn size="sm" variant="ghost">View</WireBtn>
                   {post.status === "Pending" && (
                     <>
-                      <WireBtn size="sm" onClick={() => approve(post.id)}>✓ Approve</WireBtn>
-                      <WireBtn size="sm" variant="secondary" onClick={() => setRejectTarget(post)}>✕ Reject</WireBtn>
+                      <WireBtn size="sm" onClick={() => approve(post.id)}>âœ“ Approve</WireBtn>
+                      <WireBtn size="sm" variant="secondary" onClick={() => setRejectTarget(post)}>âœ• Reject</WireBtn>
                     </>
                   )}
                 </div>

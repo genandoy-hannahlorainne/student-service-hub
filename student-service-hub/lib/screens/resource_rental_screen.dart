@@ -11,19 +11,19 @@ class ResourceRentalScreen extends StatelessWidget {
       _RentalItem(
         name: 'Scientific Calculator',
         category: 'Tools',
-        price: '₱80 / day',
+        price: 'â‚±80 / day',
         owner: 'Student Owner',
       ),
       _RentalItem(
         name: 'Laptop Stand',
         category: 'Equipment',
-        price: '₱60 / day',
-        owner: 'PASOA Verified',
+        price: 'â‚±60 / day',
+        owner: 'University Organization Verified',
       ),
       _RentalItem(
         name: 'Engineering Book',
         category: 'Books',
-        price: '₱120 / week',
+        price: 'â‚±120 / week',
         owner: 'Student Owner',
       ),
     ];

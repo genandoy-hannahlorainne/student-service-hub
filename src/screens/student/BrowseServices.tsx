@@ -6,7 +6,7 @@ export default function BrowseServices({ navigate }: { navigate: (s: string) => 
       <div className="flex flex-col gap-5">
         <div>
           <h1 className="text-xl font-bold text-gray-800">Browse Services</h1>
-          <p className="text-sm text-gray-500 mt-1">Explore PASOA&apos;s available student services</p>
+          <p className="text-sm text-gray-500 mt-1">Explore University Organization&apos;s available student services</p>
         </div>
 
         {/* Search + filter */}
@@ -29,7 +29,7 @@ export default function BrowseServices({ navigate }: { navigate: (s: string) => 
           {[
             {
               title: "Printing Services",
-              desc: "Upload your documents and have them printed by PASOA-approved printing shops near PUP Taguig. Choose color or B&W, paper size, and pickup or delivery options.",
+              desc: "Upload your documents and have them printed by University Organization-approved printing shops near PUP Taguig. Choose color or B&W, paper size, and pickup or delivery options.",
               screen: "printing-service",
               cta: "View Service",
               features: ["File upload", "Multiple copies", "Color / B&W", "Pickup or Delivery"],

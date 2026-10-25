@@ -9,22 +9,22 @@ const ORDERS = [
     service: "Printing Services",
     provider: "Speedy Print Shop",
     date: "Dec 10, 2025",
-    items: "thesis_chapter1_final.pdf · 2 copies · B&W · Single-sided",
-    payment: "GCash · ₱70.00",
+    items: "thesis_chapter1_final.pdf Â· 2 copies Â· B&W Â· Single-sided",
+    payment: "GCash Â· â‚±70.00",
     paymentStatus: "Pending",
-    fulfillment: "Delivery — Room 201, PUP Taguig Main Building",
+    fulfillment: "Delivery â€” Room 201, PUP Taguig Main Building",
     step: 2,
     status: "Processing",
   },
   {
     id: "ORD-2025-002",
     service: "School Supplies",
-    provider: "PASOA Supplies",
+    provider: "University Organization Supplies",
     date: "Dec 11, 2025",
-    items: "Bond Paper (1 ream), Blue Ballpen ×5, Yellow Pad ×2",
-    payment: "Cash · ₱240.00",
+    items: "Bond Paper (1 ream), Blue Ballpen Ã—5, Yellow Pad Ã—2",
+    payment: "Cash Â· â‚±240.00",
     paymentStatus: "Pending",
-    fulfillment: "Pickup — PASOA Office, PUP Taguig",
+    fulfillment: "Pickup â€” University Organization Office, PUP Taguig",
     step: 1,
     status: "Accepted",
   },
@@ -56,7 +56,7 @@ export default function OrderTracking({ navigate }: { navigate: (s: string) => v
             >
               <div>
                 <span className="text-xs font-mono text-gray-500">{o.id}</span>
-                <p className="font-medium text-gray-800 text-sm">{o.service} — {o.provider}</p>
+                <p className="font-medium text-gray-800 text-sm">{o.service} â€” {o.provider}</p>
                 <p className="text-xs text-gray-500">{o.date}</p>
               </div>
               <WireBadge variant="active">{o.status}</WireBadge>
@@ -66,7 +66,7 @@ export default function OrderTracking({ navigate }: { navigate: (s: string) => v
 
         {/* Selected order detail */}
         <WireCard>
-          <WireSectionTitle>Order Details — {order.id}</WireSectionTitle>
+          <WireSectionTitle>Order Details â€” {order.id}</WireSectionTitle>
 
           {/* Progress tracker */}
           <div className="py-6 px-2 border border-gray-200 bg-gray-50 mb-5">

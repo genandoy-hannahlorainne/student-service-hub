@@ -115,7 +115,7 @@ class _LandingHeader extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'PASOA Student Services',
+                  'University Organization Student Services Hub',
                   style: TextStyle(
                     color: AppTheme.navy,
                     fontWeight: FontWeight.w700,
@@ -289,7 +289,7 @@ class _ServicesBento extends StatelessWidget {
               childAspectRatio: columns == 1 ? 1.45 : .95,
               children: services.map((service) {
                 return InkWell(
-                  onTap: () => onServiceTap(service.$6),
+                  onTap: () => onServiceTap(service.$7),
                   borderRadius: BorderRadius.circular(24),
                   child: Ink(
                     padding: const EdgeInsets.all(24),
@@ -312,7 +312,7 @@ class _ServicesBento extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text(service.$4, style: TextStyle(color: service.$6.withOpacity(.8), height: 1.4)),
                         const SizedBox(height: 16),
-                        Text('Explore  →', style: TextStyle(color: service.$6, fontWeight: FontWeight.w800)),
+                        Text('Explore  â†’', style: TextStyle(color: service.$6, fontWeight: FontWeight.w800)),
                       ],
                     ),
                   ),
@@ -334,9 +334,9 @@ class _RolesBento extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final roles = [
-      ('🎓', 'PUPTian', 'Full student access', 'Order, rent, buy, and track.', 'Student account'),
+      ('ðŸŽ“', 'PUPTian', 'Full student access', 'Order, rent, buy, and track.', 'Student account'),
       ('◌', 'Guest', 'Explore first', 'Browse approved services and posts.', 'Guest account'),
-      ('▤', 'Provider', 'PASOA collaborator', 'Manage services and orders.', 'Provider account'),
+      ('â–¤', 'Provider', 'University Organization collaborator', 'Manage services and orders.', 'Provider account'),
     ];
 
     return Column(
@@ -382,7 +382,7 @@ class _RolesBento extends StatelessWidget {
                         const Spacer(),
                         Text(role.$4, style: Theme.of(context).textTheme.bodyMedium),
                         const SizedBox(height: 14),
-                        const Text('Continue  →', style: TextStyle(color: AppTheme.navy, fontWeight: FontWeight.w800)),
+                        const Text('Continue  â†’', style: TextStyle(color: AppTheme.navy, fontWeight: FontWeight.w800)),
                       ],
                     ),
                   ),
@@ -419,7 +419,7 @@ class _ProcessBento extends StatelessWidget {
         children: [
           const _SectionEyebrow(label: 'A CLEARER WAY FORWARD', light: true),
           const SizedBox(height: 8),
-          Text('From “I need this” to “Done.”', style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white)),
+          Text('From â€œI need this” to â€œDone.”', style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white)),
           const SizedBox(height: 24),
           LayoutBuilder(
             builder: (context, constraints) {

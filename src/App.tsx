@@ -55,11 +55,11 @@ type Screen =
 
 const SCREEN_LABELS: Record<Screen, string> = {
   "landing": "Landing Page",
-  "public-services": "Public — Services",
-  "about": "Public — About PASOA",
-  "how-it-works": "Public — How It Works",
-  "contact": "Public — Contact / Support",
-  "provider-partnership": "Public — Provider Partnership",
+  "public-services": "Public â€” Services",
+  "about": "Public â€” About University Organization",
+  "how-it-works": "Public â€” How It Works",
+  "contact": "Public â€” Contact / Support",
+  "provider-partnership": "Public â€” Provider Partnership",
   "login": "PUPTian Login",
   "login-guest": "Guest Login",
   "login-provider": "Provider Login",
@@ -76,15 +76,15 @@ const SCREEN_LABELS: Record<Screen, string> = {
   "create-rental-post": "Create Rental Post",
   "rental-post-status": "My Rental Posts",
   "guest-dashboard": "Guest Dashboard",
-  "guest-post": "Guest — Post a Request",
-  "guest-my-posts": "Guest — My Posts",
+  "guest-post": "Guest â€” Post a Request",
+  "guest-my-posts": "Guest â€” My Posts",
   "provider-dashboard": "Provider Dashboard",
   "provider-profile": "Provider Profile",
   "admin-dashboard": "Admin Dashboard",
-  "admin-providers": "Admin — Providers",
-  "admin-rental-approval": "Admin — Rental Approval",
-  "admin-orders": "Admin — Orders",
-  "admin-website": "Admin — Website",
+  "admin-providers": "Admin â€” Providers",
+  "admin-rental-approval": "Admin â€” Rental Approval",
+  "admin-orders": "Admin â€” Orders",
+  "admin-website": "Admin â€” Website",
   "transaction-receipt": "Transaction Receipt",
 };
 
@@ -198,13 +198,13 @@ export default function App() {
           onClick={() => setOpen((v) => !v)}
           className="bg-gray-900 text-white text-xs font-semibold px-3 py-2 shadow-lg hover:bg-gray-700 border border-gray-600 flex items-center gap-1.5"
         >
-          ◉ {open ? "Close Navigator" : "Screen Navigator"}
+          â—‰ {open ? "Close Navigator" : "Screen Navigator"}
         </button>
 
         {open && (
           <div className="bg-white border border-gray-400 shadow-xl w-72 max-h-[80vh] overflow-y-auto">
             <div className="bg-gray-900 text-white text-xs font-semibold px-3 py-2 flex items-center justify-between">
-              <span>PASOA Wireframe — Screens</span>
+              <span>University Organization Wireframe â€” Screens</span>
               <span className="text-gray-400">{Object.keys(SCREEN_LABELS).length} screens</span>
             </div>
             <div className="flex flex-col">
@@ -219,7 +219,7 @@ export default function App() {
                       onClick={() => { navigate(s); setOpen(false); }}
                       className={`w-full text-left px-3 py-2 text-xs border-b border-gray-100 hover:bg-gray-50 transition-colors ${screen === s ? "bg-gray-200 font-semibold text-gray-900" : "text-gray-700"}`}
                     >
-                      {screen === s && "▶ "}
+                      {screen === s && "â–¶ "}
                       {SCREEN_LABELS[s]}
                     </button>
                   ))}

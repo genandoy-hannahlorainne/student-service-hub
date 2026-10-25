@@ -104,7 +104,7 @@ class PrintingServiceScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '₱180.00',
+                      'â‚±180.00',
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,

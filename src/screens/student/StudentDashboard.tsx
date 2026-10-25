@@ -7,8 +7,8 @@ export default function StudentDashboard({ navigate }: { navigate: (s: string) =
         {/* Welcome */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-800">Welcome back, Juan! 👋</h1>
-            <p className="text-sm text-gray-500 mt-0.5">PUP Taguig — Student No. 2021-00001</p>
+            <h1 className="text-xl font-bold text-gray-800">Welcome back, Juan! ðŸ‘‹</h1>
+            <p className="text-sm text-gray-500 mt-0.5">PUP Taguig â€” Student No. 2021-00001</p>
           </div>
           <WireBtn onClick={() => navigate("browse-services")}>Browse Services</WireBtn>
         </div>
@@ -18,15 +18,15 @@ export default function StudentDashboard({ navigate }: { navigate: (s: string) =
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Quick Access</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
-              { title: "Printing Services", desc: "Upload & print documents", screen: "printing-service", icon: "🖨" },
-              { title: "School Supplies", desc: "Order academic materials", screen: "school-supplies", icon: "📚" },
-              { title: "Resource Rental", desc: "Borrow or lend equipment", screen: "resource-rental", icon: "🔧" },
+              { title: "Printing Services", desc: "Upload & print documents", screen: "printing-service", icon: "ðŸ–¨" },
+              { title: "School Supplies", desc: "Order academic materials", screen: "school-supplies", icon: "ðŸ“š" },
+              { title: "Resource Rental", desc: "Borrow or lend equipment", screen: "resource-rental", icon: "ðŸ”§" },
             ].map((s) => (
               <WireCard key={s.title} className="flex flex-col gap-2 cursor-pointer hover:bg-gray-50" onClick={() => navigate(s.screen)}>
                 <WirePlaceholder label={s.icon} className="h-16 w-full text-2xl" />
                 <h3 className="font-semibold text-gray-800 text-sm">{s.title}</h3>
                 <p className="text-xs text-gray-500">{s.desc}</p>
-                <WireBtn variant="outline" size="sm" onClick={() => navigate(s.screen)}>Go →</WireBtn>
+                <WireBtn variant="outline" size="sm" onClick={() => navigate(s.screen)}>Go â†’</WireBtn>
               </WireCard>
             ))}
           </div>
@@ -52,13 +52,13 @@ export default function StudentDashboard({ navigate }: { navigate: (s: string) =
           <div className="flex flex-col gap-2">
             {[
               { id: "ORD-2025-001", service: "Printing Services", provider: "Speedy Print Shop", status: "Processing", date: "Dec 10, 2025" },
-              { id: "ORD-2025-002", service: "School Supplies", provider: "PASOA Supplies", status: "Accepted", date: "Dec 11, 2025" },
+              { id: "ORD-2025-002", service: "School Supplies", provider: "University Organization Supplies", status: "Accepted", date: "Dec 11, 2025" },
             ].map((o) => (
               <WireCard key={o.id} className="flex items-center justify-between gap-3">
                 <div className="flex flex-col gap-0.5">
                   <span className="text-xs font-mono text-gray-500">{o.id}</span>
                   <span className="font-medium text-gray-800 text-sm">{o.service}</span>
-                  <span className="text-xs text-gray-500">{o.provider} · {o.date}</span>
+                  <span className="text-xs text-gray-500">{o.provider} Â· {o.date}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <WireBadge variant="active">{o.status}</WireBadge>
@@ -77,14 +77,14 @@ export default function StudentDashboard({ navigate }: { navigate: (s: string) =
           </div>
           <div className="flex flex-col gap-2">
             {[
-              { id: "TXN-2025-089", service: "Printing", amount: "₱85.00", date: "Dec 5, 2025", status: "Paid" },
-              { id: "TXN-2025-074", service: "School Supplies", amount: "₱240.00", date: "Nov 28, 2025", status: "Paid" },
-              { id: "TXN-2025-060", service: "Resource Rental", amount: "₱0.00", date: "Nov 20, 2025", status: "Free" },
+              { id: "TXN-2025-089", service: "Printing", amount: "â‚±85.00", date: "Dec 5, 2025", status: "Paid" },
+              { id: "TXN-2025-074", service: "School Supplies", amount: "â‚±240.00", date: "Nov 28, 2025", status: "Paid" },
+              { id: "TXN-2025-060", service: "Resource Rental", amount: "â‚±0.00", date: "Nov 20, 2025", status: "Free" },
             ].map((t) => (
               <WireCard key={t.id} className="flex items-center justify-between">
                 <div>
                   <span className="text-xs font-mono text-gray-500">{t.id}</span>
-                  <p className="text-sm text-gray-700">{t.service} · {t.date}</p>
+                  <p className="text-sm text-gray-700">{t.service} Â· {t.date}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-gray-800 text-sm">{t.amount}</span>
@@ -107,8 +107,8 @@ export default function StudentDashboard({ navigate }: { navigate: (s: string) =
           <WireCard>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-800">Typewriter for Rent — Good Condition</p>
-                <p className="text-xs text-gray-500 mt-0.5">Posted Dec 8, 2025 · Category: Typewriter · ₱50/day</p>
+                <p className="text-sm font-medium text-gray-800">Typewriter for Rent â€” Good Condition</p>
+                <p className="text-xs text-gray-500 mt-0.5">Posted Dec 8, 2025 Â· Category: Typewriter Â· â‚±50/day</p>
               </div>
               <WireBadge variant="pending">Pending Review</WireBadge>
             </div>

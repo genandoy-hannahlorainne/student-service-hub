@@ -39,7 +39,7 @@ export default function AdminWebsite({ navigate }: { navigate: (s: string) => vo
 
               {active === "Landing Page Content" && (
                 <div className="flex flex-col gap-4">
-                  <WireInput label="Hero Headline" placeholder="PASOA STUDENT SERVICES" />
+                  <WireInput label="Hero Headline" placeholder="University Organization STUDENT SERVICES" />
                   <WireInput label="Hero Subtitle" placeholder="A Web-Based Student Service and Resource Platform for PUP Taguig" />
                   <WireTextarea label="Hero Description" placeholder="Students can access printing, school supplies, and school-resource rentals." rows={3} />
                   <WireInput label="About Section Title" placeholder="About the Website" />
@@ -68,12 +68,12 @@ export default function AdminWebsite({ navigate }: { navigate: (s: string) => vo
                   {[
                     { title: "Holiday Schedule Notice", date: "Dec 5, 2025", status: "Published" },
                     { title: "New Printing Shop Partner", date: "Nov 28, 2025", status: "Published" },
-                    { title: "System Maintenance — Dec 20", date: "Dec 8, 2025", status: "Draft" },
+                    { title: "System Maintenance â€” Dec 20", date: "Dec 8, 2025", status: "Draft" },
                   ].map((a) => (
                     <div key={a.title} className="border border-gray-200 p-3 flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-gray-800">{a.title}</p>
-                        <p className="text-xs text-gray-400">{a.date} · {a.status}</p>
+                        <p className="text-xs text-gray-400">{a.date} Â· {a.status}</p>
                       </div>
                       <div className="flex gap-2">
                         <WireBtn size="sm" variant="outline">Edit</WireBtn>
@@ -89,7 +89,7 @@ export default function AdminWebsite({ navigate }: { navigate: (s: string) => vo
                   <WireTextarea
                     label="Terms and Services Content"
                     rows={12}
-                    placeholder={"1. PUPTians must use official PUP student credentials...\n2. Service Providers must be officially approved...\n3. Delivery fees are agreed upon between PASOA and providers...\n\nEdit and format full Terms and Services text here."}
+                    placeholder={"1. PUPTians must use official PUP student credentials...\n2. Service Providers must be officially approved...\n3. Delivery fees are agreed upon between the University Organization hub and providers...\n\nEdit and format full Terms and Services text here."}
                   />
                   <p className="text-xs text-gray-400">Last updated: December 1, 2025</p>
                 </div>

@@ -4,16 +4,16 @@ import {
 } from "../../components/WireframeUI";
 
 const PROVIDERS = [
-  { name: "Speedy Print Shop", type: "Printing", location: "Western Bicutan, Taguig", collab: "Active", fee: "₱30", status: "Active", since: "Oct 2025" },
-  { name: "Taguig Print Center", type: "Printing", location: "Central Bicutan, Taguig", collab: "Active", fee: "₱35", status: "Active", since: "Nov 2025" },
-  { name: "Campus Copy Express", type: "Printing", location: "Western Bicutan, Taguig", collab: "Active", fee: "₱25", status: "Inactive", since: "Oct 2025" },
-  { name: "PASOA Supplies", type: "School Supplies", location: "PUP Taguig Campus", collab: "Active", fee: "₱20", status: "Active", since: "Sep 2025" },
+  { name: "Speedy Print Shop", type: "Printing", location: "Western Bicutan, Taguig", collab: "Active", fee: "â‚±30", status: "Active", since: "Oct 2025" },
+  { name: "Taguig Print Center", type: "Printing", location: "Central Bicutan, Taguig", collab: "Active", fee: "â‚±35", status: "Active", since: "Nov 2025" },
+  { name: "Campus Copy Express", type: "Printing", location: "Western Bicutan, Taguig", collab: "Active", fee: "â‚±25", status: "Inactive", since: "Oct 2025" },
+  { name: "University Organization Supplies", type: "School Supplies", location: "PUP Taguig Campus", collab: "Active", fee: "â‚±20", status: "Active", since: "Sep 2025" },
   { name: "Quick Copy Solutions", type: "Printing", location: "Ususan, Taguig", collab: "Pending", fee: "TBD", status: "Pending", since: "Dec 2025" },
   { name: "Campus Supplies Co.", type: "School Supplies", location: "Fort Bonifacio, Taguig", collab: "Pending", fee: "TBD", status: "Pending", since: "Dec 2025" },
 ];
 
 const FLOW_STEPS = [
-  "PASOA Contacts Provider",
+  "University Organization Contacts Provider",
   "Provider Agrees",
   "Terms Discussed",
   "Delivery Fee Agreed",
@@ -83,7 +83,7 @@ export default function AdminProviders({ navigate }: { navigate: (s: string) => 
         {/* Approval Flow Modal */}
         {viewFlow && (
           <WireModal title="Provider Approval Flow" onClose={() => setViewFlow(false)}>
-            <p className="text-xs text-gray-500 mb-4">Standard process for onboarding a new Service Provider to PASOA</p>
+            <p className="text-xs text-gray-500 mb-4">Standard process for onboarding a new Service Provider to University Organization</p>
             <div className="flex flex-col gap-2">
               {FLOW_STEPS.map((step, i) => (
                 <div key={step} className="flex items-center gap-3">
@@ -98,7 +98,7 @@ export default function AdminProviders({ navigate }: { navigate: (s: string) => 
 
         {/* Reject Modal */}
         {rejectModal && (
-          <WireModal title={`Reject Provider — ${rejectModal}`} onClose={() => setRejectModal(null)}>
+          <WireModal title={`Reject Provider â€” ${rejectModal}`} onClose={() => setRejectModal(null)}>
             <p className="text-sm text-gray-700 mb-3">Please provide a reason for rejecting this provider application:</p>
             <WireTextarea placeholder="e.g. Incomplete requirements submitted. Missing business permit." rows={3} />
             <div className="flex gap-2 mt-4">

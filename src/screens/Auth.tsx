@@ -4,7 +4,7 @@ import {
   WirePublicNav, WireSelect,
 } from "../components/WireframeUI";
 
-// ─── Shared form shell ───────────────────────────────────────────────
+// â”€â”€â”€ Shared form shell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function AuthShell({
   navigate,
@@ -41,7 +41,7 @@ function AuthShell({
   );
 }
 
-// ─── 1. PUPTian Login ────────────────────────────────────────────────
+// â”€â”€â”€ 1. PUPTian Login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function Login({ navigate }: { navigate: (s: string) => void }) {
   return (
@@ -49,7 +49,7 @@ export function Login({ navigate }: { navigate: (s: string) => void }) {
       navigate={navigate}
       roleBadge="PUPTian Login"
       roleColor="bg-gray-800"
-      title="PASOA Student Services"
+      title="University Organization Student Services Hub"
       subtitle="Sign in with your student account"
     >
       <WireCard>
@@ -77,14 +77,14 @@ export function Login({ navigate }: { navigate: (s: string) => void }) {
           <WireBtn variant="secondary" size="sm" onClick={() => navigate("login-admin")}>Admin</WireBtn>
         </div>
         <p className="text-center text-xs text-gray-400 mt-1">
-          <span className="underline cursor-pointer" onClick={() => navigate("landing")}>← Back to Landing</span>
+          <span className="underline cursor-pointer" onClick={() => navigate("landing")}>â† Back to Landing</span>
         </p>
       </div>
     </AuthShell>
   );
 }
 
-// ─── 2. Guest Login ──────────────────────────────────────────────────
+// â”€â”€â”€ 2. Guest Login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function GuestLogin({ navigate }: { navigate: (s: string) => void }) {
   return (
@@ -92,8 +92,8 @@ export function GuestLogin({ navigate }: { navigate: (s: string) => void }) {
       navigate={navigate}
       roleBadge="Guest Login"
       roleColor="bg-gray-500"
-      title="PASOA Student Services"
-      subtitle="Limited access — browse and post requests"
+      title="University Organization Student Services Hub"
+      subtitle="Limited access â€” browse and post requests"
     >
       <div className="border border-dashed border-gray-400 p-3 bg-gray-50 text-xs text-gray-600 mb-4">
         <strong>Guest Access:</strong> You can browse services and post public need requests.
@@ -124,14 +124,14 @@ export function GuestLogin({ navigate }: { navigate: (s: string) => void }) {
           <WireBtn variant="secondary" size="sm" onClick={() => navigate("login-admin")}>Admin</WireBtn>
         </div>
         <p className="text-center text-xs text-gray-400 mt-1">
-          <span className="underline cursor-pointer" onClick={() => navigate("landing")}>← Back to Landing</span>
+          <span className="underline cursor-pointer" onClick={() => navigate("landing")}>â† Back to Landing</span>
         </p>
       </div>
     </AuthShell>
   );
 }
 
-// ─── 3. Service Provider Login ────────────────────────────────────────
+// â”€â”€â”€ 3. Service Provider Login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function ProviderLogin({ navigate }: { navigate: (s: string) => void }) {
   return (
@@ -139,12 +139,12 @@ export function ProviderLogin({ navigate }: { navigate: (s: string) => void }) {
       navigate={navigate}
       roleBadge="Service Provider Login"
       roleColor="bg-gray-600"
-      title="PASOA Student Services"
+      title="University Organization Student Services Hub"
       subtitle="Collaborating provider portal"
     >
       <div className="border border-dashed border-gray-400 p-3 bg-gray-50 text-xs text-gray-600 mb-4">
-        <strong>Providers:</strong> Only PASOA-approved collaborating businesses can access this portal.
-        Contact PASOA if you wish to become a provider.
+        <strong>Providers:</strong> Only University Organization-approved collaborating businesses can access this portal.
+        Contact University Organization if you wish to become a provider.
       </div>
       <WireCard>
         <form className="flex flex-col gap-4">
@@ -171,26 +171,26 @@ export function ProviderLogin({ navigate }: { navigate: (s: string) => void }) {
           <WireBtn variant="secondary" size="sm" onClick={() => navigate("login-admin")}>Admin</WireBtn>
         </div>
         <p className="text-center text-xs text-gray-400 mt-1">
-          <span className="underline cursor-pointer" onClick={() => navigate("landing")}>← Back to Landing</span>
+          <span className="underline cursor-pointer" onClick={() => navigate("landing")}>â† Back to Landing</span>
         </p>
       </div>
     </AuthShell>
   );
 }
 
-// ─── 4. Admin Login (internal) ────────────────────────────────────────
+// â”€â”€â”€ 4. Admin Login (internal) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
   return (
     <div className="min-h-screen bg-gray-900 flex items-start sm:items-center justify-center px-4 py-8">
       <div className="w-full max-w-sm">
         <div className="text-center mb-6">
-          <WirePlaceholder label="PASOA LOGO" className="w-16 h-16 mx-auto mb-3" />
+          <WirePlaceholder label="UNIVERSITY ORGANIZATION LOGO" className="w-16 h-16 mx-auto mb-3" />
           <div className="inline-block bg-gray-700 text-white text-xs font-bold px-3 py-1 mb-2">
             ADMINISTRATOR PORTAL
           </div>
-          <h1 className="text-xl font-bold text-white">PASOA Admin Access</h1>
-          <p className="text-sm text-gray-400 mt-1">Internal use only — not publicly accessible</p>
+          <h1 className="text-xl font-bold text-white">University Organization Admin Access</h1>
+          <p className="text-sm text-gray-400 mt-1">Internal use only â€” not publicly accessible</p>
         </div>
 
         <div className="border border-gray-600 bg-gray-800 p-5">
@@ -218,11 +218,11 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
 
         <div className="mt-4 text-center">
           <p className="text-xs text-gray-500">
-            Admin credentials are issued by PASOA management only.<br />
+            Admin credentials are issued by University Organization management only.<br />
             This portal is <strong className="text-gray-300">not publicly registered</strong>.
           </p>
           <button onClick={() => navigate("landing")} className="text-xs text-gray-500 hover:text-gray-300 underline mt-2 block mx-auto">
-            ← Back to Landing Page
+            â† Back to Landing Page
           </button>
         </div>
       </div>
@@ -230,7 +230,7 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
   );
 }
 
-// ─── 5. PUPTian Registration ─────────────────────────────────────────
+// â”€â”€â”€ 5. PUPTian Registration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function Register({ navigate }: { navigate: (s: string) => void }) {
   const [role, setRole] = useState<"puptian" | "provider">("puptian");
@@ -242,7 +242,7 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
           <div className="text-center mb-6">
             <WirePlaceholder label="LOGO" className="w-14 h-14 mx-auto mb-3" />
             <h1 className="text-xl font-bold text-gray-800">Create an Account</h1>
-            <p className="text-sm text-gray-500 mt-1">Join PASOA Student Services</p>
+            <p className="text-sm text-gray-500 mt-1">Join University Organization Student Services Hub</p>
           </div>
 
           {/* Role tabs */}
@@ -259,7 +259,7 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
             <p className="text-xs text-gray-500">
               Registering as a Guest?{" "}
               <span className="underline cursor-pointer text-gray-700 font-medium" onClick={() => navigate("register-guest")}>
-                Guest Registration →
+                Guest Registration â†’
               </span>
             </p>
           </div>
@@ -267,7 +267,7 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
           <WireCard>
             {role === "puptian" ? (
               <form className="flex flex-col gap-4">
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-2 mb-1">PUPTian — Student Information</div>
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-2 mb-1">PUPTian â€” Student Information</div>
                 <WireInput label="Full Name" placeholder="Last Name, First Name M.I." />
                 <WireInput label="Student Number" placeholder="e.g. 2021-00001" />
                 <WireInput label="Email Address" type="email" placeholder="Official PUP or personal email" />
@@ -279,7 +279,7 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
               </form>
             ) : (
               <form className="flex flex-col gap-4">
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-2 mb-1">Service Provider — Business Information</div>
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-2 mb-1">Service Provider â€” Business Information</div>
                 <WireInput label="Business / Provider Name" placeholder="Official business name" />
                 <WireInput label="Contact Person" placeholder="Name of authorized representative" />
                 <WireInput label="Email Address" type="email" placeholder="Business email" />
@@ -289,14 +289,14 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
                 <WireInput label="Password" type="password" placeholder="Minimum 8 characters" />
                 <WireInput label="Confirm Password" type="password" placeholder="Re-enter your password" />
                 <div className="border border-dashed border-gray-300 p-3 bg-gray-50 text-xs text-gray-500">
-                  <strong>Note:</strong> Provider accounts require PASOA approval before activation.
+                  <strong>Note:</strong> Provider accounts require University Organization approval before activation.
                 </div>
                 <div className="mt-1"><WireCheckbox label="I have read and agree to the Terms and Services" /></div>
                 <WireBtn type="submit" size="lg" className="w-full mt-2" onClick={() => navigate("provider-dashboard")}>Submit Provider Application</WireBtn>
               </form>
             )}
             <div className="border-t border-gray-200 mt-4 pt-4 text-center">
-              <WireBtn variant="ghost" onClick={() => navigate("login")} className="text-sm text-gray-500">← Back to Login</WireBtn>
+              <WireBtn variant="ghost" onClick={() => navigate("login")} className="text-sm text-gray-500">â† Back to Login</WireBtn>
             </div>
           </WireCard>
         </div>
@@ -305,7 +305,7 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
   );
 }
 
-// ─── 6. Guest Registration ────────────────────────────────────────────
+// â”€â”€â”€ 6. Guest Registration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function GuestRegister({ navigate }: { navigate: (s: string) => void }) {
   return (
@@ -333,7 +333,7 @@ export function GuestRegister({ navigate }: { navigate: (s: string) => void }) {
 
           <WireCard>
             <form className="flex flex-col gap-4">
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-2 mb-1">Guest — Basic Information</div>
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-2 mb-1">Guest â€” Basic Information</div>
               <WireInput label="Full Name" placeholder="Your full name" />
               <WireInput label="Email Address" type="email" placeholder="your@email.com" />
               <WireInput label="Contact Number" type="tel" placeholder="09XXXXXXXXX" />
@@ -353,7 +353,7 @@ export function GuestRegister({ navigate }: { navigate: (s: string) => void }) {
             <div className="border-t border-gray-200 mt-4 pt-4 text-center flex flex-col gap-2">
               <p className="text-xs text-gray-500">PUP Taguig student?</p>
               <WireBtn variant="outline" className="w-full" onClick={() => navigate("register")}>Register as PUPTian instead</WireBtn>
-              <WireBtn variant="ghost" onClick={() => navigate("login-guest")} className="text-sm text-gray-500">← Back to Guest Login</WireBtn>
+              <WireBtn variant="ghost" onClick={() => navigate("login-guest")} className="text-sm text-gray-500">â† Back to Guest Login</WireBtn>
             </div>
           </WireCard>
         </div>

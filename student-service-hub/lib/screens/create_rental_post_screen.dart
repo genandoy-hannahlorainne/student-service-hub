@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_theme.dart';
 
 class CreateRentalPostScreen extends StatelessWidget {
   const CreateRentalPostScreen({super.key});
@@ -42,7 +41,7 @@ class CreateRentalPostScreen extends StatelessWidget {
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Rental price',
-                  hintText: '₱60 / day',
+                  hintText: 'â‚±60 / day',
                 ),
               ),
               const SizedBox(height: 16),

@@ -9,8 +9,8 @@ class ProviderDashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final orders = [
-      _OrderItem(name: 'Printing Order #2048', status: 'Pending', amount: '₱180.00'),
-      _OrderItem(name: 'Supplies Order #2019', status: 'Accepted', amount: '₱240.00'),
+      _OrderItem(name: 'Printing Order #2048', status: 'Pending', amount: 'â‚±180.00'),
+      _OrderItem(name: 'Supplies Order #2019', status: 'Accepted', amount: 'â‚±240.00'),
     ];
 
     return Scaffold(
@@ -48,11 +48,11 @@ class ProviderDashboardScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Today’s revenue',
+                      'Todayâ€™s revenue',
                       style: TextStyle(color: Colors.white70),
                     ),
                     Text(
-                      '₱620.00',
+                      'â‚±620.00',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w800,

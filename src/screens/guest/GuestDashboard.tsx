@@ -4,12 +4,12 @@ import {
 } from "../../components/WireframeUI";
 
 const GUEST_NAV = [
-  { label: "Dashboard", icon: "⊞", screen: "guest-dashboard" },
-  { label: "Browse Services", icon: "◫", screen: "browse-services" },
-  { label: "Post a Request", icon: "✉", screen: "guest-post" },
-  { label: "My Posts", icon: "◉", screen: "guest-my-posts" },
-  { label: "Resource Hub", icon: "◈", screen: "resource-rental" },
-  { label: "Profile", icon: "◎", screen: "guest-dashboard" },
+  { label: "Dashboard", icon: "âŠž", screen: "guest-dashboard" },
+  { label: "Browse Services", icon: "â—«", screen: "browse-services" },
+  { label: "Post a Request", icon: "âœ‰", screen: "guest-post" },
+  { label: "My Posts", icon: "â—‰", screen: "guest-my-posts" },
+  { label: "Resource Hub", icon: "â—ˆ", screen: "resource-rental" },
+  { label: "Profile", icon: "â—Ž", screen: "guest-dashboard" },
 ];
 
 function GuestSidebar({ active, navigate, open, onClose }: { active: string; navigate: (s: string) => void; open: boolean; onClose: () => void }) {
@@ -32,13 +32,13 @@ function GuestSidebar({ active, navigate, open, onClose }: { active: string; nav
         ))}
         <div className="mt-4 mx-3 border border-dashed border-gray-300 p-2 text-xs text-gray-400">
           <p className="font-semibold mb-1 text-gray-500">Locked (PUPTian only):</p>
-          <p>✗ Order Printing</p>
-          <p>✗ Buy Supplies</p>
-          <p>✗ Create Rental Posts</p>
-          <p>✗ Track Orders</p>
+          <p>âœ— Order Printing</p>
+          <p>âœ— Buy Supplies</p>
+          <p>âœ— Create Rental Posts</p>
+          <p>âœ— Track Orders</p>
         </div>
         <button onClick={() => navigate("landing")} className="text-left px-4 py-2.5 text-sm text-gray-500 hover:bg-gray-200 border-t border-gray-300 mt-auto">
-          ◁ Logout
+          â— Logout
         </button>
       </aside>
     </>
@@ -63,12 +63,12 @@ export default function GuestDashboard({ navigate }: { navigate: (s: string) => 
             <span className="block w-5 h-0.5 bg-white" />
           </button>
           <WirePlaceholder label="LOGO" className="w-7 h-7 shrink-0" />
-          <span className="font-bold text-sm hidden sm:block truncate">PASOA Student Services</span>
+          <span className="font-bold text-sm hidden sm:block truncate">University Organization Student Services Hub</span>
           <span className="text-xs bg-gray-500 px-2 py-0.5 ml-1 shrink-0">GUEST</span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <WireBtn size="sm" variant="secondary" onClick={() => navigate("register")} className="hidden sm:inline-flex">Upgrade to PUPTian</WireBtn>
-          <WirePlaceholder label="👤" className="w-7 h-7 text-xs shrink-0" />
+          <WirePlaceholder label="ðŸ‘¤" className="w-7 h-7 text-xs shrink-0" />
         </div>
       </header>
 
@@ -82,7 +82,7 @@ export default function GuestDashboard({ navigate }: { navigate: (s: string) => 
             <div className="flex flex-col gap-3">
               <div className="flex items-start justify-between flex-wrap gap-3">
                 <div>
-                  <h1 className="text-xl font-bold text-gray-800">Welcome, Guest! 👋</h1>
+                  <h1 className="text-xl font-bold text-gray-800">Welcome, Guest! ðŸ‘‹</h1>
                   <p className="text-sm text-gray-500 mt-0.5">You have limited access. Browse services or post a request.</p>
                 </div>
                 <WireBtn onClick={() => navigate("guest-post")} className="shrink-0">+ Post a Request</WireBtn>
@@ -93,11 +93,11 @@ export default function GuestDashboard({ navigate }: { navigate: (s: string) => 
                 <div className="flex-1">
                   <p className="font-semibold text-gray-800 text-sm">Are you a PUP Taguig student?</p>
                   <p className="text-xs text-gray-500 mt-0.5">
-                    Register as a <strong>PUPTian</strong> to unlock full access — order printing, purchase supplies,
+                    Register as a <strong>PUPTian</strong> to unlock full access â€” order printing, purchase supplies,
                     create rental posts, and track your orders.
                   </p>
                 </div>
-                <WireBtn variant="outline" size="sm" onClick={() => navigate("register")} className="shrink-0">Upgrade to PUPTian →</WireBtn>
+                <WireBtn variant="outline" size="sm" onClick={() => navigate("register")} className="shrink-0">Upgrade to PUPTian â†’</WireBtn>
               </div>
 
               {/* Mobile upgrade shortcut */}
@@ -109,9 +109,9 @@ export default function GuestDashboard({ navigate }: { navigate: (s: string) => 
               <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Available to You</h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
-                  { icon: "◫", title: "Browse Services", desc: "Explore printing, school supplies, and the resource rental hub", cta: "Browse Now", screen: "browse-services" },
-                  { icon: "✉", title: "Post a Request", desc: "Post what you need — typewriter, calculator, books, etc. Students may respond.", cta: "Post a Request", screen: "guest-post" },
-                  { icon: "◈", title: "Resource Hub", desc: "View student rental posts and browse available academic equipment.", cta: "View Hub", screen: "resource-rental" },
+                  { icon: "â—«", title: "Browse Services", desc: "Explore printing, school supplies, and the resource rental hub", cta: "Browse Now", screen: "browse-services" },
+                  { icon: "âœ‰", title: "Post a Request", desc: "Post what you need â€” typewriter, calculator, books, etc. Students may respond.", cta: "Post a Request", screen: "guest-post" },
+                  { icon: "â—ˆ", title: "Resource Hub", desc: "View student rental posts and browse available academic equipment.", cta: "View Hub", screen: "resource-rental" },
                 ].map((item) => (
                   <WireCard key={item.title} className="flex flex-col gap-2">
                     <WirePlaceholder label={item.icon} className="h-12 w-full text-2xl" />
@@ -128,9 +128,9 @@ export default function GuestDashboard({ navigate }: { navigate: (s: string) => 
               <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Requires PUPTian Account</h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 opacity-60">
                 {[
-                  { icon: "🖨", title: "Order Printing", desc: "Upload and order documents from approved shops" },
-                  { icon: "📦", title: "Purchase Supplies", desc: "Buy bond paper, folders, pens, and more" },
-                  { icon: "📋", title: "Create Rental Posts", desc: "List your equipment for rent to other students" },
+                  { icon: "ðŸ–¨", title: "Order Printing", desc: "Upload and order documents from approved shops" },
+                  { icon: "ðŸ“¦", title: "Purchase Supplies", desc: "Buy bond paper, folders, pens, and more" },
+                  { icon: "ðŸ“‹", title: "Create Rental Posts", desc: "List your equipment for rent to other students" },
                 ].map((item) => (
                   <WireCard key={item.title} className="flex flex-col gap-2 cursor-not-allowed">
                     <WirePlaceholder label={item.icon} className="h-12 w-full text-2xl bg-gray-100" />
@@ -155,7 +155,7 @@ export default function GuestDashboard({ navigate }: { navigate: (s: string) => 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold text-gray-800">Looking for a typewriter to rent for 2 days</p>
-                    <p className="text-xs text-gray-500 mt-0.5">Posted Dec 10, 2025 · Category: Typewriter · PUP Taguig area</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Posted Dec 10, 2025 Â· Category: Typewriter Â· PUP Taguig area</p>
                   </div>
                   <WireBadge variant="pending">Pending Review</WireBadge>
                 </div>

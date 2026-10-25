@@ -52,12 +52,12 @@ class StudentDashboardScreen extends StatelessWidget {
       _RecentOrder(
         service: 'Printing Service',
         status: 'Processing',
-        amount: '₱180.00',
+        amount: 'â‚±180.00',
       ),
       _RecentOrder(
         service: 'Book Rental',
         status: 'Confirmed',
-        amount: '₱120.00',
+        amount: 'â‚±120.00',
       ),
     ];
 
@@ -135,7 +135,7 @@ class StudentDashboardScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      '₱1,250.00',
+                      'â‚±1,250.00',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 30,

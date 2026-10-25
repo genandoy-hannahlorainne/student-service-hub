@@ -8,7 +8,7 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
       <div className="flex flex-col gap-5">
         <div>
           <h1 className="text-xl font-bold text-gray-800">Admin Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-1">PASOA Student Services — Internal Management Panel</p>
+          <p className="text-sm text-gray-500 mt-1">University Organization Student Services Hub â€” Internal Management Panel</p>
         </div>
 
         {/* KPI cards */}
@@ -38,7 +38,7 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
               <WireCard key={p.name} className="flex items-center justify-between">
                 <div>
                   <p className="font-semibold text-gray-800 text-sm">{p.name}</p>
-                  <p className="text-xs text-gray-500">{p.type} · Applied: {p.date}</p>
+                  <p className="text-xs text-gray-500">{p.type} Â· Applied: {p.date}</p>
                 </div>
                 <div className="flex gap-2">
                   <WireBtn size="sm">Approve</WireBtn>
@@ -57,14 +57,14 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
           </div>
           <div className="flex flex-col gap-2">
             {[
-              { user: "Juan dela Cruz", title: "Typewriter for Rent — Good Condition", cat: "Typewriter", date: "Dec 8, 2025" },
-              { user: "Ana Reyes", title: "Need a Laptop for thesis — Dec 18", cat: "Laptop", date: "Dec 9, 2025" },
+              { user: "Juan dela Cruz", title: "Typewriter for Rent â€” Good Condition", cat: "Typewriter", date: "Dec 8, 2025" },
+              { user: "Ana Reyes", title: "Need a Laptop for thesis â€” Dec 18", cat: "Laptop", date: "Dec 9, 2025" },
               { user: "Pedro Santos", title: "Scientific Calculator available", cat: "Calculator", date: "Dec 10, 2025" },
             ].map((post) => (
               <WireCard key={post.title} className="flex items-center justify-between gap-3">
                 <div>
                   <p className="font-semibold text-gray-800 text-sm">{post.title}</p>
-                  <p className="text-xs text-gray-500">{post.user} · {post.cat} · {post.date}</p>
+                  <p className="text-xs text-gray-500">{post.user} Â· {post.cat} Â· {post.date}</p>
                 </div>
                 <div className="flex gap-2">
                   <WireBtn size="sm">Approve</WireBtn>
@@ -83,14 +83,14 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
           </div>
           <div className="flex flex-col gap-2">
             {[
-              { id: "ORD-2025-004", student: "Pedro Santos", provider: "Speedy Print Shop", amount: "₱55.00", status: "Processing" },
-              { id: "ORD-2025-003", student: "Ana Reyes", provider: "Speedy Print Shop", amount: "₱95.00", status: "Accepted" },
-              { id: "ORD-2025-002", student: "Maria Cruz", provider: "PASOA Supplies", amount: "₱240.00", status: "Ready for Pickup" },
+              { id: "ORD-2025-004", student: "Pedro Santos", provider: "Speedy Print Shop", amount: "â‚±55.00", status: "Processing" },
+              { id: "ORD-2025-003", student: "Ana Reyes", provider: "Speedy Print Shop", amount: "â‚±95.00", status: "Accepted" },
+              { id: "ORD-2025-002", student: "Maria Cruz", provider: "University Organization Supplies", amount: "â‚±240.00", status: "Ready for Pickup" },
             ].map((o) => (
               <WireCard key={o.id} className="flex items-center justify-between">
                 <div>
                   <span className="text-xs font-mono text-gray-400">{o.id}</span>
-                  <p className="text-sm text-gray-700">{o.student} → {o.provider}</p>
+                  <p className="text-sm text-gray-700">{o.student} â†’ {o.provider}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-gray-800">{o.amount}</span>

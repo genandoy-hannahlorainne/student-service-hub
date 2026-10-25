@@ -10,7 +10,7 @@ class TransactionReceiptScreen extends StatelessWidget {
     final details = [
       _ReceiptRow(label: 'Transaction ID', value: 'TXN-2025-089'),
       _ReceiptRow(label: 'Order Reference', value: 'ORD-2025-001'),
-      _ReceiptRow(label: 'Date', value: 'Dec 10, 2025 · 2:45 PM'),
+      _ReceiptRow(label: 'Date', value: 'Dec 10, 2025 Â· 2:45 PM'),
       _ReceiptRow(label: 'Payment Status', value: 'Paid', highlight: true),
     ];
 
@@ -57,7 +57,7 @@ class TransactionReceiptScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'PASOA Student Services',
+                      'University Organization Student Services Hub',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
@@ -178,7 +178,7 @@ class TransactionReceiptScreen extends StatelessWidget {
                       style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                     Text(
-                      '₱70.00',
+                      'â‚±70.00',
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,

@@ -32,7 +32,7 @@ const services = [
 
 const roles = [
   {
-    icon: "🎓",
+    icon: "ðŸŽ“",
     name: "PUPTian",
     label: "Full student access",
     description: "Order services, buy supplies, rent resources, and track every transaction.",
@@ -50,9 +50,9 @@ const roles = [
     actionClass: "bg-white text-[#123B5D] border border-[#123B5D] hover:bg-[#eef7f8]",
   },
   {
-    icon: "▤",
+    icon: "â–¤",
     name: "Provider",
-    label: "PASOA collaborator",
+    label: "University Organization collaborator",
     description: "Manage approved services, receive orders, and keep students updated.",
     action: "Provider login",
     screen: "login-provider",
@@ -80,10 +80,10 @@ export default function Landing({ navigate }: LandingProps) {
               <div className="absolute -bottom-40 right-12 h-80 w-80 rounded-full border-[42px] border-[#F4B942]/20" />
               <div className="relative flex h-full flex-col justify-between">
                 <div className="flex items-center gap-3">
-                  <img src={pasoaLogo} alt="PASOA logo" className="h-12 w-12 rounded-2xl object-cover ring-2 ring-white/20" />
+                  <img src={pasoaLogo} alt="University Organization logo" className="h-12 w-12 rounded-2xl object-cover ring-2 ring-white/20" />
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#B8E4E5]">PUP Taguig</p>
-                    <p className="font-semibold">PASOA Student Services</p>
+                    <p className="font-semibold">University Organization Student Services Hub</p>
                   </div>
                 </div>
 
@@ -128,12 +128,12 @@ export default function Landing({ navigate }: LandingProps) {
               <div className="rounded-[28px] bg-white p-7 ring-1 ring-[#D9E2EC]">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#627D98]">Quick access</p>
-                  <span className="text-[#0F8B8D]">●</span>
+                  <span className="text-[#0F8B8D]">â—</span>
                 </div>
                 <div className="mt-6 space-y-3">
                   {[
                     ["Browse services", "public-services"],
-                    ["How PASOA works", "how-it-works"],
+                    ["How the University Organization hub works", "how-it-works"],
                     ["Become a provider", "provider-partnership"],
                   ].map(([label, screen]) => (
                     <button key={screen} onClick={() => navigate(screen)} className="flex w-full items-center justify-between rounded-2xl bg-[#F3F7FA] px-4 py-3 text-left text-sm font-semibold transition hover:bg-[#DCEFF2]">
@@ -166,7 +166,7 @@ export default function Landing({ navigate }: LandingProps) {
                     <h3 className="text-2xl font-bold tracking-tight">{service.title}</h3>
                     <p className="mt-2 max-w-sm text-sm leading-6 opacity-80">{service.description}</p>
                   </div>
-                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold">Explore <span className="transition group-hover:translate-x-1">→</span></span>
+                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold">Explore <span className="transition group-hover:translate-x-1">â†’</span></span>
                 </button>
               ))}
             </div>
@@ -179,7 +179,7 @@ export default function Landing({ navigate }: LandingProps) {
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#0F8B8D]">Choose your path</p>
               <h2 className="mt-3 text-3xl font-bold leading-tight text-[#123B5D]">The right tools for your role.</h2>
               <p className="mt-4 text-sm leading-6 text-[#31506A]">Start where you are. Your workspace adapts to what you need to do.</p>
-              <button onClick={() => navigate("about")} className="mt-8 text-sm font-bold text-[#123B5D] underline decoration-[#0F8B8D] decoration-2 underline-offset-4">Learn about PASOA →</button>
+              <button onClick={() => navigate("about")} className="mt-8 text-sm font-bold text-[#123B5D] underline decoration-[#0F8B8D] decoration-2 underline-offset-4">Learn about the University Organization hub â†’</button>
             </div>
             <div className="grid gap-4 md:grid-cols-3">
               {roles.map((role) => (
@@ -200,7 +200,7 @@ export default function Landing({ navigate }: LandingProps) {
             <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#F4B942]">A clearer way forward</p>
-                <h2 className="mt-3 max-w-lg text-3xl font-bold tracking-tight sm:text-4xl">From “I need this” to “Done.”</h2>
+                <h2 className="mt-3 max-w-lg text-3xl font-bold tracking-tight sm:text-4xl">From â€œI need this” to â€œDone.”</h2>
               </div>
               <p className="max-w-sm text-sm leading-6 text-[#B8CAD8]">Every request has a next step, so you always know what is happening.</p>
             </div>
@@ -221,7 +221,7 @@ export default function Landing({ navigate }: LandingProps) {
             <div className="rounded-[26px] border border-[#D9E2EC] bg-white p-7 sm:p-9">
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#0F8B8D]">A trusted campus network</p>
               <h2 className="mt-3 text-2xl font-bold text-[#123B5D]">Designed for the PUP Taguig community.</h2>
-              <p className="mt-4 max-w-2xl text-sm leading-6 text-[#627D98]">PASOA connects students with participating providers and keeps academic resource sharing focused, visible, and moderated.</p>
+              <p className="mt-4 max-w-2xl text-sm leading-6 text-[#627D98]">The University Organization hub connects students with participating providers and keeps academic resource sharing focused, visible, and moderated.</p>
               <div className="mt-7 flex flex-wrap gap-2">
                 {["Approved providers", "Pickup & delivery", "Order tracking", "Moderated listings"].map((item) => (
                   <span key={item} className="rounded-full bg-[#F3F7FA] px-3 py-2 text-xs font-semibold text-[#31506A]">{item}</span>
@@ -243,7 +243,7 @@ export default function Landing({ navigate }: LandingProps) {
           <div>
             <div className="flex items-center gap-3">
               <img src={pasoaLogo} alt="" className="h-10 w-10 rounded-xl object-cover" />
-              <span className="font-bold text-white">PASOA Student Services</span>
+              <span className="font-bold text-white">University Organization Student Services Hub</span>
             </div>
             <p className="mt-3 max-w-sm text-xs leading-5">A student service and resource platform for PUP Taguig.</p>
           </div>

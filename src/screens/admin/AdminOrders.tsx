@@ -4,12 +4,12 @@ import {
 } from "../../components/WireframeUI";
 
 const ORDERS = [
-  { id: "ORD-2025-004", student: "Pedro Santos", provider: "Speedy Print Shop", service: "Printing", date: "Dec 11, 2025", amount: "₱55.00", payment: "Maya · Pending", fulfillment: "Delivery", status: "Processing" },
-  { id: "ORD-2025-003", student: "Ana Reyes", provider: "Speedy Print Shop", service: "Printing", date: "Dec 11, 2025", amount: "₱95.00", payment: "Cash · COD", fulfillment: "Pickup", status: "Accepted" },
-  { id: "ORD-2025-002", student: "Maria Cruz", provider: "PASOA Supplies", service: "Supplies", date: "Dec 11, 2025", amount: "₱240.00", payment: "Cash · COD", fulfillment: "Pickup", status: "Ready for Pickup" },
-  { id: "ORD-2025-001", student: "Juan dela Cruz", provider: "Speedy Print Shop", service: "Printing", date: "Dec 10, 2025", amount: "₱70.00", payment: "GCash · Pending", fulfillment: "Delivery", status: "Processing" },
-  { id: "ORD-2025-098", student: "Carla Tan", provider: "Taguig Print Center", service: "Printing", date: "Dec 8, 2025", amount: "₱120.00", payment: "GCash · Paid", fulfillment: "Delivery", status: "Completed" },
-  { id: "ORD-2025-097", student: "Jose Lim", provider: "PASOA Supplies", service: "Supplies", date: "Dec 7, 2025", amount: "₱85.00", payment: "Cash · Paid", fulfillment: "Pickup", status: "Completed" },
+  { id: "ORD-2025-004", student: "Pedro Santos", provider: "Speedy Print Shop", service: "Printing", date: "Dec 11, 2025", amount: "â‚±55.00", payment: "Maya Â· Pending", fulfillment: "Delivery", status: "Processing" },
+  { id: "ORD-2025-003", student: "Ana Reyes", provider: "Speedy Print Shop", service: "Printing", date: "Dec 11, 2025", amount: "â‚±95.00", payment: "Cash Â· COD", fulfillment: "Pickup", status: "Accepted" },
+  { id: "ORD-2025-002", student: "Maria Cruz", provider: "University Organization Supplies", service: "Supplies", date: "Dec 11, 2025", amount: "â‚±240.00", payment: "Cash Â· COD", fulfillment: "Pickup", status: "Ready for Pickup" },
+  { id: "ORD-2025-001", student: "Juan dela Cruz", provider: "Speedy Print Shop", service: "Printing", date: "Dec 10, 2025", amount: "â‚±70.00", payment: "GCash Â· Pending", fulfillment: "Delivery", status: "Processing" },
+  { id: "ORD-2025-098", student: "Carla Tan", provider: "Taguig Print Center", service: "Printing", date: "Dec 8, 2025", amount: "â‚±120.00", payment: "GCash Â· Paid", fulfillment: "Delivery", status: "Completed" },
+  { id: "ORD-2025-097", student: "Jose Lim", provider: "University Organization Supplies", service: "Supplies", date: "Dec 7, 2025", amount: "â‚±85.00", payment: "Cash Â· Paid", fulfillment: "Pickup", status: "Completed" },
 ];
 
 const statusVariants: Record<string, "default" | "success" | "pending" | "rejected" | "active"> = {
@@ -68,7 +68,7 @@ export default function AdminOrders({ navigate }: { navigate: (s: string) => voi
 
         {/* Order Detail Modal */}
         {viewOrder && (
-          <WireModal title={`Order Details — ${viewOrder.id}`} onClose={() => setViewOrder(null)}>
+          <WireModal title={`Order Details â€” ${viewOrder.id}`} onClose={() => setViewOrder(null)}>
             <div className="flex flex-col gap-2 text-sm">
               {[
                 ["Student", viewOrder.student],

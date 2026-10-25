@@ -6,7 +6,7 @@ import {
 const POSTS = [
   {
     id: "POST-2025-014",
-    title: "Typewriter for Rent — Good Condition",
+    title: "Typewriter for Rent â€” Good Condition",
     type: "Available for Rent",
     category: "Typewriter",
     date: "Dec 8, 2025",
@@ -15,7 +15,7 @@ const POSTS = [
   },
   {
     id: "POST-2025-009",
-    title: "Scientific Calculator for Rent — Casio FX-991",
+    title: "Scientific Calculator for Rent â€” Casio FX-991",
     type: "Available for Rent",
     category: "Calculator",
     date: "Nov 20, 2025",
@@ -70,10 +70,10 @@ export default function RentalPostStatus({ navigate }: { navigate: (s: string) =
         {/* Status legend */}
         <div className="flex flex-wrap gap-2 text-xs text-gray-500 border border-gray-200 p-3 bg-white">
           <span className="font-semibold text-gray-600 mr-1">Status Guide:</span>
-          <span className="border border-gray-300 px-2 py-0.5 bg-gray-100">Draft — Saved, not submitted</span>
-          <span className="border border-gray-400 px-2 py-0.5 italic">Pending — Awaiting admin review</span>
-          <span className="border border-gray-500 px-2 py-0.5 bg-gray-200 font-semibold">Approved — Visible in hub</span>
-          <span className="border border-gray-600 px-2 py-0.5 bg-gray-300">Rejected — See reason below</span>
+          <span className="border border-gray-300 px-2 py-0.5 bg-gray-100">Draft â€” Saved, not submitted</span>
+          <span className="border border-gray-400 px-2 py-0.5 italic">Pending â€” Awaiting admin review</span>
+          <span className="border border-gray-500 px-2 py-0.5 bg-gray-200 font-semibold">Approved â€” Visible in hub</span>
+          <span className="border border-gray-600 px-2 py-0.5 bg-gray-300">Rejected â€” See reason below</span>
         </div>
 
         {/* Tabs */}
@@ -115,7 +115,7 @@ export default function RentalPostStatus({ navigate }: { navigate: (s: string) =
                     <WireBtn size="sm" variant="outline" onClick={() => navigate("create-rental-post")}>Edit &amp; Submit</WireBtn>
                   )}
                   {post.status === "Approved" && (
-                    <WireBtn size="sm" variant="ghost" onClick={() => navigate("resource-rental")}>View in Hub →</WireBtn>
+                    <WireBtn size="sm" variant="ghost" onClick={() => navigate("resource-rental")}>View in Hub â†’</WireBtn>
                   )}
                   {post.status === "Rejected" && (
                     <WireBtn size="sm" variant="outline" onClick={() => navigate("create-rental-post")}>Edit &amp; Resubmit</WireBtn>

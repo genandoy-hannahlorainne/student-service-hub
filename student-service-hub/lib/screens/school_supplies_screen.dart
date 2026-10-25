@@ -10,22 +10,22 @@ class SchoolSuppliesScreen extends StatelessWidget {
     final supplies = [
       _SupplyItem(
         name: 'Bond Paper A4',
-        price: '₱80 / pack',
+        price: 'â‚±80 / pack',
         stock: 'In stock',
       ),
       _SupplyItem(
         name: 'Yellow Pad',
-        price: '₱65 / pack',
+        price: 'â‚±65 / pack',
         stock: 'Low stock',
       ),
       _SupplyItem(
         name: 'Index Cards',
-        price: '₱40 / pack',
+        price: 'â‚±40 / pack',
         stock: 'In stock',
       ),
       _SupplyItem(
         name: 'Ballpoint Pen',
-        price: '₱25 / box',
+        price: 'â‚±25 / box',
         stock: 'In stock',
       ),
     ];

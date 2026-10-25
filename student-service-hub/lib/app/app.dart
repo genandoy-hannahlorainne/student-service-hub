@@ -10,7 +10,7 @@ class PasoaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'PASOA Student Service Hub',
+      title: 'University Organization Student Services Hub',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme(),
       home: const LandingScreen(),

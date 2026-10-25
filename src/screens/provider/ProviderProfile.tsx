@@ -13,7 +13,7 @@ export default function ProviderProfile({ navigate }: { navigate: (s: string) =>
           <WirePlaceholder label="Shop Logo" className="w-20 h-20 shrink-0" />
           <div className="flex flex-col gap-1">
             <h2 className="text-lg font-bold text-gray-800">Speedy Print Shop</h2>
-            <WireBadge variant="success">✓ PASOA-Approved Collaborator</WireBadge>
+            <WireBadge variant="success">âœ“ University Organization-approved Collaborator</WireBadge>
             <p className="text-xs text-gray-500 mt-1">Member since October 2025</p>
           </div>
         </WireCard>
@@ -61,16 +61,16 @@ export default function ProviderProfile({ navigate }: { navigate: (s: string) =>
             <div className="border border-gray-200 p-3 bg-gray-50">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-gray-600">Agreed Delivery Fee:</span>
-                <span className="text-lg font-bold text-gray-800">₱30.00</span>
+                <span className="text-lg font-bold text-gray-800">â‚±30.00</span>
               </div>
-              <p className="text-xs text-gray-500">This fee was agreed upon between PASOA and Speedy Print Shop as of October 15, 2025.</p>
+              <p className="text-xs text-gray-500">This fee was agreed upon between University Organization and Speedy Print Shop as of October 15, 2025.</p>
             </div>
 
             <div className="border border-dashed border-gray-400 p-3 bg-gray-50">
               <p className="text-xs text-gray-600">
-                <strong>⚠ Important Notice:</strong> The delivery fee displayed above is an <strong>agreed rate between PASOA and this Service Provider</strong>.
+                <strong>âš  Important Notice:</strong> The delivery fee displayed above is an <strong>agreed rate between University Organization and this Service Provider</strong>.
                 The delivery fee <strong>cannot be changed independently</strong> by the Service Provider.
-                Any changes to the delivery fee must be discussed with and approved by PASOA administration, and a new collaboration agreement must be signed.
+                Any changes to the delivery fee must be discussed with and approved by University Organization administration, and a new collaboration agreement must be signed.
               </p>
             </div>
           </div>
@@ -81,8 +81,8 @@ export default function ProviderProfile({ navigate }: { navigate: (s: string) =>
           <WireSectionTitle>Operating Hours &amp; Availability</WireSectionTitle>
           <div className="flex flex-col gap-2 text-sm">
             {[
-              ["Monday – Friday", "8:00 AM – 7:00 PM"],
-              ["Saturday", "8:00 AM – 5:00 PM"],
+              ["Monday “ Friday", "8:00 AM “ 7:00 PM"],
+              ["Saturday", "8:00 AM “ 5:00 PM"],
               ["Sunday", "Closed"],
               ["Holidays", "By appointment only"],
             ].map(([day, hours]) => (
@@ -99,7 +99,7 @@ export default function ProviderProfile({ navigate }: { navigate: (s: string) =>
         </WireCard>
 
         <WireBtn variant="outline" className="self-start" onClick={() => navigate("provider-dashboard")}>
-          ← Back to Dashboard
+          â† Back to Dashboard
         </WireBtn>
       </div>
     </ProviderLayout>
