@@ -1,4 +1,5 @@
 import { ReactNode, useState } from "react";
+import pasoaLogo from "../assets/images/PASOA_logo.jpg";
 
 // ─── Primitives ──────────────────────────────────────────────────────
 
@@ -241,46 +242,46 @@ export function WirePublicNav({ navigate }: { navigate: (s: string) => void }) {
   ];
 
   return (
-    <nav className="bg-[#0057B8] text-white sticky top-0 z-40">
-      <div className="px-4 py-3 flex items-center justify-between">
+    <nav className="sticky top-0 z-40 border-b border-[#D9E2EC] bg-white/95 text-[#123B5D] backdrop-blur">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
-          <WirePlaceholder label="LOGO" className="w-8 h-8 shrink-0" />
-          <span className="font-bold text-sm">PASOA Student Services</span>
+          <img src={pasoaLogo} alt="PASOA logo" className="h-9 w-9 rounded-xl object-cover" />
+          <span className="text-sm font-bold">PASOA Student Services</span>
         </div>
 
         {/* Desktop links */}
-        <div className="hidden lg:flex items-center gap-5 text-sm">
+        <div className="hidden items-center gap-5 text-sm lg:flex">
           {navLinks.map((item) => (
-            <button key={item.screen} onClick={() => navigate(item.screen)} className="hover:text-gray-300 transition-colors whitespace-nowrap">{item.label}</button>
+            <button key={item.screen} onClick={() => navigate(item.screen)} className="whitespace-nowrap text-[#627D98] transition-colors hover:text-[#0F8B8D]">{item.label}</button>
           ))}
         </div>
 
         {/* Desktop auth buttons */}
-        <div className="hidden md:flex items-center gap-2">
-          <WireBtn variant="outline" size="sm" onClick={() => navigate("login")} className="border-white bg-transparent text-white hover:bg-white/10">Login</WireBtn>
-          <WireBtn variant="secondary" size="sm" onClick={() => navigate("register")}>Register</WireBtn>
+        <div className="hidden items-center gap-2 md:flex">
+          <WireBtn variant="outline" size="sm" onClick={() => navigate("login")} className="rounded-lg border-[#123B5D] bg-transparent text-[#123B5D] hover:bg-[#DCEFF2]">Login</WireBtn>
+          <WireBtn variant="secondary" size="sm" onClick={() => navigate("register")} className="rounded-lg border-[#F4B942] bg-[#F4B942]">Register</WireBtn>
         </div>
 
         {/* Mobile: auth + hamburger */}
         <div className="flex items-center gap-2 md:hidden">
-          <WireBtn variant="outline" size="sm" onClick={() => navigate("login")} className="border-white bg-transparent text-white hover:bg-white/10 text-xs px-2 py-1">Login</WireBtn>
+          <WireBtn variant="outline" size="sm" onClick={() => navigate("login")} className="rounded-lg border-[#123B5D] bg-transparent px-2 py-1 text-xs text-[#123B5D] hover:bg-[#DCEFF2]">Login</WireBtn>
           <button
             onClick={() => setMobileOpen((v) => !v)}
-            className="w-9 h-9 flex flex-col items-center justify-center gap-1.5 border border-white/60 hover:bg-white/10"
+            className="flex h-9 w-9 flex-col items-center justify-center gap-1.5 rounded-lg border border-[#D9E2EC] hover:bg-[#DCEFF2]"
             aria-label="Menu"
           >
-            <span className={`block w-5 h-0.5 bg-white transition-all ${mobileOpen ? "rotate-45 translate-y-2" : ""}`} />
-            <span className={`block w-5 h-0.5 bg-white transition-all ${mobileOpen ? "opacity-0" : ""}`} />
-            <span className={`block w-5 h-0.5 bg-white transition-all ${mobileOpen ? "-rotate-45 -translate-y-2" : ""}`} />
+            <span className={`block h-0.5 w-5 bg-[#123B5D] transition-all ${mobileOpen ? "translate-y-2 rotate-45" : ""}`} />
+            <span className={`block h-0.5 w-5 bg-[#123B5D] transition-all ${mobileOpen ? "opacity-0" : ""}`} />
+            <span className={`block h-0.5 w-5 bg-[#123B5D] transition-all ${mobileOpen ? "-translate-y-2 -rotate-45" : ""}`} />
           </button>
         </div>
       </div>
 
       {/* Mobile dropdown menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-[#00458f] border-t border-white/20 px-4 py-3 flex flex-col gap-1">
+        <div className="flex flex-col gap-1 border-t border-[#D9E2EC] bg-white px-4 py-3 md:hidden">
           {navLinks.map((item) => (
-            <button key={item.screen} onClick={() => { navigate(item.screen); setMobileOpen(false); }} className="text-left py-2 text-sm text-gray-200 hover:text-white border-b border-gray-600 last:border-0">
+            <button key={item.screen} onClick={() => { navigate(item.screen); setMobileOpen(false); }} className="border-b border-[#EEF3F6] py-2 text-left text-sm text-[#627D98] last:border-0 hover:text-[#0F8B8D]">
               {item.label}
             </button>
           ))}

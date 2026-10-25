@@ -1,6 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-@import 'tailwindcss' source(none);
+@import 'tailwindcss';
 @source "./";
+
+:root {
+  --pasoa-navy: #123b5d;
+  --pasoa-ink: #102a43;
+  --pasoa-teal: #0f8b8d;
+  --pasoa-mango: #f4b942;
+  --pasoa-mist: #f3f7fa;
+  --pasoa-pale-teal: #dceff2;
+  --pasoa-slate: #627d98;
+  --pasoa-border: #d9e2ec;
+}
 
 * {
   box-sizing: border-box;
@@ -17,7 +28,8 @@ html, body, #root {
 }
 
 body {
-  background: #f9fafb;
+  background: var(--pasoa-mist);
+  color: var(--pasoa-ink);
 }
 
 button, input, select, textarea {
