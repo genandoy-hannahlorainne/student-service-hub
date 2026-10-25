@@ -10,7 +10,7 @@ const services = [
     title: "Printing services",
     description: "Send documents to an approved shop, choose your print settings, then pick up or request delivery.",
     screen: "printing-service",
-    tone: "bg-[#E3C565] text-white",
+    tone: "bg-[#4B3621] text-white",
   },
   {
     icon: "✦",
@@ -26,7 +26,7 @@ const services = [
     title: "Resource rental hub",
     description: "Find or offer typewriters, calculators, books, and other school-ready resources.",
     screen: "resource-rental",
-    tone: "bg-[#E3C565] text-[#4B3621]",
+    tone: "bg-white text-[#4B3621] ring-1 ring-[#4B3621]/20",
   },
 ];
 
@@ -69,7 +69,7 @@ const process = [
 
 export default function Landing({ navigate }: LandingProps) {
   return (
-    <div className="min-h-screen overflow-hidden bg-[#E3C565] text-[#000000]">
+    <div className="min-h-screen overflow-hidden bg-white text-[#000000]">
       <WirePublicNav navigate={navigate} />
 
       <main>

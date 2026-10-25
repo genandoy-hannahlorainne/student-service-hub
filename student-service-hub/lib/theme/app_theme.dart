@@ -5,7 +5,7 @@ class AppTheme {
   static const Color ink = Color(0xFF000000);
   static const Color teal = Color(0xFFE3C565);
   static const Color mango = Color(0xFFE3C565);
-  static const Color mist = Color(0xFFE3C565);
+  static const Color mist = Color(0xFFFFFFFF);
   static const Color paleTeal = Color(0xFFE3C565);
   static const Color slate = Color(0xFF4B3621);
   static const Color border = Color(0xFF4B3621);

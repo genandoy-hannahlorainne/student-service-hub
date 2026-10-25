@@ -7,7 +7,7 @@
   --pasoa-ink: #000000;
   --pasoa-teal: #E3C565;
   --pasoa-mango: #E3C565;
-  --pasoa-mist: #E3C565;
+  --pasoa-mist: #ffffff;
   --pasoa-pale-teal: #E3C565;
   --pasoa-slate: #4B3621;
   --pasoa-border: #4B3621;
@@ -28,7 +28,7 @@ html, body, #root {
 }
 
 body {
-  background: var(--pasoa-mist);
+  background: #ffffff;
   color: var(--pasoa-ink);
 }
 
