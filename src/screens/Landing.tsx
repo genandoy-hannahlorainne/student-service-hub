@@ -80,7 +80,7 @@ export default function Landing({ navigate }: LandingProps) {
               <div className="absolute -bottom-40 right-12 h-80 w-80 rounded-full border-[42px] border-[#E3C565]/20" />
               <div className="relative flex h-full flex-col justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#E3C565] p-2 ring-2 ring-white/20">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center ring-2 ring-white/20">
                     <img src={organizationLogo} alt="University Organization logo" className="h-full w-full object-contain" />
                   </span>
                   <div>
@@ -244,7 +244,7 @@ export default function Landing({ navigate }: LandingProps) {
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
             <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E3C565] p-1.5">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center">
                 <img src={organizationLogo} alt="" className="h-full w-full object-contain" />
               </span>
               <span className="font-bold text-white">University Organization Student Services Hub</span>

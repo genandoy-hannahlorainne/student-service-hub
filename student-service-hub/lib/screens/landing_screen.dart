@@ -82,14 +82,9 @@ class _LandingHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
       child: Row(
         children: [
-          Container(
+          SizedBox(
             width: 42,
             height: 42,
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: AppTheme.mango,
-              borderRadius: BorderRadius.circular(14),
-            ),
             child: Image.asset(
               'assets/images/org_ssh_logo.png',
               fit: BoxFit.contain,
