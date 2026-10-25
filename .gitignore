@@ -13,7 +13,6 @@ logs/
 .tmp-*
 
 # Platform-managed agent state
-/.figma/design-context/
 /.plugins/
 /.opencode-skills/
 
