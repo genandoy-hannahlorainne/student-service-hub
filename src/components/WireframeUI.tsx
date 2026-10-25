@@ -301,6 +301,22 @@ export function WirePublicNav({ navigate }: { navigate: (s: string) => void }) {
 
 type NavItem = { label: string; screen?: string; icon?: string };
 
+function bootstrapIconForLabel(label: string): string {
+  if (label.includes("Dashboard")) return "bi-grid-1x2";
+  if (label.includes("Browse") || label.includes("Services")) return "bi-grid";
+  if (label.includes("Printing")) return "bi-printer";
+  if (label.includes("Supplies")) return "bi-bag";
+  if (label.includes("Rental")) return "bi-box-seam";
+  if (label.includes("Orders")) return "bi-receipt";
+  if (label.includes("Transaction")) return "bi-clock-history";
+  if (label.includes("Profile") || label.includes("Users")) return "bi-person";
+  if (label.includes("Provider")) return "bi-shop";
+  if (label.includes("Approval")) return "bi-check2-circle";
+  if (label.includes("Settings")) return "bi-gear";
+  if (label.includes("Logout")) return "bi-box-arrow-right";
+  return "bi-circle";
+}
+
 function HamburgerBtn({ onClick }: { onClick: () => void }) {
   return (
     <button
@@ -325,12 +341,14 @@ function AuthHeader({ role, onMenuToggle, navigate }: { role: string; onMenuTogg
       </div>
       <div className="flex items-center gap-2 shrink-0">
         <div className="hidden md:flex items-center border border-gray-500 bg-gray-700 px-2 py-1">
-          <span className="text-gray-400 text-xs mr-1">ðŸ”</span>
+          <i className="bi bi-search text-gray-400 text-xs mr-1" aria-hidden="true" />
           <input placeholder="Search..." className="bg-transparent text-sm text-white placeholder-gray-400 focus:outline-none w-32" />
         </div>
-        <button className="text-gray-300 hover:text-white text-sm w-8 h-8 flex items-center justify-center">ðŸ””</button>
+        <button className="text-gray-300 hover:text-white text-sm w-8 h-8 flex items-center justify-center" aria-label="Notifications">
+          <i className="bi bi-bell" aria-hidden="true" />
+        </button>
         <button className="flex items-center gap-1 text-sm hover:text-gray-300">
-          <WirePlaceholder label="ðŸ‘¤" className="w-7 h-7 text-xs shrink-0" />
+          <i className="bi bi-person-circle text-lg" aria-hidden="true" />
           <span className="hidden sm:block text-xs max-w-[100px] truncate">{role}</span>
         </button>
       </div>
@@ -395,7 +413,7 @@ function SidebarDrawer({
                 : "text-gray-700 hover:bg-gray-200"
             } ${item.label === "Logout" ? "mt-auto text-gray-500 border-t border-gray-300" : ""}`}
           >
-            <span className="mr-2">{item.icon}</span>{item.label}
+            <i className={`bi ${bootstrapIconForLabel(item.label)} mr-2`} aria-hidden="true" />{item.label}
           </button>
         ))}
       </aside>

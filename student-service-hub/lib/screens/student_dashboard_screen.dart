@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import '../theme/app_theme.dart';
 import 'create_rental_post_screen.dart';
@@ -17,7 +18,7 @@ class StudentDashboardScreen extends StatelessWidget {
         title: 'Printing',
         subtitle: 'Upload files',
         color: AppTheme.primaryBlue,
-        icon: Icons.print_outlined,
+        icon: BootstrapIcons.printer,
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const PrintingServiceScreen()),
@@ -28,7 +29,7 @@ class StudentDashboardScreen extends StatelessWidget {
         title: 'Supplies',
         subtitle: 'Stationery & notes',
         color: AppTheme.primaryGold,
-        icon: Icons.school_outlined,
+        icon: BootstrapIcons.journal_bookmark,
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const SchoolSuppliesScreen()),
@@ -39,7 +40,7 @@ class StudentDashboardScreen extends StatelessWidget {
         title: 'Rental',
         subtitle: 'Borrow tools',
         color: AppTheme.neutral700,
-        icon: Icons.inventory_2_outlined,
+        icon: BootstrapIcons.box_seam,
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const ResourceRentalScreen()),
@@ -67,7 +68,7 @@ class StudentDashboardScreen extends StatelessWidget {
         title: const Text('Student Dashboard'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none_outlined),
+            icon: const Icon(BootstrapIcons.bell),
             onPressed: () {},
           ),
         ],

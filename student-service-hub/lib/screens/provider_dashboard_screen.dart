@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import '../theme/app_theme.dart';
 import 'provider_profile_screen.dart';
@@ -18,7 +19,7 @@ class ProviderDashboardScreen extends StatelessWidget {
         title: const Text('Provider Dashboard'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.person_outline),
+            icon: const Icon(BootstrapIcons.person),
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const ProviderProfileScreen()),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import '../theme/app_theme.dart';
 
@@ -58,7 +59,7 @@ class SchoolSuppliesScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: const Icon(
-                      Icons.inventory_2_outlined,
+                      BootstrapIcons.box_seam,
                       color: AppTheme.primaryBlue,
                     ),
                   ),

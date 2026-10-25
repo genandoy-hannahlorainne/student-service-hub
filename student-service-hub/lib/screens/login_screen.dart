@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import '../theme/app_theme.dart';
 import 'student_dashboard_screen.dart';
@@ -19,7 +20,7 @@ class LoginScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(roleTitle),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(BootstrapIcons.arrow_left),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),

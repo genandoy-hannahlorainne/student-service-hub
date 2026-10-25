@@ -5,7 +5,7 @@ type LandingProps = { navigate: (screen: string) => void };
 
 const services = [
   {
-    icon: "▣",
+    icon: "bi-printer",
     eyebrow: "01 / PRINT",
     title: "Printing services",
     description: "Send documents to an approved shop, choose your print settings, then pick up or request delivery.",
@@ -13,7 +13,7 @@ const services = [
     tone: "bg-[#4B3621] text-white",
   },
   {
-    icon: "✦",
+    icon: "bi-stars",
     eyebrow: "02 / SUPPLY",
     title: "School supplies",
     description: "Find everyday academic essentials from participating providers near PUP Taguig.",
@@ -21,7 +21,7 @@ const services = [
     tone: "bg-[#E3C565] text-[#000000]",
   },
   {
-    icon: "↗",
+    icon: "bi-box-arrow-up-right",
     eyebrow: "03 / SHARE",
     title: "Resource rental hub",
     description: "Find or offer typewriters, calculators, books, and other school-ready resources.",
@@ -32,7 +32,7 @@ const services = [
 
 const roles = [
   {
-    icon: "ðŸŽ“",
+    icon: "bi-mortarboard",
     name: "PUPTian",
     label: "Full student access",
     description: "Order services, buy supplies, rent resources, and track every transaction.",
@@ -41,7 +41,7 @@ const roles = [
     actionClass: "bg-[#4B3621] text-white hover:bg-[#0b2b45]",
   },
   {
-    icon: "◌",
+    icon: "bi-person",
     name: "Guest",
     label: "Explore first",
     description: "Browse services and approved resource posts before creating an account.",
@@ -50,7 +50,7 @@ const roles = [
     actionClass: "bg-white text-[#4B3621] border border-[#4B3621] hover:bg-[#E3C565]",
   },
   {
-    icon: "â–¤",
+    icon: "bi-shop",
     name: "Provider",
     label: "University Organization collaborator",
     description: "Manage approved services, receive orders, and keep students updated.",
@@ -91,7 +91,7 @@ export default function Landing({ navigate }: LandingProps) {
 
                 <div className="max-w-2xl py-16">
                   <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-[#E3C565]">
-                    <span className="h-2 w-2 rounded-full bg-[#E3C565]" />
+                    <i className="bi bi-circle-fill text-[8px]" aria-hidden="true" />
                     One hub for campus essentials
                   </div>
                   <h1 className="max-w-3xl text-4xl font-bold leading-[1.05] tracking-[-0.04em] sm:text-6xl">
@@ -102,7 +102,7 @@ export default function Landing({ navigate }: LandingProps) {
                   </p>
                   <div className="mt-8 flex flex-wrap gap-3">
                     <WireBtn size="lg" onClick={() => navigate("register")} className="rounded-xl border-[#E3C565] bg-[#E3C565] px-6 font-semibold text-[#000000] hover:bg-[#E3C565]">
-                      Get started <span className="ml-2">↗</span>
+                      Get started <i className="bi bi-arrow-up-right ml-2" aria-hidden="true" />
                     </WireBtn>
                     <button onClick={() => navigate("public-services")} className="rounded-xl border border-white/30 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
                       Explore services
@@ -121,7 +121,7 @@ export default function Landing({ navigate }: LandingProps) {
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
               <div className="rounded-[28px] bg-[#E3C565] p-7 shadow-[0_18px_40px_rgba(227,197,101,0.16)]">
                 <div className="flex items-start justify-between">
-                  <span className="text-4xl">✦</span>
+                  <i className="bi bi-stars text-4xl" aria-hidden="true" />
                   <span className="rounded-full bg-[#000000]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider">Student first</span>
                 </div>
                 <h2 className="mt-12 text-2xl font-bold tracking-tight">Everything you need, closer.</h2>
@@ -130,7 +130,7 @@ export default function Landing({ navigate }: LandingProps) {
               <div className="rounded-[28px] bg-white p-7 ring-1 ring-[#4B3621]">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#4B3621]">Quick access</p>
-                  <span className="text-[#E3C565]">â—</span>
+                  <i className="bi bi-lightning-charge-fill text-[#E3C565]" aria-hidden="true" />
                 </div>
                 <div className="mt-6 space-y-3">
                   {[
@@ -139,7 +139,7 @@ export default function Landing({ navigate }: LandingProps) {
                     ["Become a provider", "provider-partnership"],
                   ].map(([label, screen]) => (
                     <button key={screen} onClick={() => navigate(screen)} className="flex w-full items-center justify-between rounded-2xl bg-[#E3C565] px-4 py-3 text-left text-sm font-semibold transition hover:bg-[#E3C565]">
-                      {label}<span className="text-[#E3C565]">↗</span>
+                      {label}<i className="bi bi-arrow-up-right text-[#E3C565]" aria-hidden="true" />
                     </button>
                   ))}
                 </div>
@@ -161,14 +161,14 @@ export default function Landing({ navigate }: LandingProps) {
               {services.map((service, index) => (
                 <button key={service.title} onClick={() => navigate(service.screen)} className={`group min-h-[285px] rounded-[26px] p-7 text-left transition duration-300 hover:-translate-y-1 hover:shadow-xl ${service.tone} ${index === 0 ? "shadow-[0_18px_40px_rgba(15,139,141,0.16)]" : ""}`}>
                   <div className="flex items-start justify-between">
-                    <span className="text-3xl">{service.icon}</span>
+                    <i className={`bi ${service.icon} text-3xl`} aria-hidden="true" />
                     <span className="text-[10px] font-bold uppercase tracking-[0.18em] opacity-70">{service.eyebrow}</span>
                   </div>
                   <div className="mt-20">
                     <h3 className="text-2xl font-bold tracking-tight">{service.title}</h3>
                     <p className="mt-2 max-w-sm text-sm leading-6 opacity-80">{service.description}</p>
                   </div>
-                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold">Explore <span className="transition group-hover:translate-x-1">â†’</span></span>
+                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold">Explore <i className="bi bi-arrow-right transition group-hover:translate-x-1" aria-hidden="true" /></span>
                 </button>
               ))}
             </div>
@@ -181,12 +181,12 @@ export default function Landing({ navigate }: LandingProps) {
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#E3C565]">Choose your path</p>
               <h2 className="mt-3 text-3xl font-bold leading-tight text-[#4B3621]">The right tools for your role.</h2>
               <p className="mt-4 text-sm leading-6 text-[#4B3621]">Start where you are. Your workspace adapts to what you need to do.</p>
-              <button onClick={() => navigate("about")} className="mt-8 text-sm font-bold text-[#4B3621] underline decoration-[#E3C565] decoration-2 underline-offset-4">Learn about the University Organization hub â†’</button>
+              <button onClick={() => navigate("about")} className="mt-8 text-sm font-bold text-[#4B3621] underline decoration-[#E3C565] decoration-2 underline-offset-4">Learn about the University Organization hub <i className="bi bi-arrow-right" aria-hidden="true" /></button>
             </div>
             <div className="grid gap-4 md:grid-cols-3">
               {roles.map((role) => (
                 <div key={role.name} className="flex min-h-[260px] flex-col rounded-[24px] border border-[#4B3621] bg-[#E3C565] p-6 transition hover:border-[#E3C565] hover:shadow-lg">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#4B3621] text-xl text-white">{role.icon}</span>
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#4B3621] text-xl text-white"><i className={`bi ${role.icon}`} aria-hidden="true" /></span>
                   <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#E3C565]">{role.label}</p>
                   <h3 className="mt-2 text-xl font-bold text-[#4B3621]">{role.name}</h3>
                   <p className="mt-2 flex-1 text-sm leading-6 text-[#4B3621]">{role.description}</p>
@@ -234,7 +234,7 @@ export default function Landing({ navigate }: LandingProps) {
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#000000]/60">Ready when you are</p>
               <h2 className="mt-3 text-2xl font-bold text-[#000000]">Start with your next requirement.</h2>
               <p className="mt-3 text-sm leading-6 text-[#4B3621]">Create an account to unlock orders, rentals, and transaction tracking.</p>
-              <WireBtn onClick={() => navigate("register")} className="mt-7 rounded-xl border-[#4B3621] bg-[#4B3621] text-white hover:bg-[#0b2b45]">Create an account ↗</WireBtn>
+              <WireBtn onClick={() => navigate("register")} className="mt-7 rounded-xl border-[#4B3621] bg-[#4B3621] text-white hover:bg-[#0b2b45]">Create an account <i className="bi bi-arrow-up-right ml-2" aria-hidden="true" /></WireBtn>
             </div>
           </div>
         </section>

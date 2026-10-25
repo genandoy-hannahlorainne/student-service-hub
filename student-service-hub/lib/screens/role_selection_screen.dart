@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import '../theme/app_theme.dart';
 import 'login_screen.dart';
@@ -39,7 +40,7 @@ class RoleSelectionScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Choose your role'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(BootstrapIcons.arrow_left),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -108,7 +109,7 @@ class RoleSelectionScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                        const Icon(Icons.arrow_forward_ios, size: 18),
+                        const Icon(BootstrapIcons.arrow_right, size: 18),
                       ],
                     ),
                   ),

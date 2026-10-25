@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import '../theme/app_theme.dart';
 
@@ -113,12 +114,12 @@ class AdminDashboardScreen extends StatelessWidget {
                         children: [
                           IconButton(
                             onPressed: () {},
-                            icon: const Icon(Icons.check_circle_outline),
+                            icon: const Icon(BootstrapIcons.check_circle),
                             color: AppTheme.primaryBlue,
                           ),
                           IconButton(
                             onPressed: () {},
-                            icon: const Icon(Icons.close_rounded),
+                            icon: const Icon(BootstrapIcons.x_circle),
                             color: Colors.red,
                           ),
                         ],

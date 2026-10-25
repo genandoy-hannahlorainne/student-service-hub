@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import '../theme/app_theme.dart';
 import 'transaction_receipt_screen.dart';
@@ -75,7 +76,7 @@ class OrderTrackingScreen extends StatelessWidget {
                         ),
                         child: step.current
                             ? const Icon(
-                                Icons.check,
+                                BootstrapIcons.check,
                                 size: 16,
                                 color: Colors.white,
                               )

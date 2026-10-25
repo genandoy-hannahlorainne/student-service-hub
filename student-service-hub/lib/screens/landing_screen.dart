@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import '../app/app_routes.dart';
 import '../theme/app_spacing.dart';
@@ -181,7 +182,14 @@ class _HeroBento extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
-                    child: const Text('Get started  ↗'),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Get started'),
+                        SizedBox(width: 8),
+                        Icon(BootstrapIcons.arrow_up_right, size: 16),
+                      ],
+                    ),
                   ),
                   const Spacer(),
                   const Divider(color: Colors.white24),
@@ -230,7 +238,7 @@ class _WelcomeTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('✦', style: TextStyle(fontSize: 34)),
+          const Icon(BootstrapIcons.stars, size: 34),
           const Spacer(),
           Text(
             'Everything you need, closer.',
@@ -255,9 +263,9 @@ class _ServicesBento extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final services = [
-      ('▣', '01 / PRINT', 'Printing services', 'Send documents to an approved shop.', AppTheme.teal, Colors.white, AppRoutes.printing),
-      ('✦', '02 / SUPPLY', 'School supplies', 'Find everyday academic essentials.', AppTheme.mango, AppTheme.ink, AppRoutes.supplies),
-      ('↗', '03 / SHARE', 'Resource rental hub', 'Find or offer school-ready resources.', AppTheme.paleTeal, AppTheme.navy, AppRoutes.resources),
+      (BootstrapIcons.printer, '01 / PRINT', 'Printing services', 'Send documents to an approved shop.', AppTheme.teal, Colors.white, AppRoutes.printing),
+      (BootstrapIcons.stars, '02 / SUPPLY', 'School supplies', 'Find everyday academic essentials.', AppTheme.mango, AppTheme.ink, AppRoutes.supplies),
+      (BootstrapIcons.box_arrow_up_right, '03 / SHARE', 'Resource rental hub', 'Find or offer school-ready resources.', AppTheme.paleTeal, AppTheme.navy, AppRoutes.resources),
     ];
 
     return Column(
@@ -293,7 +301,7 @@ class _ServicesBento extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(service.$1, style: TextStyle(color: service.$6, fontSize: 28)),
+                            Icon(service.$1, color: service.$6, size: 28),
                             Text(service.$2, style: TextStyle(color: service.$6.withOpacity(.7), fontSize: 10, fontWeight: FontWeight.w800)),
                           ],
                         ),
@@ -302,7 +310,14 @@ class _ServicesBento extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text(service.$4, style: TextStyle(color: service.$6.withOpacity(.8), height: 1.4)),
                         const SizedBox(height: 16),
-                        Text('Explore  â†’', style: TextStyle(color: service.$6, fontWeight: FontWeight.w800)),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('Explore', style: TextStyle(color: service.$6, fontWeight: FontWeight.w800)),
+                            const SizedBox(width: 8),
+                            Icon(BootstrapIcons.arrow_right, color: service.$6, size: 16),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -324,9 +339,9 @@ class _RolesBento extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final roles = [
-      ('ðŸŽ“', 'PUPTian', 'Full student access', 'Order, rent, buy, and track.', 'Student account'),
-      ('◌', 'Guest', 'Explore first', 'Browse approved services and posts.', 'Guest account'),
-      ('â–¤', 'Provider', 'University Organization collaborator', 'Manage services and orders.', 'Provider account'),
+      (BootstrapIcons.mortarboard, 'PUPTian', 'Full student access', 'Order, rent, buy, and track.', 'Student account'),
+      (BootstrapIcons.person, 'Guest', 'Explore first', 'Browse approved services and posts.', 'Guest account'),
+      (BootstrapIcons.shop, 'Provider', 'University Organization collaborator', 'Manage services and orders.', 'Provider account'),
     ];
 
     return Column(
@@ -363,7 +378,7 @@ class _RolesBento extends StatelessWidget {
                         CircleAvatar(
                           radius: 24,
                           backgroundColor: AppTheme.navy,
-                          child: Text(role.$1, style: const TextStyle(fontSize: 20)),
+                          child: Icon(role.$1, color: Colors.white, size: 20),
                         ),
                         const SizedBox(height: 18),
                         Text(role.$3.toUpperCase(), style: const TextStyle(color: AppTheme.teal, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
@@ -372,7 +387,14 @@ class _RolesBento extends StatelessWidget {
                         const Spacer(),
                         Text(role.$4, style: Theme.of(context).textTheme.bodyMedium),
                         const SizedBox(height: 14),
-                        const Text('Continue  â†’', style: TextStyle(color: AppTheme.navy, fontWeight: FontWeight.w800)),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text('Continue', style: TextStyle(color: AppTheme.navy, fontWeight: FontWeight.w800)),
+                            const SizedBox(width: 8),
+                            const Icon(BootstrapIcons.arrow_right, color: AppTheme.navy, size: 16),
+                          ],
+                        ),
                       ],
                     ),
                   ),

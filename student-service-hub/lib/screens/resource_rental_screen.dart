@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import '../theme/app_theme.dart';
 
@@ -56,7 +57,7 @@ class ResourceRentalScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: const Icon(
-                      Icons.inventory,
+                      BootstrapIcons.box,
                       color: AppTheme.neutral900,
                     ),
                   ),
