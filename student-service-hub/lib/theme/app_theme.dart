@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const Color navy = Color(0xFF123B5D);
-  static const Color ink = Color(0xFF102A43);
-  static const Color teal = Color(0xFF0F8B8D);
-  static const Color mango = Color(0xFFF4B942);
-  static const Color mist = Color(0xFFF3F7FA);
-  static const Color paleTeal = Color(0xFFDCEFF2);
-  static const Color slate = Color(0xFF627D98);
-  static const Color border = Color(0xFFD9E2EC);
+  static const Color navy = Color(0xFF4B3621);
+  static const Color ink = Color(0xFF000000);
+  static const Color teal = Color(0xFFE3C565);
+  static const Color mango = Color(0xFFE3C565);
+  static const Color mist = Color(0xFFE3C565);
+  static const Color paleTeal = Color(0xFFE3C565);
+  static const Color slate = Color(0xFF4B3621);
+  static const Color border = Color(0xFF4B3621);
 
   // Compatibility aliases for existing screens while they migrate to the
   // shared PASOA token names.
@@ -16,7 +16,7 @@ class AppTheme {
   static const Color primaryGold = mango;
   static const Color neutral50 = mist;
   static const Color neutral100 = border;
-  static const Color neutral300 = Color(0xFFBCCCDC);
+  static const Color neutral300 = Color(0xFF4B3621);
   static const Color neutral700 = slate;
   static const Color neutral900 = ink;
 

@@ -3,14 +3,14 @@
 @source "./";
 
 :root {
-  --pasoa-navy: #123b5d;
-  --pasoa-ink: #102a43;
-  --pasoa-teal: #0f8b8d;
-  --pasoa-mango: #f4b942;
-  --pasoa-mist: #f3f7fa;
-  --pasoa-pale-teal: #dceff2;
-  --pasoa-slate: #627d98;
-  --pasoa-border: #d9e2ec;
+  --pasoa-navy: #4B3621;
+  --pasoa-ink: #000000;
+  --pasoa-teal: #E3C565;
+  --pasoa-mango: #E3C565;
+  --pasoa-mist: #E3C565;
+  --pasoa-pale-teal: #E3C565;
+  --pasoa-slate: #4B3621;
+  --pasoa-border: #4B3621;
 }
 
 * {

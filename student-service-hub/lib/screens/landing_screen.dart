@@ -492,7 +492,7 @@ class _Pill extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(color: Color(0xFFDCEFF2), fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: .8),
+        style: TextStyle(color: AppTheme.mango, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: .8),
       ),
     );
   }

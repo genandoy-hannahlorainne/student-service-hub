@@ -35,11 +35,11 @@ export function WireBtn({
   const base = "inline-flex items-center justify-center font-medium cursor-pointer transition-colors";
   const sizes = { sm: "px-3 py-1 text-xs", md: "px-4 py-2 text-sm", lg: "px-5 py-2.5 text-sm" };
   const variants = {
-    primary: "bg-[#0057B8] text-white hover:bg-[#00458f] border border-[#0057B8]",
-    secondary: "bg-[#FFD700] text-[#111827] hover:bg-[#e6c200] border border-[#e6c200]",
+    primary: "bg-[#4B3621] text-white hover:bg-[#000000] border border-[#4B3621]",
+    secondary: "bg-[#E3C565] text-[#000000] hover:bg-[#4B3621] border border-[#4B3621]",
     danger: "bg-gray-700 text-white hover:bg-gray-600 border border-gray-700",
     ghost: "bg-transparent text-gray-700 hover:bg-gray-100 border border-transparent",
-    outline: "bg-white text-[#0057B8] hover:bg-blue-50 border border-[#0057B8]",
+    outline: "bg-white text-[#4B3621] hover:bg-blue-50 border border-[#4B3621]",
   };
   return (
     <button
@@ -242,7 +242,7 @@ export function WirePublicNav({ navigate }: { navigate: (s: string) => void }) {
   ];
 
   return (
-    <nav className="sticky top-0 z-40 border-b border-[#D9E2EC] bg-white/95 text-[#123B5D] backdrop-blur">
+    <nav className="sticky top-0 z-40 border-b border-[#4B3621] bg-white/95 text-[#4B3621] backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
           <img src={pasoaLogo} alt="University Organization logo" className="h-9 w-9 rounded-xl object-cover" />
@@ -252,36 +252,36 @@ export function WirePublicNav({ navigate }: { navigate: (s: string) => void }) {
         {/* Desktop links */}
         <div className="hidden items-center gap-5 text-sm lg:flex">
           {navLinks.map((item) => (
-            <button key={item.screen} onClick={() => navigate(item.screen)} className="whitespace-nowrap text-[#627D98] transition-colors hover:text-[#0F8B8D]">{item.label}</button>
+            <button key={item.screen} onClick={() => navigate(item.screen)} className="whitespace-nowrap text-[#4B3621] transition-colors hover:text-[#E3C565]">{item.label}</button>
           ))}
         </div>
 
         {/* Desktop auth buttons */}
         <div className="hidden items-center gap-2 md:flex">
-          <WireBtn variant="outline" size="sm" onClick={() => navigate("login")} className="rounded-lg border-[#123B5D] bg-transparent text-[#123B5D] hover:bg-[#DCEFF2]">Login</WireBtn>
-          <WireBtn variant="secondary" size="sm" onClick={() => navigate("register")} className="rounded-lg border-[#F4B942] bg-[#F4B942]">Register</WireBtn>
+          <WireBtn variant="outline" size="sm" onClick={() => navigate("login")} className="rounded-lg border-[#4B3621] bg-transparent text-[#4B3621] hover:bg-[#E3C565]">Login</WireBtn>
+          <WireBtn variant="secondary" size="sm" onClick={() => navigate("register")} className="rounded-lg border-[#E3C565] bg-[#E3C565]">Register</WireBtn>
         </div>
 
         {/* Mobile: auth + hamburger */}
         <div className="flex items-center gap-2 md:hidden">
-          <WireBtn variant="outline" size="sm" onClick={() => navigate("login")} className="rounded-lg border-[#123B5D] bg-transparent px-2 py-1 text-xs text-[#123B5D] hover:bg-[#DCEFF2]">Login</WireBtn>
+          <WireBtn variant="outline" size="sm" onClick={() => navigate("login")} className="rounded-lg border-[#4B3621] bg-transparent px-2 py-1 text-xs text-[#4B3621] hover:bg-[#E3C565]">Login</WireBtn>
           <button
             onClick={() => setMobileOpen((v) => !v)}
-            className="flex h-9 w-9 flex-col items-center justify-center gap-1.5 rounded-lg border border-[#D9E2EC] hover:bg-[#DCEFF2]"
+            className="flex h-9 w-9 flex-col items-center justify-center gap-1.5 rounded-lg border border-[#4B3621] hover:bg-[#E3C565]"
             aria-label="Menu"
           >
-            <span className={`block h-0.5 w-5 bg-[#123B5D] transition-all ${mobileOpen ? "translate-y-2 rotate-45" : ""}`} />
-            <span className={`block h-0.5 w-5 bg-[#123B5D] transition-all ${mobileOpen ? "opacity-0" : ""}`} />
-            <span className={`block h-0.5 w-5 bg-[#123B5D] transition-all ${mobileOpen ? "-translate-y-2 -rotate-45" : ""}`} />
+            <span className={`block h-0.5 w-5 bg-[#4B3621] transition-all ${mobileOpen ? "translate-y-2 rotate-45" : ""}`} />
+            <span className={`block h-0.5 w-5 bg-[#4B3621] transition-all ${mobileOpen ? "opacity-0" : ""}`} />
+            <span className={`block h-0.5 w-5 bg-[#4B3621] transition-all ${mobileOpen ? "-translate-y-2 -rotate-45" : ""}`} />
           </button>
         </div>
       </div>
 
       {/* Mobile dropdown menu */}
       {mobileOpen && (
-        <div className="flex flex-col gap-1 border-t border-[#D9E2EC] bg-white px-4 py-3 md:hidden">
+        <div className="flex flex-col gap-1 border-t border-[#4B3621] bg-white px-4 py-3 md:hidden">
           {navLinks.map((item) => (
-            <button key={item.screen} onClick={() => { navigate(item.screen); setMobileOpen(false); }} className="border-b border-[#EEF3F6] py-2 text-left text-sm text-[#627D98] last:border-0 hover:text-[#0F8B8D]">
+            <button key={item.screen} onClick={() => { navigate(item.screen); setMobileOpen(false); }} className="border-b border-[#4B3621] py-2 text-left text-sm text-[#4B3621] last:border-0 hover:text-[#E3C565]">
               {item.label}
             </button>
           ))}

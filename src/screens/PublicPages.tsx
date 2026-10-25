@@ -17,8 +17,8 @@ function PublicShell({
   return (
     <div className="min-h-screen bg-gray-50">
       <WirePublicNav navigate={navigate} />
-      <header className="bg-[#0057B8] px-6 py-14 text-center text-white">
-        <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-[#FFD700]">University Organization Student Services Hub</p>
+      <header className="bg-[#4B3621] px-6 py-14 text-center text-white">
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-[#E3C565]">University Organization Student Services Hub</p>
         <h1 className="text-3xl font-bold">{title}</h1>
         <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-gray-300">{intro}</p>
       </header>
