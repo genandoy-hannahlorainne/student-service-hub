@@ -18,11 +18,8 @@ class TransactionReceiptScreen extends StatelessWidget {
     final serviceDetails = [
       _ReceiptRow(label: 'Service Type', value: 'Printing Service'),
       _ReceiptRow(label: 'File', value: 'thesis_chapter1_final.pdf (12 pages)'),
-      _ReceiptRow(
-          label: 'Specifications',
-          value: '2 copies • Black & White • Single-sided'),
-      _ReceiptRow(
-          label: 'Delivery', value: 'Room 201, PUP Taguig Main Building'),
+      _ReceiptRow(label: 'Specifications', value: '2 copies • Black & White • Single-sided'),
+      _ReceiptRow(label: 'Delivery', value: 'Room 201, PUP Taguig Main Building'),
     ];
 
     return Scaffold(
@@ -86,8 +83,7 @@ class TransactionReceiptScreen extends StatelessWidget {
                           children: [
                             Text(
                               '${item.label}:',
-                              style:
-                                  const TextStyle(color: AppTheme.neutral700),
+                              style: const TextStyle(color: AppTheme.neutral700),
                             ),
                             item.highlight
                                 ? Container(
@@ -149,8 +145,7 @@ class TransactionReceiptScreen extends StatelessWidget {
                               width: 120,
                               child: Text(
                                 '${item.label}:',
-                                style:
-                                    const TextStyle(color: AppTheme.neutral700),
+                                style: const TextStyle(color: AppTheme.neutral700),
                               ),
                             ),
                             Expanded(
@@ -174,8 +169,7 @@ class TransactionReceiptScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppTheme.primaryBlue.withOpacity(0.05),
                   borderRadius: BorderRadius.circular(18),
-                  border:
-                      Border.all(color: AppTheme.primaryBlue.withOpacity(0.15)),
+                  border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.15)),
                 ),
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -210,8 +204,7 @@ class TransactionReceiptScreen extends StatelessWidget {
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content:
-                                Text('Print dialog is ready for PDF export.'),
+                            content: Text('Print dialog is ready for PDF export.'),
                           ),
                         );
                       },

@@ -61,10 +61,10 @@ const roles = [
 ];
 
 const process = [
-  ["01", "Browse", "Find a service or resource."],
-  ["02", "Configure", "Add the details we need."],
-  ["03", "Confirm", "Review the complete total."],
-  ["04", "Track", "Follow progress to completion."],
+  ["01", "bi-search", "Browse", "Find a service or resource."],
+  ["02", "bi-sliders", "Configure", "Add the details we need."],
+  ["03", "bi-check2-circle", "Confirm", "Review the complete total."],
+  ["04", "bi-graph-up-arrow", "Track", "Follow progress to completion."],
 ];
 
 export default function Landing({ navigate }: LandingProps) {
@@ -198,20 +198,25 @@ export default function Landing({ navigate }: LandingProps) {
         </section>
 
         <section className="px-4 py-16 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-7xl rounded-[28px] bg-[#000000] p-7 text-white sm:p-10">
+          <div className="mx-auto max-w-7xl rounded-[28px] bg-[#E3C565] p-7 text-[#4B3621] sm:p-10">
             <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#E3C565]">A clearer way forward</p>
-                <h2 className="mt-3 max-w-lg text-3xl font-bold tracking-tight sm:text-4xl">From â€œI need this” to â€œDone.”</h2>
+                <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#4B3621]/70">A clearer way forward</p>
+                <h2 className="mt-3 max-w-lg text-3xl font-bold tracking-tight sm:text-4xl">From “I need this” to “Done.”</h2>
               </div>
-              <p className="max-w-sm text-sm leading-6 text-[#E3C565]">Every request has a next step, so you always know what is happening.</p>
+              <p className="max-w-sm text-sm leading-6 text-[#4B3621]">Every request has a next step, so you always know what is happening.</p>
             </div>
-            <div className="mt-10 grid gap-px overflow-hidden rounded-2xl bg-white/15 sm:grid-cols-2 lg:grid-cols-4">
-              {process.map(([number, title, description]) => (
-                <div key={number} className="bg-[#000000] p-5">
-                  <span className="text-xs font-bold text-[#E3C565]">{number}</span>
-                  <h3 className="mt-10 font-bold">{title}</h3>
-                  <p className="mt-2 text-sm leading-5 text-[#E3C565]">{description}</p>
+            <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {process.map(([number, icon, title, description]) => (
+                <div key={number} className="rounded-2xl bg-white p-5 ring-1 ring-[#4B3621]/10">
+                  <div className="flex items-center justify-between">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4B3621] text-lg text-[#E3C565]">
+                      <i className={`bi ${icon}`} aria-hidden="true" />
+                    </span>
+                    <span className="text-xs font-bold text-[#4B3621]/60">{number}</span>
+                  </div>
+                  <h3 className="mt-8 font-bold text-[#4B3621]">{title}</h3>
+                  <p className="mt-2 text-sm leading-5 text-[#4B3621]/75">{description}</p>
                 </div>
               ))}
             </div>
