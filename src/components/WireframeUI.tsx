@@ -245,7 +245,9 @@ export function WirePublicNav({ navigate }: { navigate: (s: string) => void }) {
     <nav className="relative z-40 border-b border-[#4B3621]/20 bg-white text-[#4B3621]">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
-          <img src={organizationLogo} alt="University Organization logo" className="h-9 w-9 rounded-xl object-cover" />
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#E3C565] p-1.5">
+            <img src={organizationLogo} alt="University Organization logo" className="h-full w-full object-contain" />
+          </span>
           <span className="text-sm font-bold">University Organization Student Services Hub</span>
         </div>
 
