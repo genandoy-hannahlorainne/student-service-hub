@@ -79,6 +79,7 @@ export async function fetchMe(): Promise<MeResponse> {
 
 export interface RegisterPayload {
   role: "student" | "provider" | "guest";
+  password?: string;
   display_name?: string;
   student_number?: string;
   phone?: string;

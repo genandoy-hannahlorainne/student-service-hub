@@ -27,6 +27,7 @@ import { getIdentity, errorResponse, jsonResponse } from "./_auth";
 
 interface RegisterBody {
   role: "student" | "provider" | "guest";
+  password?: string;
   // PUPTian fields
   display_name?: string;
   student_number?: string;
@@ -78,6 +79,33 @@ export const handler: Handler = async (
 
   const userId = identity.sub;
   const email = identity.email;
+
+  // Server-side student number validation
+  if (role === "student") {
+    const studentNum = body.student_number ?? "";
+    const STUDENT_NUM_RE = /^\d{4}-\d{5}-TG-[01]$/;
+    if (!STUDENT_NUM_RE.test(studentNum)) {
+      return errorResponse(
+        400,
+        "Invalid student number format. Required: YYYY-NNNNN-TG-D where D is 0 or 1 (e.g. 2023-00438-TG-0)"
+      ).then(toHandlerResponse);
+    }
+  }
+
+  // Server-side password strength validation
+  const pw = body.password ?? "";
+  const strongPassword =
+    pw.length >= 8 &&
+    /[A-Z]/.test(pw) &&
+    /[a-z]/.test(pw) &&
+    /[0-9]/.test(pw) &&
+    /[^A-Za-z0-9]/.test(pw);
+  if (!strongPassword) {
+    return errorResponse(
+      400,
+      "Password must be at least 8 characters and include an uppercase letter, lowercase letter, number, and special character."
+    ).then(toHandlerResponse);
+  }
 
   try {
     // 3. Check for duplicate registration

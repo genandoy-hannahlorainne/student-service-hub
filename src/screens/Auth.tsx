@@ -518,6 +518,79 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
   );
 }
 
+// ─── Password strength helpers ────────────────────────────────────────────────
+
+/**
+ * Password must be 8+ chars and contain at least one:
+ * uppercase, lowercase, digit, and special character.
+ */
+const PASSWORD_RULES = [
+  { re: /.{8,}/, label: "At least 8 characters" },
+  { re: /[A-Z]/, label: "One uppercase letter (A–Z)" },
+  { re: /[a-z]/, label: "One lowercase letter (a–z)" },
+  { re: /[0-9]/, label: "One number (0–9)" },
+  { re: /[^A-Za-z0-9]/, label: "One special character (!@#$…)" },
+];
+
+function getPasswordStrength(pw: string): { score: number; label: string; color: string } {
+  const passed = PASSWORD_RULES.filter((r) => r.re.test(pw)).length;
+  if (passed <= 1) return { score: passed, label: "Very weak", color: "bg-red-500" };
+  if (passed === 2) return { score: passed, label: "Weak", color: "bg-orange-400" };
+  if (passed === 3) return { score: passed, label: "Fair", color: "bg-yellow-400" };
+  if (passed === 4) return { score: passed, label: "Strong", color: "bg-blue-500" };
+  return { score: passed, label: "Very strong", color: "bg-green-500" };
+}
+
+function isPasswordValid(pw: string): boolean {
+  return PASSWORD_RULES.every((r) => r.re.test(pw));
+}
+
+function PasswordStrengthMeter({ password }: { password: string }) {
+  if (!password) return null;
+  const { score, label, color } = getPasswordStrength(password);
+  const bars = 5;
+  return (
+    <div className="mt-1.5 flex flex-col gap-1">
+      <div className="flex gap-1">
+        {Array.from({ length: bars }).map((_, i) => (
+          <div
+            key={i}
+            className={`h-1.5 flex-1 rounded-full transition-all ${i < score ? color : "bg-gray-200"}`}
+          />
+        ))}
+      </div>
+      <p className={`text-xs font-medium ${score >= 4 ? "text-green-600" : score >= 3 ? "text-yellow-600" : "text-red-500"}`}>
+        {label}
+      </p>
+      <ul className="mt-0.5 flex flex-col gap-0.5">
+        {PASSWORD_RULES.map((r) => (
+          <li key={r.label} className={`flex items-center gap-1.5 text-xs ${r.re.test(password) ? "text-green-600" : "text-gray-400"}`}>
+            <span>{r.re.test(password) ? "✓" : "○"}</span>
+            {r.label}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// ─── Student number formatter ─────────────────────────────────────────────────
+// Format: YYYY-NNNNN-TG-D  e.g. 2023-00438-TG-0
+// Displayed as typed sections: [2023] - [00438] - TG - [0]
+
+const STUDENT_NUM_RE = /^\d{4}-\d{5}-TG-[01]$/;
+
+function formatStudentNumber(raw: string): string {
+  // Strip everything non-digit, keep only digits
+  const digits = raw.replace(/\D/g, "");
+  // Piece together: YYYY-NNNNN-TG-D
+  let out = "";
+  if (digits.length > 0) out += digits.slice(0, 4);
+  if (digits.length > 4) out += "-" + digits.slice(4, 9);
+  if (digits.length > 9) out += "-TG-" + digits.slice(9, 10);
+  return out;
+}
+
 // ─── 5. PUPTian / Provider Registration ───────────────────────────────────────
 
 export function Register({ navigate }: { navigate: (s: string) => void }) {
@@ -526,6 +599,8 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   // Shared fields
   const [email, setEmail] = useState("");
@@ -534,8 +609,10 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreedTerms, setAgreedTerms] = useState(false);
 
-  // PUPTian-only
-  const [fullName, setFullName] = useState("");
+  // PUPTian-only — split name
+  const [lastName, setLastName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [middleName, setMiddleName] = useState("");
   const [studentNumber, setStudentNumber] = useState("");
 
   // Provider-only
@@ -544,15 +621,21 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
   const [businessAddress, setBusinessAddress] = useState("");
   const [serviceType, setServiceType] = useState("Printing Services");
 
+  const handleStudentNumberInput = (val: string) => {
+    // Allow user to type digits freely; auto-insert dashes and TG
+    const digits = val.replace(/\D/g, "").slice(0, 10); // max 10 digits: 4+5+1
+    setStudentNumber(formatStudentNumber(digits));
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLocalError("");
     clearAuthError();
     setSuccessMsg("");
 
-    // Validation
-    if (password.length < 8) {
-      setLocalError("Password must be at least 8 characters.");
+    // ── Password validation ───────────────────────────────────────────────
+    if (!isPasswordValid(password)) {
+      setLocalError("Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a special character.");
       return;
     }
     if (password !== confirmPassword) {
@@ -565,8 +648,16 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
     }
 
     if (role === "puptian") {
-      if (!fullName.trim() || !studentNumber.trim() || !email.trim()) {
-        setLocalError("Full name, student number, and email are required.");
+      if (!lastName.trim() || !firstName.trim()) {
+        setLocalError("Last name and first name are required.");
+        return;
+      }
+      if (!STUDENT_NUM_RE.test(studentNumber)) {
+        setLocalError("Student number must follow the format: YYYY-NNNNN-TG-D (e.g. 2023-00438-TG-0). Last digit must be 0 or 1.");
+        return;
+      }
+      if (!email.trim()) {
+        setLocalError("Email address is required.");
         return;
       }
     } else {
@@ -576,18 +667,25 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
       }
     }
 
+    // Build display name from split fields
+    const displayName = role === "puptian"
+      ? `${lastName.trim()}, ${firstName.trim()}${middleName.trim() ? " " + middleName.trim().charAt(0).toUpperCase() + "." : ""}`
+      : contactPerson.trim();
+
     setLoading(true);
     try {
       if (role === "puptian") {
-        await registerAndCreateProfile(email.trim(), password, fullName.trim(), {
+        await registerAndCreateProfile(email.trim(), password, displayName, {
           role: "student",
-          student_number: studentNumber.trim(),
+          password,
+          student_number: studentNumber,
           phone: phone.trim() || undefined,
         });
         navigate("student-dashboard");
       } else {
-        await registerAndCreateProfile(email.trim(), password, contactPerson.trim(), {
+        await registerAndCreateProfile(email.trim(), password, displayName, {
           role: "provider",
+          password,
           business_name: businessName.trim(),
           contact_person: contactPerson.trim(),
           business_address: businessAddress.trim(),
@@ -600,7 +698,6 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Registration failed.";
-      // Surface email-confirmation requirement clearly
       if (msg.includes("CONFIRMATION_REQUIRED")) {
         setSuccessMsg("Check your email and click the confirmation link to activate your account.");
       } else {
@@ -659,34 +756,127 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
                 PUPTian — Student Information
               </div>
 
+              {/* Last name */}
               <div className="flex flex-col gap-1">
-                <label htmlFor="reg-fullname" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Full Name</label>
-                <input id="reg-fullname" type="text" autoComplete="name" placeholder="Last Name, First Name M.I." value={fullName} onChange={(e) => setFullName(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+                <label htmlFor="reg-lastname" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                  Last Name <span className="text-red-500">*</span>
+                </label>
+                <input id="reg-lastname" type="text" autoComplete="family-name" placeholder="e.g. dela Cruz" value={lastName} onChange={(e) => setLastName(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#4B3621] w-full rounded-lg" required />
               </div>
 
+              {/* First name */}
               <div className="flex flex-col gap-1">
-                <label htmlFor="reg-studnum" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Student Number</label>
-                <input id="reg-studnum" type="text" placeholder="e.g. 2021-00001" value={studentNumber} onChange={(e) => setStudentNumber(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+                <label htmlFor="reg-firstname" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                  First Name <span className="text-red-500">*</span>
+                </label>
+                <input id="reg-firstname" type="text" autoComplete="given-name" placeholder="e.g. Juan" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#4B3621] w-full rounded-lg" required />
               </div>
 
+              {/* Middle name */}
               <div className="flex flex-col gap-1">
-                <label htmlFor="reg-email" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Email Address</label>
-                <input id="reg-email" type="email" autoComplete="email" placeholder="Official PUP or personal email" value={email} onChange={(e) => setEmail(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+                <label htmlFor="reg-middlename" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                  Middle Name <span className="text-gray-400 font-normal normal-case">(optional)</span>
+                </label>
+                <input id="reg-middlename" type="text" autoComplete="additional-name" placeholder="e.g. Santos" value={middleName} onChange={(e) => setMiddleName(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#4B3621] w-full rounded-lg" />
               </div>
 
+              {/* Student number */}
               <div className="flex flex-col gap-1">
-                <label htmlFor="reg-phone" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Contact Number</label>
-                <input id="reg-phone" type="tel" autoComplete="tel" placeholder="09XXXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" />
+                <label htmlFor="reg-studnum" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                  Student Number <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="reg-studnum"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="2023-00438-TG-0"
+                  value={studentNumber}
+                  onChange={(e) => handleStudentNumberInput(e.target.value)}
+                  maxLength={17}
+                  className={`border px-3 py-2 text-sm bg-white focus:outline-none w-full rounded-lg font-mono ${
+                    studentNumber && !STUDENT_NUM_RE.test(studentNumber)
+                      ? "border-red-400 focus:border-red-500"
+                      : "border-gray-300 focus:border-[#4B3621]"
+                  }`}
+                  required
+                />
+                {studentNumber && !STUDENT_NUM_RE.test(studentNumber) && (
+                  <p className="text-xs text-red-500 mt-0.5">Format: YYYY-NNNNN-TG-0 or TG-1</p>
+                )}
+                {STUDENT_NUM_RE.test(studentNumber) && (
+                  <p className="text-xs text-green-600 mt-0.5">✓ Valid student number</p>
+                )}
               </div>
 
+              {/* Email */}
               <div className="flex flex-col gap-1">
-                <label htmlFor="reg-password" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Password</label>
-                <input id="reg-password" type="password" autoComplete="new-password" placeholder="Minimum 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+                <label htmlFor="reg-email" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                  Email Address <span className="text-red-500">*</span>
+                </label>
+                <input id="reg-email" type="email" autoComplete="email" placeholder="Official PUP or personal email" value={email} onChange={(e) => setEmail(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#4B3621] w-full rounded-lg" required />
               </div>
 
+              {/* Contact number */}
               <div className="flex flex-col gap-1">
-                <label htmlFor="reg-confirm" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Confirm Password</label>
-                <input id="reg-confirm" type="password" autoComplete="new-password" placeholder="Re-enter your password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+                <label htmlFor="reg-phone" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                  Contact Number <span className="text-gray-400 font-normal normal-case">(optional)</span>
+                </label>
+                <input id="reg-phone" type="tel" autoComplete="tel" placeholder="09XXXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#4B3621] w-full rounded-lg" />
+              </div>
+
+              {/* Password */}
+              <div className="flex flex-col gap-1 md:col-span-2">
+                <label htmlFor="reg-password" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                  Password <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    id="reg-password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    placeholder="Min. 8 chars with uppercase, number & special character"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="border border-gray-300 px-3 py-2 pr-10 text-sm bg-white focus:outline-none focus:border-[#4B3621] w-full rounded-lg"
+                    required
+                  />
+                  <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 text-xs" aria-label={showPassword ? "Hide password" : "Show password"}>
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
+                <PasswordStrengthMeter password={password} />
+              </div>
+
+              {/* Confirm password */}
+              <div className="flex flex-col gap-1 md:col-span-2">
+                <label htmlFor="reg-confirm" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                  Confirm Password <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    id="reg-confirm"
+                    type={showConfirm ? "text" : "password"}
+                    autoComplete="new-password"
+                    placeholder="Re-enter your password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className={`border px-3 py-2 pr-10 text-sm bg-white focus:outline-none w-full rounded-lg ${
+                      confirmPassword && confirmPassword !== password
+                        ? "border-red-400 focus:border-red-500"
+                        : "border-gray-300 focus:border-[#4B3621]"
+                    }`}
+                    required
+                  />
+                  <button type="button" onClick={() => setShowConfirm((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 text-xs" aria-label={showConfirm ? "Hide" : "Show"}>
+                    {showConfirm ? "Hide" : "Show"}
+                  </button>
+                </div>
+                {confirmPassword && confirmPassword !== password && (
+                  <p className="text-xs text-red-500 mt-0.5">Passwords do not match</p>
+                )}
+                {confirmPassword && confirmPassword === password && isPasswordValid(password) && (
+                  <p className="text-xs text-green-600 mt-0.5">✓ Passwords match</p>
+                )}
               </div>
 
               <div className="mt-1 md:col-span-2">
