@@ -1,7 +1,7 @@
 import { useState } from "react";
 import organizationLogo from "../assets/images/org_ssh_logo.png";
 import {
-  WireBtn, WireCard, WireCheckbox, WireInput, WirePlaceholder,
+  WireBtn, WireCard, WireCheckbox, WireInput,
   WirePublicNav, WireSelect,
 } from "../components/WireframeUI";
 
@@ -271,39 +271,44 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
 export function Register({ navigate }: { navigate: (s: string) => void }) {
   const [role, setRole] = useState<"puptian" | "provider">("puptian");
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white text-[#000000]">
       <WirePublicNav navigate={navigate} />
-      <div className="flex items-center justify-center py-12 px-4">
-        <div className="w-full max-w-lg">
-          <div className="text-center mb-6">
-            <WirePlaceholder label="LOGO" className="w-14 h-14 mx-auto mb-3" />
-            <h1 className="text-xl font-bold text-gray-800">Create an Account</h1>
-            <p className="text-sm text-gray-500 mt-1">Join University Organization Student Services Hub</p>
-          </div>
+      <div className="px-4 py-5 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-6xl items-start gap-5 lg:grid-cols-[0.85fr_1.15fr]">
+          <RegistrationPanel
+            badge="Create an account"
+            title="Join the student services hub."
+            description="Choose the account that matches how you want to participate in the PUP Taguig community."
+          />
+          <div className="mx-auto w-full max-w-lg">
+            <div className="mb-5">
+              <div className="mb-2 inline-block rounded-full bg-[#4B3621] px-3 py-1 text-xs font-bold text-white">REGISTRATION</div>
+              <h1 className="text-2xl font-bold tracking-tight text-[#4B3621]">Create an Account</h1>
+              <p className="mt-1 text-sm text-gray-500">Join University Organization Student Services Hub</p>
+            </div>
 
-          {/* Role tabs */}
-          <div className="flex border border-gray-300 mb-5 bg-white">
-            <button onClick={() => setRole("puptian")} className={`flex-1 py-2.5 text-sm font-medium transition-colors ${role === "puptian" ? "bg-gray-800 text-white" : "text-gray-600 hover:bg-gray-50"}`}>
+            <div className="mb-5 flex overflow-hidden rounded-2xl border border-[#4B3621]/20 bg-white p-1 shadow-sm">
+            <button onClick={() => setRole("puptian")} className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${role === "puptian" ? "bg-[#4B3621] text-white" : "text-gray-600 hover:bg-[#E3C565]/30"}`}>
               PUPTian (Student)
             </button>
-            <button onClick={() => setRole("provider")} className={`flex-1 py-2.5 text-sm font-medium transition-colors border-l border-gray-300 ${role === "provider" ? "bg-gray-800 text-white" : "text-gray-600 hover:bg-gray-50"}`}>
+            <button onClick={() => setRole("provider")} className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${role === "provider" ? "bg-[#4B3621] text-white" : "text-gray-600 hover:bg-[#E3C565]/30"}`}>
               Service Provider
             </button>
-          </div>
+            </div>
 
-          <div className="mb-4 text-center">
+            <div className="mb-4 text-center">
             <p className="text-xs text-gray-500">
               Registering as a Guest?{" "}
-              <span className="underline cursor-pointer text-gray-700 font-medium" onClick={() => navigate("register-guest")}>
-                Guest Registration â†’
+              <span className="cursor-pointer font-medium text-[#4B3621] underline" onClick={() => navigate("register-guest")}>
+                Guest Registration &rarr;
               </span>
             </p>
-          </div>
+            </div>
 
-          <WireCard>
+          <WireCard className="rounded-[26px] border-[#4B3621]/20 p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
             {role === "puptian" ? (
               <form className="flex flex-col gap-4">
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-2 mb-1">PUPTian â€” Student Information</div>
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-2 mb-1">PUPTian &mdash; Student Information</div>
                 <WireInput label="Full Name" placeholder="Last Name, First Name M.I." />
                 <WireInput label="Student Number" placeholder="e.g. 2021-00001" />
                 <WireInput label="Email Address" type="email" placeholder="Official PUP or personal email" />
@@ -315,7 +320,7 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
               </form>
             ) : (
               <form className="flex flex-col gap-4">
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-2 mb-1">Service Provider â€” Business Information</div>
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-2 mb-1">Service Provider &mdash; Business Information</div>
                 <WireInput label="Business / Provider Name" placeholder="Official business name" />
                 <WireInput label="Contact Person" placeholder="Name of authorized representative" />
                 <WireInput label="Email Address" type="email" placeholder="Business email" />
@@ -335,6 +340,41 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
               <WireBtn variant="ghost" onClick={() => navigate("login")} className="text-sm text-gray-500">&larr; Back to Login</WireBtn>
             </div>
           </WireCard>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RegistrationPanel({
+  badge,
+  title,
+  description,
+}: {
+  badge: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="relative min-h-[440px] overflow-hidden rounded-[28px] bg-[#E3C565] p-7 text-[#000000] shadow-[0_22px_60px_rgba(227,197,101,0.16)] sm:p-10">
+      <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full border-[34px] border-[#4B3621]/20" />
+      <div className="absolute -bottom-40 right-0 h-80 w-80 rounded-full border-[42px] border-white/40" />
+      <div className="relative flex h-full flex-col justify-between">
+        <div className="flex items-center gap-3">
+          <img src={organizationLogo} alt="University Organization logo" className="h-12 w-12 object-contain" />
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#4B3621]">PUP Taguig</p>
+            <p className="font-semibold text-[#4B3621]">Student Services Hub</p>
+          </div>
+        </div>
+        <div className="py-12">
+          <div className="mb-5 inline-flex rounded-full bg-[#000000]/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-[#4B3621]">{badge}</div>
+          <h2 className="max-w-md text-4xl font-bold leading-tight tracking-[-0.04em] text-[#4B3621]">{title}</h2>
+          <p className="mt-5 max-w-sm text-sm leading-6 text-[#4B3621]">{description}</p>
+        </div>
+        <div className="border-t border-[#4B3621]/15 pt-5 text-xs text-[#4B3621]">
+          <strong>One hub.</strong> Connect with services, supplies, and academic resources.
         </div>
       </div>
     </div>
@@ -345,18 +385,23 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
 
 export function GuestRegister({ navigate }: { navigate: (s: string) => void }) {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white text-[#000000]">
       <WirePublicNav navigate={navigate} />
-      <div className="flex items-center justify-center py-12 px-4">
-        <div className="w-full max-w-sm">
-          <div className="text-center mb-5">
-            <WirePlaceholder label="LOGO" className="w-14 h-14 mx-auto mb-3" />
-            <div className="inline-block bg-gray-500 text-white text-xs font-bold px-3 py-1 mb-2">GUEST REGISTRATION</div>
-            <h1 className="text-xl font-bold text-gray-800">Create a Guest Account</h1>
-            <p className="text-sm text-gray-500 mt-1">Browse services and post requests</p>
-          </div>
+      <div className="px-4 py-5 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-6xl items-start gap-5 lg:grid-cols-[0.85fr_1.15fr]">
+          <RegistrationPanel
+            badge="Guest registration"
+            title="Explore first. Join when ready."
+            description="Create a limited guest account to browse services and post public requests before committing to a full student account."
+          />
+          <div className="mx-auto w-full max-w-lg">
+            <div className="mb-5">
+              <div className="mb-2 inline-block rounded-full bg-[#E3C565] px-3 py-1 text-xs font-bold text-[#4B3621]">GUEST REGISTRATION</div>
+              <h1 className="text-2xl font-bold tracking-tight text-[#4B3621]">Create a Guest Account</h1>
+              <p className="mt-1 text-sm text-gray-500">Browse services and post requests</p>
+            </div>
 
-          <div className="border border-dashed border-gray-400 p-3 bg-gray-50 text-xs text-gray-600 mb-4">
+          <div className="mb-4 rounded-2xl border border-[#4B3621]/15 bg-[#E3C565]/35 p-4 text-xs text-[#4B3621]">
             <p className="font-semibold mb-1">Guest Account Limitations:</p>
             <ul className="list-disc list-inside flex flex-col gap-0.5">
               <li>Can browse all available services</li>
@@ -367,9 +412,9 @@ export function GuestRegister({ navigate }: { navigate: (s: string) => void }) {
             </ul>
           </div>
 
-          <WireCard>
+          <WireCard className="rounded-[26px] border-[#4B3621]/20 p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
             <form className="flex flex-col gap-4">
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-2 mb-1">Guest â€” Basic Information</div>
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-2 mb-1">Guest &mdash; Basic Information</div>
               <WireInput label="Full Name" placeholder="Your full name" />
               <WireInput label="Email Address" type="email" placeholder="your@email.com" />
               <WireInput label="Contact Number" type="tel" placeholder="09XXXXXXXXX" />
@@ -394,6 +439,7 @@ export function GuestRegister({ navigate }: { navigate: (s: string) => void }) {
           </WireCard>
         </div>
       </div>
+    </div>
     </div>
   );
 }
