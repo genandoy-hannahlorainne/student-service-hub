@@ -730,13 +730,16 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
         </button>
       </div>
 
-      <div className="mb-4 text-center">
-        <p className="text-xs text-gray-500">
-          Registering as a Guest?{" "}
-          <span className="cursor-pointer font-medium text-[#4B3621] underline" onClick={() => navigate("register-guest")}>
-            Guest Registration &rarr;
-          </span>
-        </p>
+      <div className="mb-4 flex justify-center">
+        <button
+          type="button"
+          onClick={() => navigate("register-guest")}
+          className="inline-flex items-center gap-2 rounded-full border border-[#4B3621]/20 bg-[#E3C565]/20 px-4 py-2 text-xs font-semibold text-[#4B3621] transition-colors hover:bg-[#E3C565]/50"
+        >
+          <i className="bi bi-person-plus" aria-hidden="true" />
+          Registering as a Guest?
+          <span className="underline underline-offset-2">Guest Registration →</span>
+        </button>
       </div>
 
       {/* Success banner */}
