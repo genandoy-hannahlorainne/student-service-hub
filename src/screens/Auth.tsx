@@ -1,4 +1,5 @@
 import { useState } from "react";
+import organizationLogo from "../assets/images/org_ssh_logo.png";
 import {
   WireBtn, WireCard, WireCheckbox, WireInput, WirePlaceholder,
   WirePublicNav, WireSelect,
@@ -22,19 +23,46 @@ function AuthShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white text-[#000000]">
       <WirePublicNav navigate={navigate} />
-      <div className="flex items-center justify-center py-8 px-4 min-h-[calc(100vh-56px)]">
-        <div className="w-full max-w-sm">
-          <div className="text-center mb-5">
-            <WirePlaceholder label="LOGO" className="w-14 h-14 mx-auto mb-3" />
-            <div className={`inline-block px-3 py-1 text-xs font-bold text-white mb-2 ${roleColor}`}>
-              {roleBadge}
+      <div className="px-4 py-5 sm:px-6 lg:px-8">
+        <div className="mx-auto grid min-h-[calc(100vh-96px)] max-w-6xl items-center gap-5 lg:grid-cols-[0.85fr_1.15fr]">
+          <div className="relative min-h-[440px] overflow-hidden rounded-[28px] bg-[#4B3621] p-7 text-white shadow-[0_22px_60px_rgba(75,54,33,0.18)] sm:p-10">
+            <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full border-[34px] border-[#E3C565]/50" />
+            <div className="absolute -bottom-40 right-0 h-80 w-80 rounded-full border-[42px] border-[#E3C565]/20" />
+            <div className="relative flex h-full flex-col justify-between">
+              <div className="flex items-center gap-3">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center ring-2 ring-white/20">
+                  <img src={organizationLogo} alt="University Organization logo" className="h-full w-full object-contain" />
+                </span>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#E3C565]">PUP Taguig</p>
+                  <p className="font-semibold">Student Services Hub</p>
+                </div>
+              </div>
+              <div className="relative py-12">
+                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-[#E3C565]">
+                  <i className="bi bi-shield-check" aria-hidden="true" />
+                  Secure access portal
+                </div>
+                <h1 className="max-w-md text-3xl font-bold leading-tight tracking-[-0.04em] sm:text-5xl">{title}</h1>
+                <p className="mt-5 max-w-sm text-sm leading-6 text-[#E3C565]">{subtitle}</p>
+              </div>
+              <div className="border-t border-white/15 pt-5 text-xs text-[#E3C565]">
+                <strong className="text-white">One hub.</strong> Printing, supplies, and academic resources for the PUP Taguig community.
+              </div>
             </div>
-            <h1 className="text-xl font-bold text-gray-800">{title}</h1>
-            <p className="text-sm text-gray-500 mt-1">{subtitle}</p>
           </div>
-          {children}
+          <div className="mx-auto w-full max-w-lg">
+            <div className="mb-5">
+              <div className={`mb-2 inline-block rounded-full px-3 py-1 text-xs font-bold text-white ${roleColor}`}>
+                {roleBadge}
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight text-[#4B3621]">Welcome back</h2>
+              <p className="mt-1 text-sm text-gray-500">Enter your details to continue.</p>
+            </div>
+            {children}
+          </div>
         </div>
       </div>
     </div>
@@ -48,11 +76,11 @@ export function Login({ navigate }: { navigate: (s: string) => void }) {
     <AuthShell
       navigate={navigate}
       roleBadge="PUPTian Login"
-      roleColor="bg-gray-800"
+      roleColor="bg-[#4B3621]"
       title="University Organization Student Services Hub"
       subtitle="Sign in with your student account"
     >
-      <WireCard>
+      <WireCard className="rounded-[26px] border-[#4B3621]/20 p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
         <form className="flex flex-col gap-4">
           <WireInput label="Student Number / Email" placeholder="e.g. 2021-00001 or juan@pup.edu.ph" />
           <WireInput label="Password" type="password" placeholder="Enter your password" />
@@ -77,7 +105,7 @@ export function Login({ navigate }: { navigate: (s: string) => void }) {
           <WireBtn variant="secondary" size="sm" onClick={() => navigate("login-admin")}>Admin</WireBtn>
         </div>
         <p className="text-center text-xs text-gray-400 mt-1">
-          <span className="underline cursor-pointer" onClick={() => navigate("landing")}>â† Back to Landing</span>
+          <span className="underline cursor-pointer" onClick={() => navigate("landing")}>&larr; Back to Landing</span>
         </p>
       </div>
     </AuthShell>
@@ -91,15 +119,15 @@ export function GuestLogin({ navigate }: { navigate: (s: string) => void }) {
     <AuthShell
       navigate={navigate}
       roleBadge="Guest Login"
-      roleColor="bg-gray-500"
+      roleColor="bg-[#E3C565] text-[#000000]"
       title="University Organization Student Services Hub"
       subtitle="Limited access â€” browse and post requests"
     >
-      <div className="border border-dashed border-gray-400 p-3 bg-gray-50 text-xs text-gray-600 mb-4">
+      <div className="mb-4 rounded-2xl border border-[#4B3621]/15 bg-[#E3C565]/35 p-4 text-xs text-[#4B3621]">
         <strong>Guest Access:</strong> You can browse services and post public need requests.
         Full ordering features require a PUPTian account.
       </div>
-      <WireCard>
+      <WireCard className="rounded-[26px] border-[#4B3621]/20 p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
         <form className="flex flex-col gap-4">
           <WireInput label="Email Address" type="email" placeholder="your@email.com" />
           <WireInput label="Password" type="password" placeholder="Enter your password" />
@@ -124,7 +152,7 @@ export function GuestLogin({ navigate }: { navigate: (s: string) => void }) {
           <WireBtn variant="secondary" size="sm" onClick={() => navigate("login-admin")}>Admin</WireBtn>
         </div>
         <p className="text-center text-xs text-gray-400 mt-1">
-          <span className="underline cursor-pointer" onClick={() => navigate("landing")}>â† Back to Landing</span>
+          <span className="underline cursor-pointer" onClick={() => navigate("landing")}>&larr; Back to Landing</span>
         </p>
       </div>
     </AuthShell>
@@ -138,15 +166,15 @@ export function ProviderLogin({ navigate }: { navigate: (s: string) => void }) {
     <AuthShell
       navigate={navigate}
       roleBadge="Service Provider Login"
-      roleColor="bg-gray-600"
+      roleColor="bg-[#4B3621]"
       title="University Organization Student Services Hub"
       subtitle="Collaborating provider portal"
     >
-      <div className="border border-dashed border-gray-400 p-3 bg-gray-50 text-xs text-gray-600 mb-4">
+      <div className="mb-4 rounded-2xl border border-[#4B3621]/15 bg-[#E3C565]/35 p-4 text-xs text-[#4B3621]">
         <strong>Providers:</strong> Only University Organization-approved collaborating businesses can access this portal.
         Contact University Organization if you wish to become a provider.
       </div>
-      <WireCard>
+      <WireCard className="rounded-[26px] border-[#4B3621]/20 p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
         <form className="flex flex-col gap-4">
           <WireInput label="Business Email" type="email" placeholder="your.shop@email.com" />
           <WireInput label="Password" type="password" placeholder="Enter your password" />
@@ -171,7 +199,7 @@ export function ProviderLogin({ navigate }: { navigate: (s: string) => void }) {
           <WireBtn variant="secondary" size="sm" onClick={() => navigate("login-admin")}>Admin</WireBtn>
         </div>
         <p className="text-center text-xs text-gray-400 mt-1">
-          <span className="underline cursor-pointer" onClick={() => navigate("landing")}>â† Back to Landing</span>
+          <span className="underline cursor-pointer" onClick={() => navigate("landing")}>&larr; Back to Landing</span>
         </p>
       </div>
     </AuthShell>
@@ -182,47 +210,55 @@ export function ProviderLogin({ navigate }: { navigate: (s: string) => void }) {
 
 export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
   return (
-    <div className="min-h-screen bg-gray-900 flex items-start sm:items-center justify-center px-4 py-8">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-6">
-          <WirePlaceholder label="UNIVERSITY ORGANIZATION LOGO" className="w-16 h-16 mx-auto mb-3" />
-          <div className="inline-block bg-gray-700 text-white text-xs font-bold px-3 py-1 mb-2">
-            ADMINISTRATOR PORTAL
+    <div className="min-h-screen bg-white text-[#000000]">
+      <div className="mx-auto grid min-h-screen max-w-6xl items-center gap-5 px-4 py-6 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
+        <div className="relative min-h-[440px] overflow-hidden rounded-[28px] bg-[#000000] p-7 text-white shadow-[0_22px_60px_rgba(0,0,0,0.18)] sm:p-10">
+          <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full border-[34px] border-[#E3C565]/40" />
+          <div className="relative flex h-full flex-col justify-between">
+            <div className="flex items-center gap-3">
+              <span className="flex h-12 w-12 items-center justify-center ring-2 ring-white/20">
+                <img src={organizationLogo} alt="University Organization logo" className="h-full w-full object-contain" />
+              </span>
+              <p className="font-semibold">Student Services Hub</p>
+            </div>
+            <div className="py-12">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#E3C565]/30 bg-[#E3C565]/10 px-3 py-1.5 text-xs font-medium text-[#E3C565]">
+                <i className="bi bi-lock-fill" aria-hidden="true" />
+                Restricted access
+              </div>
+              <h1 className="text-4xl font-bold leading-tight tracking-[-0.04em]">University Organization Admin Access</h1>
+              <p className="mt-5 text-sm leading-6 text-[#E3C565]">Internal operations for approvals, providers, orders, and platform content.</p>
+            </div>
+            <p className="border-t border-white/15 pt-5 text-xs text-gray-400">Administrator credentials are issued by University Organization management only.</p>
           </div>
-          <h1 className="text-xl font-bold text-white">University Organization Admin Access</h1>
-          <p className="text-sm text-gray-400 mt-1">Internal use only â€” not publicly accessible</p>
         </div>
-
-        <div className="border border-gray-600 bg-gray-800 p-5">
+        <div className="mx-auto w-full max-w-lg">
+          <div className="mb-5">
+            <div className="mb-2 inline-block rounded-full bg-[#000000] px-3 py-1 text-xs font-bold text-[#E3C565]">ADMINISTRATOR PORTAL</div>
+            <h2 className="text-2xl font-bold tracking-tight text-[#4B3621]">Sign in securely</h2>
+            <p className="mt-1 text-sm text-gray-500">Two-factor authentication is required for admin access.</p>
+          </div>
+          <div className="rounded-[26px] border border-[#4B3621]/20 bg-white p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
           <form className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Admin Username</label>
-              <input placeholder="admin@pasoa.pup.edu.ph" className="border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 w-full" />
+              <label className="text-xs font-semibold uppercase tracking-wide text-[#4B3621]">Admin Username</label>
+              <input placeholder="admin@pasoa.pup.edu.ph" className="w-full rounded-xl border border-[#4B3621]/20 bg-[#fffdf5] px-3 py-2.5 text-sm text-[#000000] placeholder-gray-400 focus:border-[#E3C565] focus:outline-none" />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Admin Password</label>
-              <input type="password" placeholder="••••••••" className="border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 w-full" />
+              <label className="text-xs font-semibold uppercase tracking-wide text-[#4B3621]">Admin Password</label>
+              <input type="password" placeholder="••••••••" className="w-full rounded-xl border border-[#4B3621]/20 bg-[#fffdf5] px-3 py-2.5 text-sm text-[#000000] placeholder-gray-400 focus:border-[#E3C565] focus:outline-none" />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Admin Code (2FA)</label>
-              <input placeholder="6-digit authentication code" className="border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 w-full" />
+              <label className="text-xs font-semibold uppercase tracking-wide text-[#4B3621]">Admin Code (2FA)</label>
+              <input placeholder="6-digit authentication code" className="w-full rounded-xl border border-[#4B3621]/20 bg-[#fffdf5] px-3 py-2.5 text-sm text-[#000000] placeholder-gray-400 focus:border-[#E3C565] focus:outline-none" />
             </div>
-            <div className="border border-dashed border-gray-600 p-2 text-center text-xs text-gray-500">
-              Two-factor authentication is required for admin access.
-            </div>
-            <WireBtn size="lg" className="w-full mt-1 bg-gray-100 text-gray-900 border-gray-200 hover:bg-white" onClick={() => navigate("admin-dashboard")}>
+            <WireBtn size="lg" className="mt-1 w-full rounded-xl border-[#4B3621] bg-[#4B3621] text-white hover:bg-[#000000]" onClick={() => navigate("admin-dashboard")}>
               Access Admin Panel
             </WireBtn>
           </form>
-        </div>
-
-        <div className="mt-4 text-center">
-          <p className="text-xs text-gray-500">
-            Admin credentials are issued by University Organization management only.<br />
-            This portal is <strong className="text-gray-300">not publicly registered</strong>.
-          </p>
-          <button onClick={() => navigate("landing")} className="text-xs text-gray-500 hover:text-gray-300 underline mt-2 block mx-auto">
-            â† Back to Landing Page
+          </div>
+          <button onClick={() => navigate("landing")} className="mt-5 block mx-auto text-xs text-gray-500 underline hover:text-[#4B3621]">
+            &larr; Back to Landing Page
           </button>
         </div>
       </div>
@@ -296,7 +332,7 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
               </form>
             )}
             <div className="border-t border-gray-200 mt-4 pt-4 text-center">
-              <WireBtn variant="ghost" onClick={() => navigate("login")} className="text-sm text-gray-500">â† Back to Login</WireBtn>
+              <WireBtn variant="ghost" onClick={() => navigate("login")} className="text-sm text-gray-500">&larr; Back to Login</WireBtn>
             </div>
           </WireCard>
         </div>
@@ -353,7 +389,7 @@ export function GuestRegister({ navigate }: { navigate: (s: string) => void }) {
             <div className="border-t border-gray-200 mt-4 pt-4 text-center flex flex-col gap-2">
               <p className="text-xs text-gray-500">PUP Taguig student?</p>
               <WireBtn variant="outline" className="w-full" onClick={() => navigate("register")}>Register as PUPTian instead</WireBtn>
-              <WireBtn variant="ghost" onClick={() => navigate("login-guest")} className="text-sm text-gray-500">â† Back to Guest Login</WireBtn>
+              <WireBtn variant="ghost" onClick={() => navigate("login-guest")} className="text-sm text-gray-500">&larr; Back to Guest Login</WireBtn>
             </div>
           </WireCard>
         </div>
