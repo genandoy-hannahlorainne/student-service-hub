@@ -242,7 +242,9 @@ export function WirePublicNav({ navigate }: { navigate: (s: string) => void }) {
   ];
 
   return (
-    <nav className="relative z-40 border-b border-[#4B3621]/20 bg-white text-[#4B3621]">
+    <>
+    <div className="h-[70px]" aria-hidden="true" />
+    <nav className="fixed inset-x-0 top-0 z-40 border-b border-[#4B3621]/20 bg-white text-[#4B3621] shadow-sm">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center">
@@ -294,6 +296,7 @@ export function WirePublicNav({ navigate }: { navigate: (s: string) => void }) {
         </div>
       )}
     </nav>
+    </>
   );
 }
 
