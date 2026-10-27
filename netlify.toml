@@ -10,7 +10,6 @@
   autoLaunch = false
 
 # Redirect all unmatched paths to the SPA entry point
-# (Netlify Functions at /.netlify/functions/* are handled automatically)
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -18,9 +17,3 @@
 
 [functions]
   node_bundler = "esbuild"
-
-[context.production.environment]
-  NODE_ENV = "production"
-
-[context.deploy-preview.environment]
-  NODE_ENV = "staging"
