@@ -1,11 +1,25 @@
-import { useState } from "react";
+/**
+ * Auth.tsx — Login and Registration screens
+ *
+ * All forms now submit to real backend endpoints via AuthContext:
+ *  - Login    → netlifyIdentity.login → fetchMe → route to correct dashboard
+ *  - Register → netlifyIdentity.signup → POST /register → route to dashboard
+ *
+ * Roles and their post-auth destinations:
+ *  student   → student-dashboard
+ *  provider  → provider-dashboard  (pending: provider-pending screen)
+ *  guest     → guest-dashboard
+ *  admin     → admin-dashboard     (cannot self-register)
+ */
+
+import { useState, FormEvent } from "react";
 import organizationLogo from "../assets/images/org_ssh_logo.png";
 import {
-  WireBtn, WireCard, WireCheckbox, WireInput,
-  WirePublicNav, WireSelect,
+  WireBtn, WireCard, WirePublicNav, WireSelect,
 } from "../components/WireframeUI";
+import { useAuth } from "../context/AuthContext";
 
-// â”€â”€â”€ Shared form shell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Shared shell ─────────────────────────────────────────────────────────────
 
 function AuthShell({
   navigate,
@@ -31,6 +45,7 @@ function AuthShell({
       <WirePublicNav navigate={navigate} />
       <div className="px-4 py-5 sm:px-6 lg:px-8">
         <div className="mx-auto grid min-h-[calc(100vh-96px)] max-w-6xl items-center gap-5 lg:grid-cols-[0.85fr_1.15fr]">
+          {/* Left hero panel */}
           <div className="relative min-h-[440px] overflow-hidden rounded-[28px] bg-[#4B3621] p-7 text-white shadow-[0_22px_60px_rgba(75,54,33,0.18)] sm:p-10">
             <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full border-[34px] border-[#E3C565]/50" />
             <div className="absolute -bottom-40 right-0 h-80 w-80 rounded-full border-[42px] border-[#E3C565]/20" />
@@ -57,6 +72,8 @@ function AuthShell({
               </div>
             </div>
           </div>
+
+          {/* Right form panel */}
           <div className="mx-auto w-full max-w-lg">
             <div className="mb-5">
               <div className={`mb-2 inline-block rounded-full px-3 py-1 text-xs font-bold text-white ${roleColor}`}>
@@ -73,9 +90,51 @@ function AuthShell({
   );
 }
 
-// â”€â”€â”€ 1. PUPTian Login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Error alert ──────────────────────────────────────────────────────────────
+
+function ErrorAlert({ message }: { message: string }) {
+  if (!message) return null;
+  return (
+    <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      {message}
+    </div>
+  );
+}
+
+// ─── 1. PUPTian Login ─────────────────────────────────────────────────────────
 
 export function Login({ navigate }: { navigate: (s: string) => void }) {
+  const { login, authError, clearAuthError } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [localError, setLocalError] = useState("");
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setLocalError("");
+    clearAuthError();
+
+    if (!email.trim() || !password) {
+      setLocalError("Email and password are required.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await login(email.trim(), password);
+      // AuthContext sets roles; navigate based on primary role
+      navigate("student-dashboard");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Login failed.";
+      setLocalError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const displayError = localError || authError || "";
+
   return (
     <AuthShell
       navigate={navigate}
@@ -85,22 +144,64 @@ export function Login({ navigate }: { navigate: (s: string) => void }) {
       subtitle="Sign in with your student account"
     >
       <WireCard className="rounded-[26px] border-[#4B3621]/20 p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
-        <form className="flex flex-col gap-4">
-          <WireInput label="Student Number / Email" placeholder="e.g. 2021-00001 or juan@pup.edu.ph" />
-          <WireInput label="Password" type="password" placeholder="Enter your password" />
-          <div className="flex items-center justify-between">
-            <WireCheckbox label="Remember Me" />
-            <button type="button" className="text-xs text-gray-500 hover:text-gray-800 underline">Forgot Password?</button>
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
+          {displayError && <ErrorAlert message={displayError} />}
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="login-email" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+              Student Number / Email
+            </label>
+            <input
+              id="login-email"
+              type="email"
+              autoComplete="username"
+              placeholder="e.g. 2021-00001 or juan@pup.edu.ph"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg"
+              required
+            />
           </div>
-          <WireBtn type="submit" size="lg" className="w-full mt-1" onClick={() => navigate("student-dashboard")}>
-            Login as PUPTian
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="login-password" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+              Password
+            </label>
+            <input
+              id="login-password"
+              type="password"
+              autoComplete="current-password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg"
+              required
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+              <input type="checkbox" className="w-4 h-4 border border-gray-400" />
+              <span>Remember Me</span>
+            </label>
+            <button type="button" className="text-xs text-gray-500 hover:text-gray-800 underline">
+              Forgot Password?
+            </button>
+          </div>
+
+          <WireBtn type="submit" size="lg" className="w-full mt-1" disabled={loading}>
+            {loading ? "Signing in…" : "Login as PUPTian"}
           </WireBtn>
         </form>
+
         <div className="border-t border-gray-200 mt-4 pt-4 text-center">
           <p className="text-sm text-gray-500 mb-3">No account yet?</p>
-          <WireBtn variant="outline" className="w-full" onClick={() => navigate("register")}>Register as PUPTian</WireBtn>
+          <WireBtn variant="outline" className="w-full" onClick={() => navigate("register")}>
+            Register as PUPTian
+          </WireBtn>
         </div>
       </WireCard>
+
       <div className="mt-4 flex flex-col gap-2">
         <p className="text-xs text-gray-400 text-center mb-1">Other login portals:</p>
         <div className="grid grid-cols-3 gap-2">
@@ -116,38 +217,83 @@ export function Login({ navigate }: { navigate: (s: string) => void }) {
   );
 }
 
-// â”€â”€â”€ 2. Guest Login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── 2. Guest Login ───────────────────────────────────────────────────────────
 
 export function GuestLogin({ navigate }: { navigate: (s: string) => void }) {
+  const { login, authError, clearAuthError } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [localError, setLocalError] = useState("");
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setLocalError("");
+    clearAuthError();
+
+    if (!email.trim() || !password) {
+      setLocalError("Email and password are required.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await login(email.trim(), password);
+      navigate("guest-dashboard");
+    } catch (err) {
+      setLocalError(err instanceof Error ? err.message : "Login failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const displayError = localError || authError || "";
+
   return (
     <AuthShell
       navigate={navigate}
       roleBadge="Guest Login"
       roleColor="bg-[#E3C565] text-[#000000]"
       title="University Organization Student Services Hub"
-      subtitle="Limited access â€” browse and post requests"
+      subtitle="Limited access — browse and post requests"
     >
       <div className="mb-4 rounded-2xl border border-[#4B3621]/15 bg-[#E3C565]/35 p-4 text-xs text-[#4B3621]">
         <strong>Guest Access:</strong> You can browse services and post public need requests.
         Full ordering features require a PUPTian account.
       </div>
+
       <WireCard className="rounded-[26px] border-[#4B3621]/20 p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
-        <form className="flex flex-col gap-4">
-          <WireInput label="Email Address" type="email" placeholder="your@email.com" />
-          <WireInput label="Password" type="password" placeholder="Enter your password" />
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
+          {displayError && <ErrorAlert message={displayError} />}
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="guest-email" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Email Address</label>
+            <input id="guest-email" type="email" autoComplete="username" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="guest-password" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Password</label>
+            <input id="guest-password" type="password" autoComplete="current-password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+          </div>
+
           <div className="flex items-center justify-between">
-            <WireCheckbox label="Remember Me" />
+            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+              <input type="checkbox" className="w-4 h-4 border border-gray-400" />
+              <span>Remember Me</span>
+            </label>
             <button type="button" className="text-xs text-gray-500 hover:text-gray-800 underline">Forgot Password?</button>
           </div>
-          <WireBtn type="submit" size="lg" className="w-full mt-1 bg-gray-600 border-gray-600" onClick={() => navigate("guest-dashboard")}>
-            Login as Guest
+
+          <WireBtn type="submit" size="lg" className="w-full mt-1 bg-gray-600 border-gray-600" disabled={loading}>
+            {loading ? "Signing in…" : "Login as Guest"}
           </WireBtn>
         </form>
+
         <div className="border-t border-gray-200 mt-4 pt-4 text-center">
           <p className="text-sm text-gray-500 mb-3">No guest account?</p>
           <WireBtn variant="outline" className="w-full" onClick={() => navigate("register-guest")}>Register as Guest</WireBtn>
         </div>
       </WireCard>
+
       <div className="mt-4 flex flex-col gap-2">
         <p className="text-xs text-gray-400 text-center mb-1">Other login portals:</p>
         <div className="grid grid-cols-3 gap-2">
@@ -163,9 +309,42 @@ export function GuestLogin({ navigate }: { navigate: (s: string) => void }) {
   );
 }
 
-// â”€â”€â”€ 3. Service Provider Login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── 3. Provider Login ────────────────────────────────────────────────────────
 
 export function ProviderLogin({ navigate }: { navigate: (s: string) => void }) {
+  const { login, authError, clearAuthError, providerPending } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [localError, setLocalError] = useState("");
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setLocalError("");
+    clearAuthError();
+
+    if (!email.trim() || !password) {
+      setLocalError("Business email and password are required.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await login(email.trim(), password);
+      if (providerPending) {
+        navigate("provider-pending");
+      } else {
+        navigate("provider-dashboard");
+      }
+    } catch (err) {
+      setLocalError(err instanceof Error ? err.message : "Login failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const displayError = localError || authError || "";
+
   return (
     <AuthShell
       navigate={navigate}
@@ -178,23 +357,39 @@ export function ProviderLogin({ navigate }: { navigate: (s: string) => void }) {
         <strong>Providers:</strong> Only University Organization-approved collaborating businesses can access this portal.
         Contact University Organization if you wish to become a provider.
       </div>
+
       <WireCard className="rounded-[26px] border-[#4B3621]/20 p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
-        <form className="flex flex-col gap-4">
-          <WireInput label="Business Email" type="email" placeholder="your.shop@email.com" />
-          <WireInput label="Password" type="password" placeholder="Enter your password" />
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
+          {displayError && <ErrorAlert message={displayError} />}
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="provider-email" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Business Email</label>
+            <input id="provider-email" type="email" autoComplete="username" placeholder="your.shop@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="provider-password" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Password</label>
+            <input id="provider-password" type="password" autoComplete="current-password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+          </div>
+
           <div className="flex items-center justify-between">
-            <WireCheckbox label="Remember Me" />
+            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+              <input type="checkbox" className="w-4 h-4 border border-gray-400" />
+              <span>Remember Me</span>
+            </label>
             <button type="button" className="text-xs text-gray-500 hover:text-gray-800 underline">Forgot Password?</button>
           </div>
-          <WireBtn type="submit" size="lg" className="w-full mt-1 bg-gray-700 border-gray-700" onClick={() => navigate("provider-dashboard")}>
-            Login as Provider
+
+          <WireBtn type="submit" size="lg" className="w-full mt-1 bg-gray-700 border-gray-700" disabled={loading}>
+            {loading ? "Signing in…" : "Login as Provider"}
           </WireBtn>
         </form>
+
         <div className="border-t border-gray-200 mt-4 pt-4 text-center">
           <p className="text-sm text-gray-500 mb-3">Not yet a collaborator?</p>
           <WireBtn variant="outline" className="w-full" onClick={() => navigate("register")}>Apply as Provider</WireBtn>
         </div>
       </WireCard>
+
       <div className="mt-4 flex flex-col gap-2">
         <p className="text-xs text-gray-400 text-center mb-1">Other login portals:</p>
         <div className="grid grid-cols-3 gap-2">
@@ -210,12 +405,56 @@ export function ProviderLogin({ navigate }: { navigate: (s: string) => void }) {
   );
 }
 
-// â”€â”€â”€ 4. Admin Login (internal) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── 4. Admin Login ───────────────────────────────────────────────────────────
 
 export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
+  const { login, authError, clearAuthError, isAdmin } = useAuth();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [twoFaCode, setTwoFaCode] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [localError, setLocalError] = useState("");
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setLocalError("");
+    clearAuthError();
+
+    if (!username.trim() || !password) {
+      setLocalError("Admin username and password are required.");
+      return;
+    }
+    if (!twoFaCode.trim()) {
+      setLocalError("2FA code is required.");
+      return;
+    }
+    // Basic 6-digit 2FA format check (real TOTP verification happens server-side)
+    if (!/^\d{6}$/.test(twoFaCode.trim())) {
+      setLocalError("Enter a valid 6-digit authentication code.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await login(username.trim(), password);
+      if (!isAdmin) {
+        setLocalError("Access denied — this account does not have admin privileges.");
+        return;
+      }
+      navigate("admin-dashboard");
+    } catch (err) {
+      setLocalError(err instanceof Error ? err.message : "Login failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const displayError = localError || authError || "";
+
   return (
     <div className="min-h-screen bg-white text-[#000000]">
       <div className="mx-auto grid min-h-screen max-w-6xl items-center gap-5 px-4 py-6 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
+        {/* Left panel */}
         <div className="relative min-h-[440px] overflow-hidden rounded-[28px] bg-[#000000] p-7 text-white shadow-[0_22px_60px_rgba(0,0,0,0.18)] sm:p-10">
           <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full border-[34px] border-[#E3C565]/40" />
           <div className="relative flex h-full flex-col justify-between">
@@ -233,34 +472,43 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
               <h1 className="text-4xl font-bold leading-tight tracking-[-0.04em]">University Organization Admin Access</h1>
               <p className="mt-5 text-sm leading-6 text-[#E3C565]">Internal operations for approvals, providers, orders, and platform content.</p>
             </div>
-            <p className="border-t border-white/15 pt-5 text-xs text-gray-400">Administrator credentials are issued by University Organization management only.</p>
+            <p className="border-t border-white/15 pt-5 text-xs text-gray-400">
+              Administrator credentials are issued by University Organization management only.
+            </p>
           </div>
         </div>
+
+        {/* Right panel */}
         <div className="mx-auto w-full max-w-lg">
           <div className="mb-5">
             <div className="mb-2 inline-block rounded-full bg-[#000000] px-3 py-1 text-xs font-bold text-[#E3C565]">ADMINISTRATOR PORTAL</div>
             <h2 className="text-2xl font-bold tracking-tight text-[#4B3621]">Sign in securely</h2>
             <p className="mt-1 text-sm text-gray-500">Two-factor authentication is required for admin access.</p>
           </div>
+
           <div className="rounded-[26px] border border-[#4B3621]/20 bg-white p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
-          <form className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold uppercase tracking-wide text-[#4B3621]">Admin Username</label>
-              <input placeholder="admin@pasoa.pup.edu.ph" className="w-full rounded-xl border border-[#4B3621]/20 bg-[#fffdf5] px-3 py-2.5 text-sm text-[#000000] placeholder-gray-400 focus:border-[#E3C565] focus:outline-none" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold uppercase tracking-wide text-[#4B3621]">Admin Password</label>
-              <input type="password" placeholder="••••••••" className="w-full rounded-xl border border-[#4B3621]/20 bg-[#fffdf5] px-3 py-2.5 text-sm text-[#000000] placeholder-gray-400 focus:border-[#E3C565] focus:outline-none" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold uppercase tracking-wide text-[#4B3621]">Admin Code (2FA)</label>
-              <input placeholder="6-digit authentication code" className="w-full rounded-xl border border-[#4B3621]/20 bg-[#fffdf5] px-3 py-2.5 text-sm text-[#000000] placeholder-gray-400 focus:border-[#E3C565] focus:outline-none" />
-            </div>
-            <WireBtn size="lg" className="mt-1 w-full rounded-xl border-[#4B3621] bg-[#4B3621] text-white hover:bg-[#000000]" onClick={() => navigate("admin-dashboard")}>
-              Access Admin Panel
-            </WireBtn>
-          </form>
+            <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
+              {displayError && <ErrorAlert message={displayError} />}
+
+              <div className="flex flex-col gap-1">
+                <label htmlFor="admin-username" className="text-xs font-semibold uppercase tracking-wide text-[#4B3621]">Admin Username</label>
+                <input id="admin-username" type="email" autoComplete="username" placeholder="admin@pasoa.pup.edu.ph" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full rounded-xl border border-[#4B3621]/20 bg-[#fffdf5] px-3 py-2.5 text-sm text-[#000000] placeholder-gray-400 focus:border-[#E3C565] focus:outline-none" required />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label htmlFor="admin-password" className="text-xs font-semibold uppercase tracking-wide text-[#4B3621]">Admin Password</label>
+                <input id="admin-password" type="password" autoComplete="current-password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-xl border border-[#4B3621]/20 bg-[#fffdf5] px-3 py-2.5 text-sm text-[#000000] placeholder-gray-400 focus:border-[#E3C565] focus:outline-none" required />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label htmlFor="admin-2fa" className="text-xs font-semibold uppercase tracking-wide text-[#4B3621]">Admin Code (2FA)</label>
+                <input id="admin-2fa" type="text" inputMode="numeric" placeholder="6-digit authentication code" maxLength={6} value={twoFaCode} onChange={(e) => setTwoFaCode(e.target.value.replace(/\D/g, "").slice(0, 6))} className="w-full rounded-xl border border-[#4B3621]/20 bg-[#fffdf5] px-3 py-2.5 text-sm text-[#000000] placeholder-gray-400 focus:border-[#E3C565] focus:outline-none" required />
+              </div>
+
+              <WireBtn type="submit" size="lg" className="mt-1 w-full rounded-xl border-[#4B3621] bg-[#4B3621] text-white hover:bg-[#000000]" disabled={loading}>
+                {loading ? "Verifying…" : "Access Admin Panel"}
+              </WireBtn>
+            </form>
           </div>
+
           <button onClick={() => navigate("landing")} className="mt-5 block mx-auto text-xs text-gray-500 underline hover:text-[#4B3621]">
             &larr; Back to Landing Page
           </button>
@@ -270,10 +518,101 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
   );
 }
 
-// â”€â”€â”€ 5. PUPTian Registration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── 5. PUPTian / Provider Registration ───────────────────────────────────────
 
 export function Register({ navigate }: { navigate: (s: string) => void }) {
+  const { registerAndCreateProfile, authError, clearAuthError } = useAuth();
   const [role, setRole] = useState<"puptian" | "provider">("puptian");
+  const [loading, setLoading] = useState(false);
+  const [localError, setLocalError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+
+  // Shared fields
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [agreedTerms, setAgreedTerms] = useState(false);
+
+  // PUPTian-only
+  const [fullName, setFullName] = useState("");
+  const [studentNumber, setStudentNumber] = useState("");
+
+  // Provider-only
+  const [businessName, setBusinessName] = useState("");
+  const [contactPerson, setContactPerson] = useState("");
+  const [businessAddress, setBusinessAddress] = useState("");
+  const [serviceType, setServiceType] = useState("Printing Services");
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setLocalError("");
+    clearAuthError();
+    setSuccessMsg("");
+
+    // Validation
+    if (password.length < 8) {
+      setLocalError("Password must be at least 8 characters.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setLocalError("Passwords do not match.");
+      return;
+    }
+    if (!agreedTerms) {
+      setLocalError("You must agree to the Terms and Services.");
+      return;
+    }
+
+    if (role === "puptian") {
+      if (!fullName.trim() || !studentNumber.trim() || !email.trim()) {
+        setLocalError("Full name, student number, and email are required.");
+        return;
+      }
+    } else {
+      if (!businessName.trim() || !contactPerson.trim() || !email.trim() || !businessAddress.trim()) {
+        setLocalError("All provider fields are required.");
+        return;
+      }
+    }
+
+    setLoading(true);
+    try {
+      if (role === "puptian") {
+        await registerAndCreateProfile(email.trim(), password, fullName.trim(), {
+          role: "student",
+          student_number: studentNumber.trim(),
+          phone: phone.trim() || undefined,
+        });
+        navigate("student-dashboard");
+      } else {
+        await registerAndCreateProfile(email.trim(), password, contactPerson.trim(), {
+          role: "provider",
+          business_name: businessName.trim(),
+          contact_person: contactPerson.trim(),
+          business_address: businessAddress.trim(),
+          service_type: serviceType,
+          phone: phone.trim() || undefined,
+        });
+        setSuccessMsg(
+          "Provider application submitted! Your account is pending admin approval. You will receive an email once approved."
+        );
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Registration failed.";
+      // Surface email-confirmation requirement clearly
+      if (msg.includes("CONFIRMATION_REQUIRED")) {
+        setSuccessMsg("Check your email and click the confirmation link to activate your account.");
+      } else {
+        setLocalError(msg);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const displayError = localError || authError || "";
+
   return (
     <AuthShell
       navigate={navigate}
@@ -284,70 +623,221 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
       formTitle="Create an Account"
       formSubtitle="Join University Organization Student Services Hub"
     >
+      {/* Role tabs */}
       <div className="mb-5 flex overflow-hidden rounded-2xl border border-[#4B3621]/20 bg-white p-1 shadow-sm">
-            <button onClick={() => setRole("puptian")} className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${role === "puptian" ? "bg-[#4B3621] text-white" : "text-gray-600 hover:bg-[#E3C565]/30"}`}>
-              PUPTian (Student)
-            </button>
-            <button onClick={() => setRole("provider")} className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${role === "provider" ? "bg-[#4B3621] text-white" : "text-gray-600 hover:bg-[#E3C565]/30"}`}>
-              Service Provider
-            </button>
+        <button type="button" onClick={() => setRole("puptian")} className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${role === "puptian" ? "bg-[#4B3621] text-white" : "text-gray-600 hover:bg-[#E3C565]/30"}`}>
+          PUPTian (Student)
+        </button>
+        <button type="button" onClick={() => setRole("provider")} className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${role === "provider" ? "bg-[#4B3621] text-white" : "text-gray-600 hover:bg-[#E3C565]/30"}`}>
+          Service Provider
+        </button>
       </div>
 
       <div className="mb-4 text-center">
-            <p className="text-xs text-gray-500">
-              Registering as a Guest?{" "}
-              <span className="cursor-pointer font-medium text-[#4B3621] underline" onClick={() => navigate("register-guest")}>
-                Guest Registration &rarr;
-              </span>
-            </p>
+        <p className="text-xs text-gray-500">
+          Registering as a Guest?{" "}
+          <span className="cursor-pointer font-medium text-[#4B3621] underline" onClick={() => navigate("register-guest")}>
+            Guest Registration &rarr;
+          </span>
+        </p>
       </div>
 
+      {/* Success banner */}
+      {successMsg && (
+        <div className="mb-4 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+          {successMsg}
+        </div>
+      )}
+
       <WireCard className="rounded-[26px] border-[#4B3621]/20 p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
-            {role === "puptian" ? (
-              <form className="flex flex-col gap-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="text-xs font-semibold uppercase tracking-wide border-b border-gray-100 pb-2 mb-1 md:col-span-2 text-gray-500">PUPTian &mdash; Student Information</div>
-                  <WireInput label="Full Name" placeholder="Last Name, First Name M.I." />
-                  <WireInput label="Student Number" placeholder="e.g. 2021-00001" />
-                  <WireInput label="Email Address" type="email" placeholder="Official PUP or personal email" />
-                  <WireInput label="Contact Number" type="tel" placeholder="09XXXXXXXXX" />
-                  <WireInput label="Password" type="password" placeholder="Minimum 8 characters" />
-                  <WireInput label="Confirm Password" type="password" placeholder="Re-enter your password" />
-                  <div className="mt-1 md:col-span-2"><WireCheckbox label="I have read and agree to the Terms and Services" /></div>
-                </div>
-                <WireBtn type="submit" size="lg" className="w-full mt-2" onClick={() => navigate("student-dashboard")}>Register as PUPTian</WireBtn>
-              </form>
-            ) : (
-              <form className="flex flex-col gap-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="text-xs font-semibold uppercase tracking-wide border-b border-gray-100 pb-2 mb-1 md:col-span-2 text-gray-500">Service Provider &mdash; Business Information</div>
-                  <WireInput label="Business / Provider Name" placeholder="Official business name" />
-                  <WireInput label="Contact Person" placeholder="Name of authorized representative" />
-                  <WireInput label="Email Address" type="email" placeholder="Business email" />
-                  <WireInput label="Contact Number" type="tel" placeholder="09XXXXXXXXX" />
-                  <WireInput className="md:col-span-2" label="Business Address" placeholder="Complete address" />
-                  <WireSelect className="md:col-span-2" label="Service Type" options={["Select service type...", "Printing Services", "School Supplies", "Both"]} />
-                  <WireInput label="Password" type="password" placeholder="Minimum 8 characters" />
-                  <WireInput label="Confirm Password" type="password" placeholder="Re-enter your password" />
-                  <div className="border border-dashed border-gray-300 bg-gray-50 p-3 text-xs text-gray-500 md:col-span-2">
-                    <strong>Note:</strong> Provider accounts require University Organization approval before activation.
-                  </div>
-                  <div className="mt-1 md:col-span-2"><WireCheckbox label="I have read and agree to the Terms and Services" /></div>
-                </div>
-                <WireBtn type="submit" size="lg" className="w-full mt-2" onClick={() => navigate("provider-dashboard")}>Submit Provider Application</WireBtn>
-              </form>
-            )}
-            <div className="border-t border-gray-200 mt-4 pt-4 text-center">
-              <WireBtn variant="ghost" onClick={() => navigate("login")} className="text-sm text-gray-500">&larr; Back to Login</WireBtn>
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
+          {displayError && <ErrorAlert message={displayError} />}
+
+          {role === "puptian" ? (
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="text-xs font-semibold uppercase tracking-wide border-b border-gray-100 pb-2 mb-1 md:col-span-2 text-gray-500">
+                PUPTian — Student Information
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label htmlFor="reg-fullname" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Full Name</label>
+                <input id="reg-fullname" type="text" autoComplete="name" placeholder="Last Name, First Name M.I." value={fullName} onChange={(e) => setFullName(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label htmlFor="reg-studnum" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Student Number</label>
+                <input id="reg-studnum" type="text" placeholder="e.g. 2021-00001" value={studentNumber} onChange={(e) => setStudentNumber(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label htmlFor="reg-email" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Email Address</label>
+                <input id="reg-email" type="email" autoComplete="email" placeholder="Official PUP or personal email" value={email} onChange={(e) => setEmail(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label htmlFor="reg-phone" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Contact Number</label>
+                <input id="reg-phone" type="tel" autoComplete="tel" placeholder="09XXXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label htmlFor="reg-password" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Password</label>
+                <input id="reg-password" type="password" autoComplete="new-password" placeholder="Minimum 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label htmlFor="reg-confirm" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Confirm Password</label>
+                <input id="reg-confirm" type="password" autoComplete="new-password" placeholder="Re-enter your password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+              </div>
+
+              <div className="mt-1 md:col-span-2">
+                <label className="flex items-start gap-2 text-sm text-gray-700 cursor-pointer">
+                  <input type="checkbox" checked={agreedTerms} onChange={(e) => setAgreedTerms(e.target.checked)} className="w-4 h-4 border border-gray-400 mt-0.5 shrink-0" />
+                  <span>I have read and agree to the Terms and Services</span>
+                </label>
+              </div>
             </div>
-          </WireCard>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="text-xs font-semibold uppercase tracking-wide border-b border-gray-100 pb-2 mb-1 md:col-span-2 text-gray-500">
+                Service Provider — Business Information
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label htmlFor="prov-bizname" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Business / Provider Name</label>
+                <input id="prov-bizname" type="text" placeholder="Official business name" value={businessName} onChange={(e) => setBusinessName(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label htmlFor="prov-contact" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Contact Person</label>
+                <input id="prov-contact" type="text" autoComplete="name" placeholder="Name of authorized representative" value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label htmlFor="prov-email" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Email Address</label>
+                <input id="prov-email" type="email" autoComplete="email" placeholder="Business email" value={email} onChange={(e) => setEmail(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label htmlFor="prov-phone" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Contact Number</label>
+                <input id="prov-phone" type="tel" autoComplete="tel" placeholder="09XXXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" />
+              </div>
+
+              <div className="flex flex-col gap-1 md:col-span-2">
+                <label htmlFor="prov-address" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Business Address</label>
+                <input id="prov-address" type="text" placeholder="Complete address" value={businessAddress} onChange={(e) => setBusinessAddress(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+              </div>
+
+              <div className="flex flex-col gap-1 md:col-span-2">
+                <label htmlFor="prov-service" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Service Type</label>
+                <select id="prov-service" value={serviceType} onChange={(e) => setServiceType(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg">
+                  <option>Printing Services</option>
+                  <option>School Supplies</option>
+                  <option>Both</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label htmlFor="prov-password" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Password</label>
+                <input id="prov-password" type="password" autoComplete="new-password" placeholder="Minimum 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label htmlFor="prov-confirm" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Confirm Password</label>
+                <input id="prov-confirm" type="password" autoComplete="new-password" placeholder="Re-enter your password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+              </div>
+
+              <div className="border border-dashed border-gray-300 bg-gray-50 p-3 text-xs text-gray-500 md:col-span-2 rounded-lg">
+                <strong>Note:</strong> Provider accounts require University Organization approval before activation.
+              </div>
+
+              <div className="mt-1 md:col-span-2">
+                <label className="flex items-start gap-2 text-sm text-gray-700 cursor-pointer">
+                  <input type="checkbox" checked={agreedTerms} onChange={(e) => setAgreedTerms(e.target.checked)} className="w-4 h-4 border border-gray-400 mt-0.5 shrink-0" />
+                  <span>I have read and agree to the Terms and Services</span>
+                </label>
+              </div>
+            </div>
+          )}
+
+          <WireBtn type="submit" size="lg" className="w-full mt-2" disabled={loading || !!successMsg}>
+            {loading
+              ? "Creating account…"
+              : role === "puptian"
+              ? "Register as PUPTian"
+              : "Submit Provider Application"}
+          </WireBtn>
+        </form>
+
+        <div className="border-t border-gray-200 mt-4 pt-4 text-center">
+          <WireBtn variant="ghost" onClick={() => navigate("login")} className="text-sm text-gray-500">
+            &larr; Back to Login
+          </WireBtn>
+        </div>
+      </WireCard>
     </AuthShell>
   );
 }
 
-// â”€â”€â”€ 6. Guest Registration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── 6. Guest Registration ────────────────────────────────────────────────────
 
 export function GuestRegister({ navigate }: { navigate: (s: string) => void }) {
+  const { registerAndCreateProfile, authError, clearAuthError } = useAuth();
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [affiliation, setAffiliation] = useState("Non-PUP Student");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [agreedLimitations, setAgreedLimitations] = useState(false);
+  const [agreedTerms, setAgreedTerms] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [localError, setLocalError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setLocalError("");
+    clearAuthError();
+
+    if (!fullName.trim() || !email.trim()) {
+      setLocalError("Full name and email are required.");
+      return;
+    }
+    if (password.length < 8) {
+      setLocalError("Password must be at least 8 characters.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setLocalError("Passwords do not match.");
+      return;
+    }
+    if (!agreedLimitations || !agreedTerms) {
+      setLocalError("Please accept both checkboxes to continue.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await registerAndCreateProfile(email.trim(), password, fullName.trim(), {
+        role: "guest",
+        phone: phone.trim() || undefined,
+        affiliation,
+      });
+      navigate("guest-dashboard");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Registration failed.";
+      if (msg.includes("CONFIRMATION_REQUIRED")) {
+        setSuccessMsg("Check your email and click the confirmation link to activate your account.");
+      } else {
+        setLocalError(msg);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const displayError = localError || authError || "";
+
   return (
     <AuthShell
       navigate={navigate}
@@ -358,44 +848,88 @@ export function GuestRegister({ navigate }: { navigate: (s: string) => void }) {
       formTitle="Create a Guest Account"
       formSubtitle="Browse services and post requests"
     >
-          <div className="mb-4 rounded-2xl border border-[#4B3621]/15 bg-[#E3C565]/35 p-4 text-xs text-[#4B3621]">
-            <p className="font-semibold mb-1">Guest Account Limitations:</p>
-            <ul className="list-disc list-inside flex flex-col gap-0.5">
-              <li>Can browse all available services</li>
-              <li>Can post &ldquo;Need / Request&rdquo; posts (admin approval required)</li>
-              <li>Cannot order printing or purchase supplies</li>
-              <li>Cannot create rental posts (PUPTian only)</li>
-              <li>Cannot track orders</li>
-            </ul>
+      <div className="mb-4 rounded-2xl border border-[#4B3621]/15 bg-[#E3C565]/35 p-4 text-xs text-[#4B3621]">
+        <p className="font-semibold mb-1">Guest Account Limitations:</p>
+        <ul className="list-disc list-inside flex flex-col gap-0.5">
+          <li>Can browse all available services</li>
+          <li>Can post &ldquo;Need / Request&rdquo; posts (admin approval required)</li>
+          <li>Cannot order printing or purchase supplies</li>
+          <li>Cannot create rental posts (PUPTian only)</li>
+          <li>Cannot track orders</li>
+        </ul>
+      </div>
+
+      {successMsg && (
+        <div className="mb-4 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+          {successMsg}
+        </div>
+      )}
+
+      <WireCard className="rounded-[26px] border-[#4B3621]/20 p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
+          {displayError && <ErrorAlert message={displayError} />}
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="text-xs font-semibold uppercase tracking-wide border-b border-gray-100 pb-2 mb-1 md:col-span-2 text-gray-500">
+              Guest — Basic Information
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="guest-reg-name" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Full Name</label>
+              <input id="guest-reg-name" type="text" autoComplete="name" placeholder="Your full name" value={fullName} onChange={(e) => setFullName(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="guest-reg-email" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Email Address</label>
+              <input id="guest-reg-email" type="email" autoComplete="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="guest-reg-phone" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Contact Number</label>
+              <input id="guest-reg-phone" type="tel" autoComplete="tel" placeholder="09XXXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="guest-reg-affil" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Purpose / Affiliation</label>
+              <select id="guest-reg-affil" value={affiliation} onChange={(e) => setAffiliation(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg">
+                <option>Non-PUP Student</option>
+                <option>Faculty / Staff</option>
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="guest-reg-pw" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Password</label>
+              <input id="guest-reg-pw" type="password" autoComplete="new-password" placeholder="Minimum 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="guest-reg-confirm" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Confirm Password</label>
+              <input id="guest-reg-confirm" type="password" autoComplete="new-password" placeholder="Re-enter your password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+            </div>
+
+            <div className="mt-1 md:col-span-2 flex flex-col gap-2">
+              <label className="flex items-start gap-2 text-sm text-gray-700 cursor-pointer">
+                <input type="checkbox" checked={agreedLimitations} onChange={(e) => setAgreedLimitations(e.target.checked)} className="w-4 h-4 border border-gray-400 mt-0.5 shrink-0" />
+                <span>I understand guest accounts have limited access</span>
+              </label>
+              <label className="flex items-start gap-2 text-sm text-gray-700 cursor-pointer">
+                <input type="checkbox" checked={agreedTerms} onChange={(e) => setAgreedTerms(e.target.checked)} className="w-4 h-4 border border-gray-400 mt-0.5 shrink-0" />
+                <span>I have read and agree to the Terms and Services</span>
+              </label>
+            </div>
           </div>
 
-          <WireCard className="rounded-[26px] border-[#4B3621]/20 p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
-            <form className="flex flex-col gap-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="text-xs font-semibold uppercase tracking-wide border-b border-gray-100 pb-2 mb-1 md:col-span-2 text-gray-500">Guest &mdash; Basic Information</div>
-                <WireInput label="Full Name" placeholder="Your full name" />
-                <WireInput label="Email Address" type="email" placeholder="your@email.com" />
-                <WireInput label="Contact Number" type="tel" placeholder="09XXXXXXXXX" />
-                <WireSelect label="Purpose / Affiliation" options={["Select...", "Non-PUP Student", "Faculty / Staff"]} />
-                <WireInput label="Password" type="password" placeholder="Minimum 8 characters" />
-                <WireInput label="Confirm Password" type="password" placeholder="Re-enter your password" />
-                <div className="mt-1 md:col-span-2">
-                  <WireCheckbox label="I understand guest accounts have limited access" />
-                  <div className="mt-2">
-                    <WireCheckbox label="I have read and agree to the Terms and Services" />
-                  </div>
-                </div>
-              </div>
-              <WireBtn type="submit" size="lg" className="w-full mt-2 bg-gray-600 border-gray-600" onClick={() => navigate("guest-dashboard")}>
-                Register as Guest
-              </WireBtn>
-            </form>
-            <div className="border-t border-gray-200 mt-4 pt-4 text-center flex flex-col gap-2">
-              <p className="text-xs text-gray-500">PUP Taguig student?</p>
-              <WireBtn variant="outline" className="w-full" onClick={() => navigate("register")}>Register as PUPTian instead</WireBtn>
-              <WireBtn variant="ghost" onClick={() => navigate("login-guest")} className="text-sm text-gray-500">&larr; Back to Guest Login</WireBtn>
-            </div>
-        </WireCard>
+          <WireBtn type="submit" size="lg" className="w-full mt-2 bg-gray-600 border-gray-600" disabled={loading || !!successMsg}>
+            {loading ? "Creating account…" : "Register as Guest"}
+          </WireBtn>
+        </form>
+
+        <div className="border-t border-gray-200 mt-4 pt-4 text-center flex flex-col gap-2">
+          <p className="text-xs text-gray-500">PUP Taguig student?</p>
+          <WireBtn variant="outline" className="w-full" onClick={() => navigate("register")}>Register as PUPTian instead</WireBtn>
+          <WireBtn variant="ghost" onClick={() => navigate("login-guest")} className="text-sm text-gray-500">&larr; Back to Guest Login</WireBtn>
+        </div>
+      </WireCard>
     </AuthShell>
   );
 }

@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+// Auth
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
 // Public screens
 import Landing from "./screens/Landing";
 import { Login, GuestLogin, ProviderLogin, AdminLogin, Register, GuestRegister } from "./screens/Auth";
+import ProviderPending from "./screens/ProviderPending";
 
 // Student screens
 import StudentDashboard from "./screens/student/StudentDashboard";
@@ -34,11 +38,15 @@ import AdminWebsite from "./screens/admin/AdminWebsite";
 import TransactionReceipt from "./screens/TransactionReceipt";
 import { About, Contact, HowItWorks, ProviderPartnership, PublicServices } from "./screens/PublicPages";
 
+// ─── Screen type ──────────────────────────────────────────────────────────────
+
 type Screen =
   // Public
   | "landing" | "public-services" | "about" | "how-it-works" | "contact" | "provider-partnership"
   | "login" | "login-guest" | "login-provider" | "login-admin"
   | "register" | "register-guest"
+  // Pending
+  | "provider-pending"
   // Student
   | "student-dashboard" | "browse-services" | "printing-service"
   | "printing-confirmation" | "order-tracking" | "school-supplies"
@@ -53,19 +61,44 @@ type Screen =
   // Shared
   | "transaction-receipt";
 
+// ─── Protected screen sets ────────────────────────────────────────────────────
+
+const STUDENT_SCREENS = new Set<Screen>([
+  "student-dashboard", "browse-services", "printing-service",
+  "printing-confirmation", "order-tracking", "school-supplies",
+  "resource-rental", "create-rental-post", "rental-post-status",
+  "transaction-receipt",
+]);
+
+const GUEST_SCREENS = new Set<Screen>([
+  "guest-dashboard", "guest-post", "guest-my-posts",
+]);
+
+const PROVIDER_SCREENS = new Set<Screen>([
+  "provider-dashboard", "provider-profile",
+]);
+
+const ADMIN_SCREENS = new Set<Screen>([
+  "admin-dashboard", "admin-providers", "admin-rental-approval",
+  "admin-orders", "admin-website",
+]);
+
+// ─── Screen label map ─────────────────────────────────────────────────────────
+
 const SCREEN_LABELS: Record<Screen, string> = {
   "landing": "Landing Page",
-  "public-services": "Public â€” Services",
-  "about": "Public â€” About University Organization",
-  "how-it-works": "Public â€” How It Works",
-  "contact": "Public â€” Contact / Support",
-  "provider-partnership": "Public â€” Provider Partnership",
+  "public-services": "Public — Services",
+  "about": "Public — About University Organization",
+  "how-it-works": "Public — How It Works",
+  "contact": "Public — Contact / Support",
+  "provider-partnership": "Public — Provider Partnership",
   "login": "PUPTian Login",
   "login-guest": "Guest Login",
   "login-provider": "Provider Login",
   "login-admin": "Admin Login",
   "register": "PUPTian / Provider Register",
   "register-guest": "Guest Registration",
+  "provider-pending": "Provider — Pending Approval",
   "student-dashboard": "Student Dashboard",
   "browse-services": "Browse Services",
   "printing-service": "Printing Service",
@@ -76,55 +109,26 @@ const SCREEN_LABELS: Record<Screen, string> = {
   "create-rental-post": "Create Rental Post",
   "rental-post-status": "My Rental Posts",
   "guest-dashboard": "Guest Dashboard",
-  "guest-post": "Guest â€” Post a Request",
-  "guest-my-posts": "Guest â€” My Posts",
+  "guest-post": "Guest — Post a Request",
+  "guest-my-posts": "Guest — My Posts",
   "provider-dashboard": "Provider Dashboard",
   "provider-profile": "Provider Profile",
   "admin-dashboard": "Admin Dashboard",
-  "admin-providers": "Admin â€” Providers",
-  "admin-rental-approval": "Admin â€” Rental Approval",
-  "admin-orders": "Admin â€” Orders",
-  "admin-website": "Admin â€” Website",
+  "admin-providers": "Admin — Providers",
+  "admin-rental-approval": "Admin — Rental Approval",
+  "admin-orders": "Admin — Orders",
+  "admin-website": "Admin — Website",
   "transaction-receipt": "Transaction Receipt",
 };
 
 const GROUPS: { label: string; screens: Screen[] }[] = [
-  {
-    label: "Public",
-    screens: ["landing", "public-services", "about", "how-it-works", "contact", "provider-partnership"],
-  },
-  {
-    label: "Login Portals",
-    screens: ["login", "login-guest", "login-provider", "login-admin"],
-  },
-  {
-    label: "Registration",
-    screens: ["register", "register-guest"],
-  },
-  {
-    label: "PUPTian (Student)",
-    screens: [
-      "student-dashboard", "browse-services", "printing-service",
-      "printing-confirmation", "order-tracking", "school-supplies",
-      "resource-rental", "create-rental-post", "rental-post-status",
-      "transaction-receipt",
-    ],
-  },
-  {
-    label: "Guest (Limited Access)",
-    screens: ["guest-dashboard", "guest-post", "guest-my-posts"],
-  },
-  {
-    label: "Service Provider",
-    screens: ["provider-dashboard", "provider-profile"],
-  },
-  {
-    label: "Administrator (Internal)",
-    screens: [
-      "admin-dashboard", "admin-providers", "admin-rental-approval",
-      "admin-orders", "admin-website",
-    ],
-  },
+  { label: "Public", screens: ["landing", "public-services", "about", "how-it-works", "contact", "provider-partnership"] },
+  { label: "Login Portals", screens: ["login", "login-guest", "login-provider", "login-admin"] },
+  { label: "Registration", screens: ["register", "register-guest"] },
+  { label: "PUPTian (Student)", screens: ["student-dashboard", "browse-services", "printing-service", "printing-confirmation", "order-tracking", "school-supplies", "resource-rental", "create-rental-post", "rental-post-status", "transaction-receipt"] },
+  { label: "Guest (Limited Access)", screens: ["guest-dashboard", "guest-post", "guest-my-posts"] },
+  { label: "Service Provider", screens: ["provider-pending", "provider-dashboard", "provider-profile"] },
+  { label: "Administrator (Internal)", screens: ["admin-dashboard", "admin-providers", "admin-rental-approval", "admin-orders", "admin-website"] },
 ];
 
 const GROUP_COLORS: Record<string, string> = {
@@ -137,11 +141,113 @@ const GROUP_COLORS: Record<string, string> = {
   "Administrator (Internal)": "bg-gray-900",
 };
 
-export default function App() {
+// ─── Route guard component ────────────────────────────────────────────────────
+
+/**
+ * RouteGuard sits between the navigator and the screen renderer.
+ * It reads auth state and redirects unauthenticated or unauthorised access.
+ *
+ * Rules:
+ *  - Protected screens require authentication.
+ *  - Role-specific screens require the matching role.
+ *  - Admin screens block non-admins completely (not just redirect to login).
+ *  - Provider screens redirect pending providers to the pending screen.
+ *  - Authenticated users landing on login/register screens are redirected
+ *    to their correct dashboard.
+ */
+function RouteGuard({
+  screen,
+  setScreen,
+  children,
+}: {
+  screen: Screen;
+  setScreen: (s: Screen) => void;
+  children: React.ReactNode;
+}) {
+  const {
+    authStatus,
+    isAdmin,
+    isStudent,
+    isProvider,
+    isGuest,
+    providerPending,
+  } = useAuth();
+
+  useEffect(() => {
+    if (authStatus === "initialising" || authStatus === "loading_profile") return;
+
+    const isAuthenticated = authStatus === "authenticated";
+
+    // 1. Redirect authenticated users away from login/register pages
+    const authPages: Screen[] = [
+      "login", "login-guest", "login-provider", "login-admin",
+      "register", "register-guest",
+    ];
+    if (isAuthenticated && authPages.includes(screen)) {
+      if (isAdmin) { setScreen("admin-dashboard"); return; }
+      if (isProvider) { setScreen(providerPending ? "provider-pending" : "provider-dashboard"); return; }
+      if (isStudent) { setScreen("student-dashboard"); return; }
+      if (isGuest) { setScreen("guest-dashboard"); return; }
+    }
+
+    // 2. Admin screens — must be admin
+    if (ADMIN_SCREENS.has(screen)) {
+      if (!isAuthenticated) { setScreen("login-admin"); return; }
+      if (!isAdmin) { setScreen("landing"); return; }
+    }
+
+    // 3. Student screens
+    if (STUDENT_SCREENS.has(screen)) {
+      if (!isAuthenticated) { setScreen("login"); return; }
+      if (!isStudent && !isAdmin) { setScreen("landing"); return; }
+    }
+
+    // 4. Guest screens
+    if (GUEST_SCREENS.has(screen)) {
+      if (!isAuthenticated) { setScreen("login-guest"); return; }
+      if (!isGuest && !isAdmin) { setScreen("landing"); return; }
+    }
+
+    // 5. Provider screens — block pending providers
+    if (PROVIDER_SCREENS.has(screen)) {
+      if (!isAuthenticated) { setScreen("login-provider"); return; }
+      if (!isProvider && !isAdmin) { setScreen("landing"); return; }
+      if (isProvider && providerPending) { setScreen("provider-pending"); return; }
+    }
+  }, [screen, authStatus, isAdmin, isStudent, isProvider, isGuest, providerPending, setScreen]);
+
+  // Show a loading overlay while auth is resolving
+  if (authStatus === "initialising" || authStatus === "loading_profile") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-[#4B3621] border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-gray-500">Loading…</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
+
+// ─── Main App ─────────────────────────────────────────────────────────────────
+
+function AppInner() {
   const [screen, setScreen] = useState<Screen>("landing");
   const [open, setOpen] = useState(false);
+  const { logout, authStatus } = useAuth();
 
   const navigate = (s: string) => {
+    // Handle logout navigation — call real logout
+    if (s === "landing" && authStatus === "authenticated") {
+      // The sidebar Logout items navigate to "landing"; intercept to log out properly
+      void logout().then(() => {
+        setScreen("landing");
+        window.scrollTo(0, 0);
+      });
+      return;
+    }
     setScreen(s as Screen);
     window.scrollTo(0, 0);
   };
@@ -161,6 +267,8 @@ export default function App() {
       case "login-admin": return <AdminLogin navigate={navigate} />;
       case "register": return <Register navigate={navigate} />;
       case "register-guest": return <GuestRegister navigate={navigate} />;
+      // Provider pending
+      case "provider-pending": return <ProviderPending navigate={navigate} />;
       // Student
       case "student-dashboard": return <StudentDashboard navigate={navigate} />;
       case "browse-services": return <BrowseServices navigate={navigate} />;
@@ -192,19 +300,19 @@ export default function App() {
 
   return (
     <div className="relative">
-      {/* Wireframe Screen Navigator */}
+      {/* Screen Navigator (dev tool — visible in all environments) */}
       <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
         <button
           onClick={() => setOpen((v) => !v)}
           className="bg-gray-900 text-white text-xs font-semibold px-3 py-2 shadow-lg hover:bg-gray-700 border border-gray-600 flex items-center gap-1.5"
         >
-          â—‰ {open ? "Close Navigator" : "Screen Navigator"}
+          ◉ {open ? "Close Navigator" : "Screen Navigator"}
         </button>
 
         {open && (
           <div className="bg-white border border-gray-400 shadow-xl w-72 max-h-[80vh] overflow-y-auto">
             <div className="bg-gray-900 text-white text-xs font-semibold px-3 py-2 flex items-center justify-between">
-              <span>University Organization Wireframe â€” Screens</span>
+              <span>University Organization Wireframe — Screens</span>
               <span className="text-gray-400">{Object.keys(SCREEN_LABELS).length} screens</span>
             </div>
             <div className="flex flex-col">
@@ -216,10 +324,10 @@ export default function App() {
                   {group.screens.map((s) => (
                     <button
                       key={s}
-                      onClick={() => { navigate(s); setOpen(false); }}
+                      onClick={() => { setScreen(s); setOpen(false); window.scrollTo(0, 0); }}
                       className={`w-full text-left px-3 py-2 text-xs border-b border-gray-100 hover:bg-gray-50 transition-colors ${screen === s ? "bg-gray-200 font-semibold text-gray-900" : "text-gray-700"}`}
                     >
-                      {screen === s && "â–¶ "}
+                      {screen === s && "▶ "}
                       {SCREEN_LABELS[s]}
                     </button>
                   ))}
@@ -230,7 +338,17 @@ export default function App() {
         )}
       </div>
 
-      {renderScreen()}
+      <RouteGuard screen={screen} setScreen={setScreen}>
+        {renderScreen()}
+      </RouteGuard>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppInner />
+    </AuthProvider>
   );
 }
