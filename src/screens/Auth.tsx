@@ -13,6 +13,8 @@ function AuthShell({
   roleColor,
   title,
   subtitle,
+  formTitle = "Welcome back",
+  formSubtitle = "Enter your details to continue.",
   children,
 }: {
   navigate: (s: string) => void;
@@ -20,6 +22,8 @@ function AuthShell({
   roleColor: string;
   title: string;
   subtitle: string;
+  formTitle?: string;
+  formSubtitle?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -58,8 +62,8 @@ function AuthShell({
               <div className={`mb-2 inline-block rounded-full px-3 py-1 text-xs font-bold text-white ${roleColor}`}>
                 {roleBadge}
               </div>
-              <h2 className="text-2xl font-bold tracking-tight text-[#4B3621]">Welcome back</h2>
-              <p className="mt-1 text-sm text-gray-500">Enter your details to continue.</p>
+              <h2 className="text-2xl font-bold tracking-tight text-[#4B3621]">{formTitle}</h2>
+              <p className="mt-1 text-sm text-gray-500">{formSubtitle}</p>
             </div>
             {children}
           </div>
@@ -271,68 +275,65 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
 export function Register({ navigate }: { navigate: (s: string) => void }) {
   const [role, setRole] = useState<"puptian" | "provider">("puptian");
   return (
-    <div className="min-h-screen bg-white text-[#000000]">
-      <WirePublicNav navigate={navigate} />
-      <div className="px-4 py-5 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-6xl items-start gap-5 lg:grid-cols-[0.85fr_1.15fr]">
-          <RegistrationPanel
-            badge="Create an account"
-            title="Join the student services hub."
-            description="Choose the account that matches how you want to participate in the PUP Taguig community."
-          />
-          <div className="mx-auto w-full max-w-lg">
-            <div className="mb-5">
-              <div className="mb-2 inline-block rounded-full bg-[#4B3621] px-3 py-1 text-xs font-bold text-white">REGISTRATION</div>
-              <h1 className="text-2xl font-bold tracking-tight text-[#4B3621]">Create an Account</h1>
-              <p className="mt-1 text-sm text-gray-500">Join University Organization Student Services Hub</p>
-            </div>
-
-            <div className="mb-5 flex overflow-hidden rounded-2xl border border-[#4B3621]/20 bg-white p-1 shadow-sm">
+    <AuthShell
+      navigate={navigate}
+      roleBadge="Registration"
+      roleColor="bg-[#4B3621]"
+      title="Join the student services hub."
+      subtitle="Choose the account that matches how you want to participate in the PUP Taguig community."
+      formTitle="Create an Account"
+      formSubtitle="Join University Organization Student Services Hub"
+    >
+      <div className="mb-5 flex overflow-hidden rounded-2xl border border-[#4B3621]/20 bg-white p-1 shadow-sm">
             <button onClick={() => setRole("puptian")} className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${role === "puptian" ? "bg-[#4B3621] text-white" : "text-gray-600 hover:bg-[#E3C565]/30"}`}>
               PUPTian (Student)
             </button>
             <button onClick={() => setRole("provider")} className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${role === "provider" ? "bg-[#4B3621] text-white" : "text-gray-600 hover:bg-[#E3C565]/30"}`}>
               Service Provider
             </button>
-            </div>
+      </div>
 
-            <div className="mb-4 text-center">
+      <div className="mb-4 text-center">
             <p className="text-xs text-gray-500">
               Registering as a Guest?{" "}
               <span className="cursor-pointer font-medium text-[#4B3621] underline" onClick={() => navigate("register-guest")}>
                 Guest Registration &rarr;
               </span>
             </p>
-            </div>
+      </div>
 
-          <WireCard className="rounded-[26px] border-[#4B3621]/20 p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
+      <WireCard className="rounded-[26px] border-[#4B3621]/20 p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
             {role === "puptian" ? (
               <form className="flex flex-col gap-4">
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-2 mb-1">PUPTian &mdash; Student Information</div>
-                <WireInput label="Full Name" placeholder="Last Name, First Name M.I." />
-                <WireInput label="Student Number" placeholder="e.g. 2021-00001" />
-                <WireInput label="Email Address" type="email" placeholder="Official PUP or personal email" />
-                <WireInput label="Contact Number" type="tel" placeholder="09XXXXXXXXX" />
-                <WireInput label="Password" type="password" placeholder="Minimum 8 characters" />
-                <WireInput label="Confirm Password" type="password" placeholder="Re-enter your password" />
-                <div className="mt-1"><WireCheckbox label="I have read and agree to the Terms and Services" /></div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="text-xs font-semibold uppercase tracking-wide border-b border-gray-100 pb-2 mb-1 md:col-span-2 text-gray-500">PUPTian &mdash; Student Information</div>
+                  <WireInput label="Full Name" placeholder="Last Name, First Name M.I." />
+                  <WireInput label="Student Number" placeholder="e.g. 2021-00001" />
+                  <WireInput label="Email Address" type="email" placeholder="Official PUP or personal email" />
+                  <WireInput label="Contact Number" type="tel" placeholder="09XXXXXXXXX" />
+                  <WireInput label="Password" type="password" placeholder="Minimum 8 characters" />
+                  <WireInput label="Confirm Password" type="password" placeholder="Re-enter your password" />
+                  <div className="mt-1 md:col-span-2"><WireCheckbox label="I have read and agree to the Terms and Services" /></div>
+                </div>
                 <WireBtn type="submit" size="lg" className="w-full mt-2" onClick={() => navigate("student-dashboard")}>Register as PUPTian</WireBtn>
               </form>
             ) : (
               <form className="flex flex-col gap-4">
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-2 mb-1">Service Provider &mdash; Business Information</div>
-                <WireInput label="Business / Provider Name" placeholder="Official business name" />
-                <WireInput label="Contact Person" placeholder="Name of authorized representative" />
-                <WireInput label="Email Address" type="email" placeholder="Business email" />
-                <WireInput label="Contact Number" type="tel" placeholder="09XXXXXXXXX" />
-                <WireInput label="Business Address" placeholder="Complete address" />
-                <WireSelect label="Service Type" options={["Select service type...", "Printing Services", "School Supplies", "Both"]} />
-                <WireInput label="Password" type="password" placeholder="Minimum 8 characters" />
-                <WireInput label="Confirm Password" type="password" placeholder="Re-enter your password" />
-                <div className="border border-dashed border-gray-300 p-3 bg-gray-50 text-xs text-gray-500">
-                  <strong>Note:</strong> Provider accounts require University Organization approval before activation.
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="text-xs font-semibold uppercase tracking-wide border-b border-gray-100 pb-2 mb-1 md:col-span-2 text-gray-500">Service Provider &mdash; Business Information</div>
+                  <WireInput label="Business / Provider Name" placeholder="Official business name" />
+                  <WireInput label="Contact Person" placeholder="Name of authorized representative" />
+                  <WireInput label="Email Address" type="email" placeholder="Business email" />
+                  <WireInput label="Contact Number" type="tel" placeholder="09XXXXXXXXX" />
+                  <WireInput className="md:col-span-2" label="Business Address" placeholder="Complete address" />
+                  <WireSelect className="md:col-span-2" label="Service Type" options={["Select service type...", "Printing Services", "School Supplies", "Both"]} />
+                  <WireInput label="Password" type="password" placeholder="Minimum 8 characters" />
+                  <WireInput label="Confirm Password" type="password" placeholder="Re-enter your password" />
+                  <div className="border border-dashed border-gray-300 bg-gray-50 p-3 text-xs text-gray-500 md:col-span-2">
+                    <strong>Note:</strong> Provider accounts require University Organization approval before activation.
+                  </div>
+                  <div className="mt-1 md:col-span-2"><WireCheckbox label="I have read and agree to the Terms and Services" /></div>
                 </div>
-                <div className="mt-1"><WireCheckbox label="I have read and agree to the Terms and Services" /></div>
                 <WireBtn type="submit" size="lg" className="w-full mt-2" onClick={() => navigate("provider-dashboard")}>Submit Provider Application</WireBtn>
               </form>
             )}
@@ -340,44 +341,7 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
               <WireBtn variant="ghost" onClick={() => navigate("login")} className="text-sm text-gray-500">&larr; Back to Login</WireBtn>
             </div>
           </WireCard>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function RegistrationPanel({
-  badge,
-  title,
-  description,
-}: {
-  badge: string;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="relative min-h-[440px] overflow-hidden rounded-[28px] bg-[#E3C565] p-7 text-[#000000] shadow-[0_22px_60px_rgba(227,197,101,0.16)] sm:p-10">
-      <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full border-[34px] border-[#4B3621]/20" />
-      <div className="absolute -bottom-40 right-0 h-80 w-80 rounded-full border-[42px] border-white/40" />
-      <div className="relative flex h-full flex-col justify-between">
-        <div className="flex items-center gap-3">
-          <img src={organizationLogo} alt="University Organization logo" className="h-12 w-12 object-contain" />
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#4B3621]">PUP Taguig</p>
-            <p className="font-semibold text-[#4B3621]">Student Services Hub</p>
-          </div>
-        </div>
-        <div className="py-12">
-          <div className="mb-5 inline-flex rounded-full bg-[#000000]/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-[#4B3621]">{badge}</div>
-          <h2 className="max-w-md text-4xl font-bold leading-tight tracking-[-0.04em] text-[#4B3621]">{title}</h2>
-          <p className="mt-5 max-w-sm text-sm leading-6 text-[#4B3621]">{description}</p>
-        </div>
-        <div className="border-t border-[#4B3621]/15 pt-5 text-xs text-[#4B3621]">
-          <strong>One hub.</strong> Connect with services, supplies, and academic resources.
-        </div>
-      </div>
-    </div>
+    </AuthShell>
   );
 }
 
@@ -385,22 +349,15 @@ function RegistrationPanel({
 
 export function GuestRegister({ navigate }: { navigate: (s: string) => void }) {
   return (
-    <div className="min-h-screen bg-white text-[#000000]">
-      <WirePublicNav navigate={navigate} />
-      <div className="px-4 py-5 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-6xl items-start gap-5 lg:grid-cols-[0.85fr_1.15fr]">
-          <RegistrationPanel
-            badge="Guest registration"
-            title="Explore first. Join when ready."
-            description="Create a limited guest account to browse services and post public requests before committing to a full student account."
-          />
-          <div className="mx-auto w-full max-w-lg">
-            <div className="mb-5">
-              <div className="mb-2 inline-block rounded-full bg-[#E3C565] px-3 py-1 text-xs font-bold text-[#4B3621]">GUEST REGISTRATION</div>
-              <h1 className="text-2xl font-bold tracking-tight text-[#4B3621]">Create a Guest Account</h1>
-              <p className="mt-1 text-sm text-gray-500">Browse services and post requests</p>
-            </div>
-
+    <AuthShell
+      navigate={navigate}
+      roleBadge="Guest Registration"
+      roleColor="bg-[#E3C565] text-[#000000]"
+      title="Explore first. Join when ready."
+      subtitle="Create a limited guest account to browse services and post public requests before committing to a full student account."
+      formTitle="Create a Guest Account"
+      formSubtitle="Browse services and post requests"
+    >
           <div className="mb-4 rounded-2xl border border-[#4B3621]/15 bg-[#E3C565]/35 p-4 text-xs text-[#4B3621]">
             <p className="font-semibold mb-1">Guest Account Limitations:</p>
             <ul className="list-disc list-inside flex flex-col gap-0.5">
@@ -414,17 +371,19 @@ export function GuestRegister({ navigate }: { navigate: (s: string) => void }) {
 
           <WireCard className="rounded-[26px] border-[#4B3621]/20 p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
             <form className="flex flex-col gap-4">
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-2 mb-1">Guest &mdash; Basic Information</div>
-              <WireInput label="Full Name" placeholder="Your full name" />
-              <WireInput label="Email Address" type="email" placeholder="your@email.com" />
-              <WireInput label="Contact Number" type="tel" placeholder="09XXXXXXXXX" />
-              <WireSelect label="Purpose / Affiliation" options={["Select...", "PUP Taguig Student (unregistered)", "Non-PUP Student", "Faculty / Staff", "Community Member", "Other"]} />
-              <WireInput label="Password" type="password" placeholder="Minimum 8 characters" />
-              <WireInput label="Confirm Password" type="password" placeholder="Re-enter your password" />
-              <div className="mt-1">
-                <WireCheckbox label="I understand guest accounts have limited access" />
-                <div className="mt-2">
-                  <WireCheckbox label="I have read and agree to the Terms and Services" />
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="text-xs font-semibold uppercase tracking-wide border-b border-gray-100 pb-2 mb-1 md:col-span-2 text-gray-500">Guest &mdash; Basic Information</div>
+                <WireInput label="Full Name" placeholder="Your full name" />
+                <WireInput label="Email Address" type="email" placeholder="your@email.com" />
+                <WireInput label="Contact Number" type="tel" placeholder="09XXXXXXXXX" />
+                <WireSelect label="Purpose / Affiliation" options={["Select...", "Non-PUP Student", "Faculty / Staff"]} />
+                <WireInput label="Password" type="password" placeholder="Minimum 8 characters" />
+                <WireInput label="Confirm Password" type="password" placeholder="Re-enter your password" />
+                <div className="mt-1 md:col-span-2">
+                  <WireCheckbox label="I understand guest accounts have limited access" />
+                  <div className="mt-2">
+                    <WireCheckbox label="I have read and agree to the Terms and Services" />
+                  </div>
                 </div>
               </div>
               <WireBtn type="submit" size="lg" className="w-full mt-2 bg-gray-600 border-gray-600" onClick={() => navigate("guest-dashboard")}>
@@ -436,10 +395,7 @@ export function GuestRegister({ navigate }: { navigate: (s: string) => void }) {
               <WireBtn variant="outline" className="w-full" onClick={() => navigate("register")}>Register as PUPTian instead</WireBtn>
               <WireBtn variant="ghost" onClick={() => navigate("login-guest")} className="text-sm text-gray-500">&larr; Back to Guest Login</WireBtn>
             </div>
-          </WireCard>
-        </div>
-      </div>
-    </div>
-    </div>
+        </WireCard>
+    </AuthShell>
   );
 }
