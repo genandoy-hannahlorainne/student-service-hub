@@ -10,15 +10,10 @@
   autoLaunch = false
 
 # Redirect all unmatched paths to the SPA entry point
+# (Netlify Functions at /.netlify/functions/* are handled automatically)
 [[redirects]]
   from = "/*"
   to = "/index.html"
-  status = 200
-
-# Don't rewrite Netlify Function calls
-[[redirects]]
-  from = "/.netlify/functions/*"
-  to = "/.netlify/functions/:splat"
   status = 200
 
 [functions]
