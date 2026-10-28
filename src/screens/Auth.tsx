@@ -483,11 +483,11 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-[#4B3621]/60 mb-1">Admin Account</p>
                   <p className="text-xs text-[#4B3621]"><span className="font-semibold">Email:</span> genandoyhannahlorainne@gmail.com</p>
-                  <p className="text-xs text-[#4B3621]"><span className="font-semibold">Password:</span> Admin@123456</p>
+                  <p className="text-xs text-[#4B3621]"><span className="font-semibold">Password:</span> 123_raihanniePUPT</p>
                 </div>
                 <button
                   type="button"
-                  onClick={() => { setUsername("genandoyhannahlorainne@gmail.com"); setPassword("Admin@123456"); }}
+                  onClick={() => { setUsername("genandoyhannahlorainne@gmail.com"); setPassword("123_raihanniePUPT"); }}
                   className="shrink-0 rounded-lg bg-[#4B3621] px-3 py-1.5 text-xs font-semibold text-[#E3C565] hover:bg-[#3a2918] transition"
                 >
                   Auto-fill

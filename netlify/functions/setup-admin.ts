@@ -52,7 +52,11 @@ export const handler: Handler = async (
   try {
     // 1. Check if a profile already exists for this email
     const existing = await sql`
-      SELECT up.id, up.email, array_agg(ur.role) as roles
+      SELECT up.id, up.email,
+             COALESCE(
+               json_agg(ur.role ORDER BY ur.created_at) FILTER (WHERE ur.role IS NOT NULL),
+               '[]'::json
+             ) as roles
       FROM user_profiles up
       LEFT JOIN user_roles ur ON ur.user_id = up.id
       WHERE up.email = ${TARGET_EMAIL}
@@ -80,13 +84,16 @@ export const handler: Handler = async (
 
       const verify = await sql`
         SELECT up.id, up.email, up.account_status,
-               array_agg(ur.role) as roles
+               COALESCE(
+                 json_agg(ur.role ORDER BY ur.created_at) FILTER (WHERE ur.role IS NOT NULL),
+                 '[]'::json
+               ) as roles
         FROM user_profiles up
         LEFT JOIN user_roles ur ON ur.user_id = up.id
         WHERE up.id = ${identity.sub}
         GROUP BY up.id
       `;
-      diag.result = verify.rows[0];
+      diag.result = verify.rows[0] ?? "inserted but re-fetch returned empty";
 
     } else if (existing.rows.length > 0) {
       // Profile exists by email but we don't have a sub — just ensure admin role
