@@ -489,92 +489,133 @@ export function ProviderLayout({ children, active, navigate }: { children: React
 }
 
 export function AdminLayout({ children, active, navigate }: { children: ReactNode; active: string; navigate: (s: string) => void }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const navItems = [
-    { label: "Dashboard",       screen: "admin-dashboard",       icon: "bi-grid-1x2" },
-    { label: "Providers",       screen: "admin-providers",       icon: "bi-shop" },
-    { label: "Rental Posts",    screen: "admin-rental-approval", icon: "bi-box-seam" },
-    { label: "Orders",          screen: "admin-orders",          icon: "bi-bag" },
-    { label: "Website Content", screen: "admin-website",         icon: "bi-layout-text-window" },
+    { label: "Dashboard",    screen: "admin-dashboard",       icon: "bi-grid-1x2" },
+    { label: "Providers",    screen: "admin-providers",       icon: "bi-shop" },
+    { label: "Rental Posts", screen: "admin-rental-approval", icon: "bi-box-seam" },
+    { label: "Orders",       screen: "admin-orders",          icon: "bi-bag" },
   ];
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-[#f5f3f0]">
-      <header className="h-14 shrink-0 bg-[#4B3621] text-white px-4 flex items-center justify-between gap-3 shadow-md">
-        <div className="flex items-center gap-3 min-w-0">
-          <button onClick={() => setSidebarOpen((v: boolean) => !v)} className="lg:hidden flex flex-col gap-1.5 w-8 h-8 items-center justify-center shrink-0" aria-label="Toggle menu">
-            <span className="block w-5 h-0.5 bg-white" />
-            <span className="block w-5 h-0.5 bg-white" />
-            <span className="block w-5 h-0.5 bg-white" />
-          </button>
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="hidden sm:flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#E3C565] text-[#4B3621] text-xs font-black">U</span>
-            <div>
-              <p className="text-[10px] font-bold leading-none text-[#E3C565] hidden sm:block">UniServe</p>
+    <div className="flex h-screen overflow-hidden bg-[#f5f3f0]">
+
+      {/* ?? Left Sidebar ???????????????????????????????????????????????? */}
+      {/* Mobile backdrop */}
+      {mobileOpen && (
+        <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setMobileOpen(false)} />
+      )}
+
+      <aside className={`
+        fixed lg:static inset-y-0 left-0 z-40
+        flex flex-col bg-[#4B3621] text-white shrink-0
+        transition-all duration-200
+        ${mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        ${collapsed ? "lg:w-16" : "w-56"}
+      `}>
+
+        {/* Logo area */}
+        <div className={`flex items-center gap-3 px-4 py-4 border-b border-white/10 ${collapsed ? "justify-center" : ""}`}>
+          <img src="/src/assets/images/org_ssh_logo.png" alt="UniServe logo" className="h-8 w-8 shrink-0 object-contain" />
+          {!collapsed && (
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold text-[#E3C565] leading-none">UniServe</p>
               <p className="text-sm font-bold truncate">Admin Panel</p>
             </div>
-          </div>
-        </div>
-        <nav className="hidden lg:flex items-center gap-1">
-          {navItems.map((item) => (
-            <button
-              key={item.screen}
-              onClick={() => navigate(item.screen)}
-              className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition ${active === item.screen ? "bg-[#E3C565] text-[#4B3621]" : "text-white/70 hover:text-white hover:bg-white/10"}`}
-            >
-              <i className={`bi ${item.icon}`} aria-hidden="true" />
-              {item.label}
-            </button>
-          ))}
-        </nav>
-        <div className="flex items-center gap-2 shrink-0">
-          <button className="flex h-8 w-8 items-center justify-center rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition" aria-label="Notifications">
-            <i className="bi bi-bell text-sm" aria-hidden="true" />
-          </button>
-          <div className="flex items-center gap-2 rounded-xl bg-white/10 px-2.5 py-1.5">
-            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#E3C565] text-[#4B3621] text-[10px] font-black shrink-0">A</span>
-            <span className="text-xs font-semibold hidden sm:block">Admin</span>
-          </div>
-          <button onClick={() => navigate("landing")} className="flex h-8 w-8 items-center justify-center rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition" aria-label="Logout" title="Logout">
-            <i className="bi bi-box-arrow-right text-sm" aria-hidden="true" />
+          )}
+          {/* Mobile close */}
+          <button onClick={() => setMobileOpen(false)} className="lg:hidden ml-auto text-white/60 hover:text-white text-xl leading-none">&times;</button>
+          {/* Desktop collapse toggle */}
+          <button
+            onClick={() => setCollapsed((v: boolean) => !v)}
+            className={`hidden lg:flex ml-auto h-6 w-6 items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition ${collapsed ? "rotate-180" : ""}`}
+            aria-label="Collapse sidebar"
+          >
+            <i className="bi bi-chevron-left text-xs" aria-hidden="true" />
           </button>
         </div>
-      </header>
-      <div className="flex flex-1 overflow-hidden relative">
-        {sidebarOpen && <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />}
-        <aside className={`fixed lg:hidden inset-y-0 left-0 z-40 w-64 bg-[#4B3621] text-white flex flex-col transition-transform duration-200 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-          <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
-            <div className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#E3C565] text-[#4B3621] text-xs font-black">U</span>
-              <div>
-                <p className="text-[10px] text-[#E3C565] font-bold">UniServe</p>
-                <p className="text-sm font-bold">Admin Panel</p>
-              </div>
-            </div>
-            <button onClick={() => setSidebarOpen(false)} className="text-white/60 hover:text-white text-xl leading-none">&times;</button>
-          </div>
-          <div className="flex flex-col gap-1 p-3 flex-1">
-            {navItems.map((item) => (
+
+        {/* Nav items */}
+        <nav className="flex flex-col gap-1 p-3 flex-1 overflow-y-auto">
+          {navItems.map((item) => {
+            const isActive = active === item.screen;
+            return (
               <button
                 key={item.screen}
-                onClick={() => { navigate(item.screen); setSidebarOpen(false); }}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-left transition ${active === item.screen ? "bg-[#E3C565] text-[#4B3621]" : "text-white/70 hover:text-white hover:bg-white/10"}`}
+                onClick={() => { navigate(item.screen); setMobileOpen(false); }}
+                title={collapsed ? item.label : undefined}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-left transition
+                  ${isActive ? "bg-[#E3C565] text-[#4B3621]" : "text-white/70 hover:text-white hover:bg-white/10"}
+                  ${collapsed ? "justify-center" : ""}
+                `}
               >
-                <i className={`bi ${item.icon} text-base`} aria-hidden="true" />
-                {item.label}
+                <i className={`bi ${item.icon} text-base shrink-0`} aria-hidden="true" />
+                {!collapsed && item.label}
               </button>
-            ))}
-          </div>
-          <div className="p-3 border-t border-white/10">
-            <button onClick={() => navigate("landing")} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-white/60 hover:text-white hover:bg-white/10 transition">
-              <i className="bi bi-box-arrow-right text-base" aria-hidden="true" />
-              Logout
+            );
+          })}
+        </nav>
+
+        {/* Bottom: admin badge + logout */}
+        <div className={`p-3 border-t border-white/10 flex flex-col gap-2 ${collapsed ? "items-center" : ""}`}>
+          {!collapsed && (
+            <div className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2">
+              <img src="/src/assets/images/org_ssh_logo.png" alt="" className="h-5 w-5 object-contain shrink-0" />
+              <span className="text-xs font-semibold truncate">Admin</span>
+            </div>
+          )}
+          <button
+            onClick={() => navigate("landing")}
+            title="Logout"
+            className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-white/60 hover:text-white hover:bg-white/10 transition ${collapsed ? "justify-center w-full" : "w-full"}`}
+          >
+            <i className="bi bi-box-arrow-right text-base shrink-0" aria-hidden="true" />
+            {!collapsed && "Logout"}
+          </button>
+        </div>
+      </aside>
+
+      {/* ?? Right: topbar + content ????????????????????????????????????? */}
+      <div className="flex flex-col flex-1 overflow-hidden min-w-0">
+
+        {/* Topbar */}
+        <header className="h-14 shrink-0 bg-white border-b border-[#4B3621]/10 px-4 flex items-center justify-between gap-3">
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMobileOpen((v: boolean) => !v)}
+            className="lg:hidden flex flex-col gap-1.5 w-8 h-8 items-center justify-center shrink-0"
+            aria-label="Toggle menu"
+          >
+            <span className="block w-5 h-0.5 bg-[#4B3621]" />
+            <span className="block w-5 h-0.5 bg-[#4B3621]" />
+            <span className="block w-5 h-0.5 bg-[#4B3621]" />
+          </button>
+
+          {/* Page title from active nav */}
+          <p className="text-sm font-bold text-[#4B3621] truncate">
+            {navItems.find(n => n.screen === active)?.label ?? "Admin"}
+          </p>
+
+          {/* Right actions */}
+          <div className="flex items-center gap-2 ml-auto shrink-0">
+            <button className="flex h-8 w-8 items-center justify-center rounded-xl text-[#4B3621]/50 hover:text-[#4B3621] hover:bg-[#fdf8f0] transition" aria-label="Notifications">
+              <i className="bi bi-bell text-sm" aria-hidden="true" />
             </button>
+            <div className="flex items-center gap-2 rounded-xl bg-[#fdf8f0] border border-[#4B3621]/10 px-2.5 py-1.5">
+              <img src="/src/assets/images/org_ssh_logo.png" alt="" className="h-5 w-5 object-contain shrink-0" />
+              <span className="text-xs font-semibold text-[#4B3621] hidden sm:block">Admin</span>
+            </div>
           </div>
-        </aside>
-        <main className="flex-1 overflow-y-auto p-4 lg:p-5">{children}</main>
+        </header>
+
+        {/* Main content */}
+        <main className="flex-1 overflow-y-auto p-4 lg:p-5">
+          {children}
+        </main>
       </div>
+
     </div>
   );
 }

@@ -182,8 +182,7 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
           {[
             { label: "Manage Providers",  icon: "bi-shop",            screen: "admin-providers",       bg: "bg-[#E3C565] text-[#4B3621]" },
             { label: "Rental Approvals",  icon: "bi-box-seam",        screen: "admin-rental-approval", bg: "bg-white ring-1 ring-[#4B3621]/10 text-[#4B3621]" },
-            { label: "All Orders",        icon: "bi-bag",             screen: "admin-orders",          bg: "bg-white ring-1 ring-[#4B3621]/10 text-[#4B3621]" },
-            { label: "Website Content",   icon: "bi-layout-text-window", screen: "admin-website",      bg: "bg-[#4B3621] text-white" },
+            { label: "All Orders",        icon: "bi-bag",             screen: "admin-orders",          bg: "bg-[#4B3621] text-white" },
           ].map((tile) => (
             <button
               key={tile.label}
