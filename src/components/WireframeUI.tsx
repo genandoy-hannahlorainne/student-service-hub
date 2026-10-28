@@ -518,7 +518,7 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
 
         {/* Logo area */}
         <div className={`flex items-center gap-3 px-4 py-4 border-b border-white/10 ${collapsed ? "justify-center" : ""}`}>
-          <img src="/src/assets/images/org_ssh_logo.png" alt="UniServe logo" className="h-8 w-8 shrink-0 object-contain" />
+          <img src={organizationLogo} alt="UniServe logo" className="h-8 w-8 shrink-0 object-contain" />
           {!collapsed && (
             <div className="min-w-0">
               <p className="text-[10px] font-bold text-[#E3C565] leading-none">UniServe</p>
@@ -530,10 +530,12 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
           {/* Desktop collapse toggle */}
           <button
             onClick={() => setCollapsed((v: boolean) => !v)}
-            className={`hidden lg:flex ml-auto h-6 w-6 items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition ${collapsed ? "rotate-180" : ""}`}
-            aria-label="Collapse sidebar"
+            className="hidden lg:flex ml-auto flex-col gap-1 h-7 w-7 items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition shrink-0"
+            aria-label="Toggle sidebar"
           >
-            <i className="bi bi-chevron-left text-xs" aria-hidden="true" />
+            <span className="block w-4 h-0.5 bg-current" />
+            <span className="block w-4 h-0.5 bg-current" />
+            <span className="block w-4 h-0.5 bg-current" />
           </button>
         </div>
 
@@ -562,7 +564,7 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
         <div className={`p-3 border-t border-white/10 flex flex-col gap-2 ${collapsed ? "items-center" : ""}`}>
           {!collapsed && (
             <div className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2">
-              <img src="/src/assets/images/org_ssh_logo.png" alt="" className="h-5 w-5 object-contain shrink-0" />
+              <img src={organizationLogo} alt="" className="h-5 w-5 object-contain shrink-0" />
               <span className="text-xs font-semibold truncate">Admin</span>
             </div>
           )}
@@ -604,7 +606,7 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
               <i className="bi bi-bell text-sm" aria-hidden="true" />
             </button>
             <div className="flex items-center gap-2 rounded-xl bg-[#fdf8f0] border border-[#4B3621]/10 px-2.5 py-1.5">
-              <img src="/src/assets/images/org_ssh_logo.png" alt="" className="h-5 w-5 object-contain shrink-0" />
+              <img src={organizationLogo} alt="" className="h-5 w-5 object-contain shrink-0" />
               <span className="text-xs font-semibold text-[#4B3621] hidden sm:block">Admin</span>
             </div>
           </div>
