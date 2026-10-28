@@ -1,98 +1,146 @@
 import { useState } from "react";
-import {
-  AdminLayout, WireBtn, WireCard, WireBadge, WireTable, WireSectionTitle, WireModal, WireInput, WireSelect,
-} from "../../components/WireframeUI";
+import React from "react";
+import { AdminLayout, WireModal } from "../../components/WireframeUI";
 
 const ORDERS = [
-  { id: "ORD-2025-004", student: "Pedro Santos", provider: "Speedy Print Shop", service: "Printing", date: "Dec 11, 2025", amount: "â‚±55.00", payment: "Maya Â· Pending", fulfillment: "Delivery", status: "Processing" },
-  { id: "ORD-2025-003", student: "Ana Reyes", provider: "Speedy Print Shop", service: "Printing", date: "Dec 11, 2025", amount: "â‚±95.00", payment: "Cash Â· COD", fulfillment: "Pickup", status: "Accepted" },
-  { id: "ORD-2025-002", student: "Maria Cruz", provider: "University Organization Supplies", service: "Supplies", date: "Dec 11, 2025", amount: "â‚±240.00", payment: "Cash Â· COD", fulfillment: "Pickup", status: "Ready for Pickup" },
-  { id: "ORD-2025-001", student: "Juan dela Cruz", provider: "Speedy Print Shop", service: "Printing", date: "Dec 10, 2025", amount: "â‚±70.00", payment: "GCash Â· Pending", fulfillment: "Delivery", status: "Processing" },
-  { id: "ORD-2025-098", student: "Carla Tan", provider: "Taguig Print Center", service: "Printing", date: "Dec 8, 2025", amount: "â‚±120.00", payment: "GCash Â· Paid", fulfillment: "Delivery", status: "Completed" },
-  { id: "ORD-2025-097", student: "Jose Lim", provider: "University Organization Supplies", service: "Supplies", date: "Dec 7, 2025", amount: "â‚±85.00", payment: "Cash Â· Paid", fulfillment: "Pickup", status: "Completed" },
+  { id: "ORD-004", student: "Pedro Santos", provider: "Speedy Print Shop",    service: "Printing", date: "Oct 28, 2026", amount: "₱55.00",  payment: "Maya · Pending",  fulfillment: "Delivery", status: "processing" },
+  { id: "ORD-003", student: "Ana Reyes",    provider: "Speedy Print Shop",    service: "Printing", date: "Oct 28, 2026", amount: "₱95.00",  payment: "Cash · COD",      fulfillment: "Pickup",   status: "accepted" },
+  { id: "ORD-002", student: "Maria Cruz",   provider: "UniServe Supplies",    service: "Supplies", date: "Oct 28, 2026", amount: "₱240.00", payment: "Cash · COD",      fulfillment: "Pickup",   status: "ready" },
+  { id: "ORD-001", student: "Juan dela Cruz", provider: "Speedy Print Shop",  service: "Printing", date: "Oct 27, 2026", amount: "₱70.00",  payment: "GCash · Pending", fulfillment: "Delivery", status: "processing" },
+  { id: "ORD-098", student: "Carla Tan",    provider: "Taguig Print Center",  service: "Printing", date: "Oct 26, 2026", amount: "₱120.00", payment: "GCash · Paid",    fulfillment: "Delivery", status: "completed" },
+  { id: "ORD-097", student: "Jose Lim",     provider: "UniServe Supplies",    service: "Supplies", date: "Oct 25, 2026", amount: "₱85.00",  payment: "Cash · Paid",     fulfillment: "Pickup",   status: "completed" },
 ];
 
-const statusVariants: Record<string, "default" | "success" | "pending" | "rejected" | "active"> = {
-  "Pending": "pending", "Accepted": "active", "Processing": "active",
-  "Ready for Pickup": "active", "Out for Delivery": "active", "Completed": "success",
+type Order = typeof ORDERS[0];
+
+const statusLabel: Record<string, string>  = { processing: "Processing", accepted: "Accepted", ready: "Ready for Pickup", completed: "Completed" };
+const statusStyle: Record<string, string>  = {
+  processing: "bg-yellow-100 text-yellow-700",
+  accepted:   "bg-blue-100 text-blue-700",
+  ready:      "bg-green-100 text-green-700",
+  completed:  "bg-gray-100 text-gray-500",
 };
+const FILTERS = ["all", "processing", "accepted", "ready", "completed"];
 
 export default function AdminOrders({ navigate }: { navigate: (s: string) => void }) {
-  const [viewOrder, setViewOrder] = useState<typeof ORDERS[0] | null>(null);
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [filter,    setFilter]    = useState("all");
+  const [viewOrder, setViewOrder] = useState<Order | null>(null);
+  const [search,    setSearch]    = useState("");
 
-  const statuses = ["All", "Processing", "Accepted", "Ready for Pickup", "Out for Delivery", "Completed"];
-  const filtered = statusFilter === "All" ? ORDERS : ORDERS.filter(o => o.status === statusFilter);
+  const filtered = ORDERS.filter(o =>
+    (filter === "all" || o.status === filter) &&
+    (search === "" || [o.id, o.student, o.provider].some(v => v.toLowerCase().includes(search.toLowerCase())))
+  );
+
+  const total    = ORDERS.length;
+  const active   = ORDERS.filter(o => ["processing","accepted","ready"].includes(o.status)).length;
+  const done     = ORDERS.filter(o => o.status === "completed").length;
+  const revenue  = ORDERS.filter(o => o.status === "completed").reduce((s, o) => s + parseFloat(o.amount.replace("₱","")), 0);
 
   return (
     <AdminLayout active="admin-orders" navigate={navigate}>
-      <div className="flex flex-col gap-5">
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div>
-            <h1 className="text-xl font-bold text-gray-800">Order Management</h1>
-            <p className="text-sm text-gray-500 mt-1">Monitor and manage all platform orders</p>
+      <div className="flex flex-col gap-4 pb-4">
+
+        {/* ── Header bento ───────────────────────────────────────────── */}
+        <div className="grid gap-4 lg:grid-cols-[1.4fr_0.6fr]">
+          <div className="rounded-[24px] bg-[#4B3621] text-white p-6 flex flex-col justify-between min-h-[140px] relative overflow-hidden">
+            <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full border-[24px] border-[#E3C565]/25 pointer-events-none" />
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E3C565]">Admin · Orders</p>
+              <h1 className="mt-1 text-2xl font-bold tracking-tight">Order Management</h1>
+              <p className="mt-1 text-sm text-[#E3C565]/70">Monitor all platform orders across providers and students.</p>
+            </div>
+            <div className="mt-4">
+              <input
+                value={search} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+                placeholder="Search by ID, student, or provider…"
+                className="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:border-[#E3C565]"
+              />
+            </div>
           </div>
-          <WireInput placeholder="Search by order ID, student, provider..." className="w-64" />
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              { label: "Total Orders",  value: total,               bg: "bg-[#E3C565] text-[#4B3621]",             icon: "bi-bag" },
+              { label: "Active",        value: active,              bg: "bg-white ring-1 ring-[#4B3621]/10 text-[#4B3621]", icon: "bi-arrow-repeat" },
+              { label: "Completed",     value: done,                bg: "bg-white ring-1 ring-[#4B3621]/10 text-[#4B3621]", icon: "bi-check2-all" },
+              { label: "Revenue",       value: `₱${revenue.toFixed(0)}`, bg: "bg-[#4B3621] text-white",           icon: "bi-cash-stack" },
+            ].map((s) => (
+              <div key={s.label} className={`rounded-[18px] p-3 flex flex-col gap-1 ${s.bg}`}>
+                <i className={`bi ${s.icon} text-lg`} />
+                <p className="text-xl font-bold leading-none">{s.value}</p>
+                <p className="text-[10px] font-medium opacity-70">{s.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Filters */}
+        {/* ── Status filters ──────────────────────────────────────────── */}
         <div className="flex flex-wrap gap-2">
-          {statuses.map((s) => (
-            <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 text-xs border font-medium ${statusFilter === s ? "bg-gray-800 text-white border-gray-800" : "border-gray-300 text-gray-600 hover:bg-gray-50"}`}>
-              {s}
+          {FILTERS.map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`rounded-full px-4 py-1.5 text-xs font-semibold capitalize transition ${filter === f ? "bg-[#4B3621] text-white" : "bg-white text-[#4B3621] ring-1 ring-[#4B3621]/15 hover:bg-[#fdf8f0]"}`}
+            >
+              {f === "all" ? "All Orders" : statusLabel[f]}
+              <span className="ml-1 opacity-50">({f === "all" ? ORDERS.length : ORDERS.filter(o => o.status === f).length})</span>
             </button>
           ))}
         </div>
 
-        {/* Table */}
-        <WireCard className="p-0 overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-200">
-            <WireSectionTitle>All Orders ({filtered.length})</WireSectionTitle>
-          </div>
-          <WireTable
-            headers={["Order ID", "Student", "Provider", "Service", "Date", "Amount", "Payment", "Fulfillment", "Status", "Actions"]}
-            rows={filtered.map((o) => [
-              <span key={o.id} className="font-mono text-xs text-gray-600">{o.id}</span>,
-              o.student,
-              o.provider,
-              o.service,
-              o.date,
-              <span key={o.amount} className="font-semibold">{o.amount}</span>,
-              <span key={o.payment} className="text-xs">{o.payment}</span>,
-              o.fulfillment,
-              <WireBadge key={o.status} variant={statusVariants[o.status]}>{o.status}</WireBadge>,
-              <WireBtn key="view" size="sm" variant="ghost" onClick={() => setViewOrder(o)}>View</WireBtn>,
-            ])}
-          />
-        </WireCard>
+        {/* ── Orders cards ────────────────────────────────────────────── */}
+        <div className="rounded-[24px] bg-white ring-1 ring-[#4B3621]/10 p-5 flex flex-col gap-3">
+          <h2 className="font-bold text-[#4B3621]">Orders <span className="text-[#4B3621]/40 font-normal text-sm">({filtered.length})</span></h2>
 
-        {/* Order Detail Modal */}
-        {viewOrder && (
-          <WireModal title={`Order Details â€” ${viewOrder.id}`} onClose={() => setViewOrder(null)}>
-            <div className="flex flex-col gap-2 text-sm">
-              {[
-                ["Student", viewOrder.student],
-                ["Provider", viewOrder.provider],
-                ["Service", viewOrder.service],
-                ["Order Date", viewOrder.date],
-                ["Fulfillment", viewOrder.fulfillment],
-                ["Payment", viewOrder.payment],
-                ["Amount", viewOrder.amount],
-                ["Status", viewOrder.status],
-              ].map(([k, v]) => (
-                <div key={k} className="flex justify-between py-1.5 border-b border-gray-100">
-                  <span className="text-gray-500">{k}:</span>
-                  <span className="font-medium text-gray-800">{v}</span>
+          {filtered.length === 0 ? (
+            <div className="rounded-2xl border-2 border-dashed border-[#4B3621]/10 py-12 text-center text-[#4B3621]/40 text-sm">No orders found.</div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {filtered.map((o) => (
+                <div key={o.id} className="rounded-2xl bg-[#fdf8f0] p-4 flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] text-[#4B3621]/50">{o.id}</span>
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusStyle[o.status]}`}>{statusLabel[o.status]}</span>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-[#4B3621]">{o.student}</p>
+                    <p className="text-xs text-[#4B3621]/60">{o.provider} · {o.service}</p>
+                    <p className="text-[10px] text-[#4B3621]/40 mt-0.5">{o.date}</p>
+                  </div>
+                  <div className="flex items-center justify-between mt-auto pt-2 border-t border-[#4B3621]/5">
+                    <div>
+                      <p className="text-lg font-bold text-[#4B3621]">{o.amount}</p>
+                      <p className="text-[10px] text-[#4B3621]/50">{o.payment} · {o.fulfillment}</p>
+                    </div>
+                    <button onClick={() => setViewOrder(o)} className="rounded-lg border border-[#4B3621]/15 px-3 py-1.5 text-xs font-medium text-[#4B3621] hover:bg-white transition">
+                      View
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
-            <div className="flex gap-2 mt-4">
-              <WireBtn variant="secondary" className="flex-1" onClick={() => setViewOrder(null)}>Close</WireBtn>
-              <WireBtn className="flex-1" onClick={() => navigate("transaction-receipt")}>View Receipt</WireBtn>
-            </div>
-          </WireModal>
-        )}
+          )}
+        </div>
+
       </div>
+
+      {/* Order Detail Modal */}
+      {viewOrder && (
+        <WireModal title={`Order — ${viewOrder.id}`} onClose={() => setViewOrder(null)}>
+          <div className="flex flex-col gap-0">
+            {([["Student", viewOrder.student], ["Provider", viewOrder.provider], ["Service", viewOrder.service], ["Date", viewOrder.date], ["Fulfillment", viewOrder.fulfillment], ["Payment", viewOrder.payment], ["Amount", viewOrder.amount], ["Status", statusLabel[viewOrder.status]]] as [string,string][]).map(([k, v]) => (
+              <div key={k} className="flex justify-between py-2.5 border-b border-gray-100 text-sm last:border-0">
+                <span className="text-gray-400">{k}</span>
+                <span className="font-semibold text-gray-800">{v}</span>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2 mt-4">
+            <button onClick={() => setViewOrder(null)} className="flex-1 rounded-xl border border-[#4B3621]/20 py-2.5 text-sm font-semibold text-[#4B3621] hover:bg-gray-50 transition">Close</button>
+            <button onClick={() => navigate("transaction-receipt")} className="flex-1 rounded-xl bg-[#4B3621] py-2.5 text-sm font-semibold text-white hover:bg-[#3a2918] transition">View Receipt</button>
+          </div>
+        </WireModal>
+      )}
     </AdminLayout>
   );
 }
