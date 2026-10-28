@@ -219,10 +219,81 @@ function RouteGuard({
   // Show a loading overlay while auth is resolving
   if (authStatus === "initialising" || authStatus === "loading_profile") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-[#4B3621] border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-500">Loading…</p>
+      <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
+
+        {/* Skeleton nav */}
+        <div className="h-[70px] bg-white border-b border-gray-200 px-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-gray-200 animate-pulse" />
+            <div className="w-48 h-4 rounded-full bg-gray-200 animate-pulse" />
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-16 h-8 rounded-lg bg-gray-200 animate-pulse" />
+            <div className="w-20 h-8 rounded-lg bg-gray-200 animate-pulse" />
+          </div>
+        </div>
+
+        {/* Skeleton body — admin dashboard layout */}
+        <div className="flex flex-1 overflow-hidden">
+
+          {/* Skeleton sidebar */}
+          <div className="hidden lg:flex w-56 bg-white border-r border-gray-200 flex-col gap-2 p-4">
+            {[80, 60, 70, 60, 75, 60, 65, 55].map((w, i) => (
+              <div key={i} className={`h-8 rounded-lg bg-gray-200 animate-pulse`} style={{ width: `${w}%`, animationDelay: `${i * 60}ms` }} />
+            ))}
+          </div>
+
+          {/* Skeleton main content */}
+          <div className="flex-1 p-6 flex flex-col gap-6">
+
+            {/* Skeleton stat cards row */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="bg-white rounded-2xl p-5 flex flex-col gap-3 border border-gray-100" style={{ animationDelay: `${i * 80}ms` }}>
+                  <div className="w-8 h-8 rounded-xl bg-gray-200 animate-pulse" />
+                  <div className="w-12 h-6 rounded-full bg-gray-200 animate-pulse" />
+                  <div className="w-24 h-3 rounded-full bg-gray-100 animate-pulse" />
+                </div>
+              ))}
+            </div>
+
+            {/* Skeleton two-column section */}
+            <div className="grid lg:grid-cols-[1.4fr_0.6fr] gap-4 flex-1">
+
+              {/* Skeleton table */}
+              <div className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col gap-4">
+                <div className="w-36 h-4 rounded-full bg-gray-200 animate-pulse" />
+                <div className="grid grid-cols-4 gap-3 pb-2 border-b border-gray-100">
+                  {[40, 30, 20, 10].map((w, i) => (
+                    <div key={i} className="h-3 rounded-full bg-gray-100 animate-pulse" style={{ width: `${w * 2}px` }} />
+                  ))}
+                </div>
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <div key={i} className="grid grid-cols-4 gap-3 items-center" style={{ animationDelay: `${i * 50}ms` }}>
+                    <div className="h-3 rounded-full bg-gray-200 animate-pulse w-3/4" />
+                    <div className="h-3 rounded-full bg-gray-100 animate-pulse w-1/2" />
+                    <div className="h-5 w-16 rounded-full bg-gray-100 animate-pulse" />
+                    <div className="h-3 rounded-full bg-gray-100 animate-pulse w-1/3" />
+                  </div>
+                ))}
+              </div>
+
+              {/* Skeleton side panel */}
+              <div className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col gap-4">
+                <div className="w-28 h-4 rounded-full bg-gray-200 animate-pulse" />
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-center gap-3" style={{ animationDelay: `${i * 70}ms` }}>
+                    <div className="w-8 h-8 rounded-xl bg-gray-200 animate-pulse shrink-0" />
+                    <div className="flex flex-col gap-1.5 flex-1">
+                      <div className="h-3 rounded-full bg-gray-200 animate-pulse w-3/4" />
+                      <div className="h-2.5 rounded-full bg-gray-100 animate-pulse w-1/2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+            </div>
+          </div>
         </div>
       </div>
     );

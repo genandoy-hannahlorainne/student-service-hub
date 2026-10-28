@@ -477,24 +477,6 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
           </div>
 
           <div className="rounded-[26px] border border-[#4B3621]/20 bg-white p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
-            {/* Demo credential card */}
-            <div className="mb-4 rounded-xl border border-[#E3C565] bg-[#fffdf5] p-3">
-              <div className="flex items-center justify-between gap-2">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#4B3621]/60 mb-1">Admin Account</p>
-                  <p className="text-xs text-[#4B3621]"><span className="font-semibold">Email:</span> genandoyhannahlorainne@gmail.com</p>
-                  <p className="text-xs text-[#4B3621]"><span className="font-semibold">Password:</span> 123_raihanniePUPT</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => { setUsername("genandoyhannahlorainne@gmail.com"); setPassword("123_raihanniePUPT"); }}
-                  className="shrink-0 rounded-lg bg-[#4B3621] px-3 py-1.5 text-xs font-semibold text-[#E3C565] hover:bg-[#3a2918] transition"
-                >
-                  Auto-fill
-                </button>
-              </div>
-            </div>
-
             <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
               {displayError && <ErrorAlert message={displayError} />}
 
