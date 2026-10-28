@@ -3,6 +3,13 @@ import { useState, useEffect } from "react";
 // Auth
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
+// Skeletons
+import {
+  LandingSkeleton, AuthSkeleton, AdminLoginSkeleton, AdminLandingSkeleton,
+  StudentSkeleton, GuestSkeleton, ProviderSkeleton, AdminSkeleton,
+  PageTransitionBar,
+} from "./components/Skeletons";
+
 // Public screens
 import Landing from "./screens/Landing";
 import { Login, GuestLogin, ProviderLogin, AdminLogin, Register, GuestRegister } from "./screens/Auth";
@@ -235,87 +242,9 @@ function RouteGuard({
     }
   }, [screen, authStatus, isAdmin, isStudent, isProvider, isGuest, providerPending, setScreen]);
 
-  // Show a loading overlay while auth is resolving
+  // Show the matching skeleton while auth is resolving
   if (authStatus === "initialising" || authStatus === "loading_profile") {
-    return (
-      <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
-
-        {/* Skeleton nav */}
-        <div className="h-[70px] bg-white border-b border-gray-200 px-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-gray-200 animate-pulse" />
-            <div className="w-48 h-4 rounded-full bg-gray-200 animate-pulse" />
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-16 h-8 rounded-lg bg-gray-200 animate-pulse" />
-            <div className="w-20 h-8 rounded-lg bg-gray-200 animate-pulse" />
-          </div>
-        </div>
-
-        {/* Skeleton body — admin dashboard layout */}
-        <div className="flex flex-1 overflow-hidden">
-
-          {/* Skeleton sidebar */}
-          <div className="hidden lg:flex w-56 bg-white border-r border-gray-200 flex-col gap-2 p-4">
-            {[80, 60, 70, 60, 75, 60, 65, 55].map((w, i) => (
-              <div key={i} className={`h-8 rounded-lg bg-gray-200 animate-pulse`} style={{ width: `${w}%`, animationDelay: `${i * 60}ms` }} />
-            ))}
-          </div>
-
-          {/* Skeleton main content */}
-          <div className="flex-1 p-6 flex flex-col gap-6">
-
-            {/* Skeleton stat cards row */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="bg-white rounded-2xl p-5 flex flex-col gap-3 border border-gray-100" style={{ animationDelay: `${i * 80}ms` }}>
-                  <div className="w-8 h-8 rounded-xl bg-gray-200 animate-pulse" />
-                  <div className="w-12 h-6 rounded-full bg-gray-200 animate-pulse" />
-                  <div className="w-24 h-3 rounded-full bg-gray-100 animate-pulse" />
-                </div>
-              ))}
-            </div>
-
-            {/* Skeleton two-column section */}
-            <div className="grid lg:grid-cols-[1.4fr_0.6fr] gap-4 flex-1">
-
-              {/* Skeleton table */}
-              <div className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col gap-4">
-                <div className="w-36 h-4 rounded-full bg-gray-200 animate-pulse" />
-                <div className="grid grid-cols-4 gap-3 pb-2 border-b border-gray-100">
-                  {[40, 30, 20, 10].map((w, i) => (
-                    <div key={i} className="h-3 rounded-full bg-gray-100 animate-pulse" style={{ width: `${w * 2}px` }} />
-                  ))}
-                </div>
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <div key={i} className="grid grid-cols-4 gap-3 items-center" style={{ animationDelay: `${i * 50}ms` }}>
-                    <div className="h-3 rounded-full bg-gray-200 animate-pulse w-3/4" />
-                    <div className="h-3 rounded-full bg-gray-100 animate-pulse w-1/2" />
-                    <div className="h-5 w-16 rounded-full bg-gray-100 animate-pulse" />
-                    <div className="h-3 rounded-full bg-gray-100 animate-pulse w-1/3" />
-                  </div>
-                ))}
-              </div>
-
-              {/* Skeleton side panel */}
-              <div className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col gap-4">
-                <div className="w-28 h-4 rounded-full bg-gray-200 animate-pulse" />
-                {[0, 1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center gap-3" style={{ animationDelay: `${i * 70}ms` }}>
-                    <div className="w-8 h-8 rounded-xl bg-gray-200 animate-pulse shrink-0" />
-                    <div className="flex flex-col gap-1.5 flex-1">
-                      <div className="h-3 rounded-full bg-gray-200 animate-pulse w-3/4" />
-                      <div className="h-2.5 rounded-full bg-gray-100 animate-pulse w-1/2" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <SkeletonFor screen={screen} />;
   }
 
   return <>{children}</>;
@@ -384,10 +313,28 @@ function screenFromHash(): Screen {
   return "landing";
 }
 
+/** Pick the right skeleton for a screen that is about to render. */
+function SkeletonFor({ screen }: { screen: Screen }) {
+  // Admin world
+  if (screen === "admin-landing") return <AdminLandingSkeleton />;
+  if (screen === "login-admin")   return <AdminLoginSkeleton />;
+  if (ADMIN_SCREENS.has(screen) || ADMIN_ENTRY_SCREENS.has(screen)) return <AdminSkeleton />;
+  // Auth / login / register
+  if (["login", "login-guest", "login-provider", "register", "register-guest"].includes(screen)) return <AuthSkeleton />;
+  // Role portals
+  if (STUDENT_SCREENS.has(screen) || screen === "provider-pending") return <StudentSkeleton />;
+  if (GUEST_SCREENS.has(screen))    return <GuestSkeleton />;
+  if (PROVIDER_SCREENS.has(screen)) return <ProviderSkeleton />;
+  // Public / landing
+  return <LandingSkeleton />;
+}
+
 
 function AppInner() {
   const [screen, setScreen] = useState<Screen>(screenFromHash);
   const [open, setOpen] = useState(false);
+  const [navigating, setNavigating] = useState(false);
+  const [pendingScreen, setPendingScreen] = useState<Screen | null>(null);
   const { logout, authStatus, isAdmin, isStudent, isProvider, isGuest, providerPending } = useAuth();
 
   // ── Push URL hash whenever the active screen changes ─────────────────────
@@ -410,6 +357,25 @@ function AppInner() {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
+  // ── Skeleton flash on navigation ─────────────────────────────────────────
+  useEffect(() => {
+    if (pendingScreen === null) return;
+    // Swap to real screen on next frame — skeleton was shown for one paint
+    const id = requestAnimationFrame(() => {
+      setScreen(pendingScreen);
+      setNavigating(false);
+      setPendingScreen(null);
+      window.scrollTo(0, 0);
+    });
+    return () => cancelAnimationFrame(id);
+  }, [pendingScreen]);
+
+  /** Trigger a skeleton flash then navigate to the target screen. */
+  const goTo = (target: Screen) => {
+    setNavigating(true);
+    setPendingScreen(target);
+  };
+
   const loginAndRegisterScreens: Screen[] = [
     "login", "login-guest", "login-provider", "login-admin",
     "register", "register-guest",
@@ -418,21 +384,15 @@ function AppInner() {
   const navigate = (s: string) => {
     const target = s as Screen;
 
-    // Admin logout → sign out then land on public landing (same as everyone else)
+    // Admin logout → sign out then land on public landing
     if (target === "landing" && authStatus === "authenticated" && isAdmin) {
-      void logout().then(() => {
-        setScreen("landing");
-        window.scrollTo(0, 0);
-      });
+      void logout().then(() => goTo("landing"));
       return;
     }
 
     // Non-admin logout → sign out then land on public landing
     if (target === "landing" && authStatus === "authenticated") {
-      void logout().then(() => {
-        setScreen("landing");
-        window.scrollTo(0, 0);
-      });
+      void logout().then(() => goTo("landing"));
       return;
     }
 
@@ -445,22 +405,18 @@ function AppInner() {
         (isGuest && target === "login-guest");
 
       if (isOwnPortal) {
-        if (isAdmin) { setScreen("admin-dashboard"); window.scrollTo(0, 0); return; }
-        if (isProvider) { setScreen(providerPending ? "provider-pending" : "provider-dashboard"); window.scrollTo(0, 0); return; }
-        if (isStudent) { setScreen("student-dashboard"); window.scrollTo(0, 0); return; }
-        if (isGuest) { setScreen("guest-dashboard"); window.scrollTo(0, 0); return; }
+        if (isAdmin)    { goTo("admin-dashboard"); return; }
+        if (isProvider) { goTo(providerPending ? "provider-pending" : "provider-dashboard"); return; }
+        if (isStudent)  { goTo("student-dashboard"); return; }
+        if (isGuest)    { goTo("guest-dashboard"); return; }
       }
 
       // Different role's portal or registration — sign out first
-      void logout().then(() => {
-        setScreen(target);
-        window.scrollTo(0, 0);
-      });
+      void logout().then(() => goTo(target));
       return;
     }
 
-    setScreen(target);
-    window.scrollTo(0, 0);
+    goTo(target);
   };
 
   const renderScreen = () => {
@@ -512,6 +468,14 @@ function AppInner() {
 
   return (
     <div className="relative">
+      {/* Progress bar shown during page transitions */}
+      {navigating && <PageTransitionBar />}
+
+      {/* During navigation, show matching skeleton for the incoming screen */}
+      {navigating && pendingScreen && <SkeletonFor screen={pendingScreen} />}
+
+      {/* Screen content — hidden (not unmounted) during skeleton flash */}
+      <div className={navigating ? "hidden" : undefined}>
       {/* Screen Navigator (dev tool — visible in all environments) */}
       <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
         <button
@@ -553,6 +517,7 @@ function AppInner() {
       <RouteGuard screen={screen} setScreen={setScreen}>
         {renderScreen()}
       </RouteGuard>
+      </div>{/* end screen content wrapper */}
     </div>
   );
 }
