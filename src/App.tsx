@@ -178,25 +178,20 @@ function RouteGuard({
 
     const isAuthenticated = authStatus === "authenticated";
 
-    // 1. Redirect authenticated users away from their *own* login/register pages.
-    //    Only bounce the user if they land on the portal that matches their role —
-    //    visiting a *different* role's login page is intentional (e.g. an admin
-    //    who just logged out and wants to sign back in as a student, or a user
-    //    who deliberately navigated to "login" to pick a different role).
-    //    Registration pages always redirect authenticated users (no role-switching
-    //    via registration makes sense while already signed in).
-    const registrationPages: Screen[] = ["register", "register-guest"];
-    if (isAuthenticated && registrationPages.includes(screen)) {
+    // 1. Authenticated users must not land on login or registration screens.
+    //    navigate() handles this proactively (logout-first or dashboard redirect),
+    //    but RouteGuard is the safety net for any edge case that slips through
+    //    (e.g. direct state manipulation, back-button after login, etc.).
+    //    Rule: if authenticated and on any auth screen, send to own dashboard.
+    const authScreens: Screen[] = [
+      "login", "login-guest", "login-provider", "login-admin",
+      "register", "register-guest",
+    ];
+    if (isAuthenticated && authScreens.includes(screen)) {
       if (isAdmin) { setScreen("admin-dashboard"); return; }
       if (isProvider) { setScreen(providerPending ? "provider-pending" : "provider-dashboard"); return; }
       if (isStudent) { setScreen("student-dashboard"); return; }
       if (isGuest) { setScreen("guest-dashboard"); return; }
-    }
-    if (isAuthenticated) {
-      if (isAdmin && screen === "login-admin") { setScreen("admin-dashboard"); return; }
-      if (isProvider && screen === "login-provider") { setScreen(providerPending ? "provider-pending" : "provider-dashboard"); return; }
-      if (isStudent && screen === "login") { setScreen("student-dashboard"); return; }
-      if (isGuest && screen === "login-guest") { setScreen("guest-dashboard"); return; }
     }
 
     // 2. Admin screens — must be admin
@@ -316,12 +311,15 @@ function RouteGuard({
 function AppInner() {
   const [screen, setScreen] = useState<Screen>("landing");
   const [open, setOpen] = useState(false);
-  const { logout, authStatus, isAdmin, isStudent, isProvider, isGuest } = useAuth();
+  const { logout, authStatus, isAdmin, isStudent, isProvider, isGuest, providerPending } = useAuth();
 
-  // Login portals that are NOT the user's own — navigating to one while
-  // authenticated means the user wants to switch accounts, so we sign them
-  // out first and then show the requested login form.
-  const loginPortals: Screen[] = ["login", "login-guest", "login-provider", "login-admin"];
+  // Login portals and registration pages — navigating to these while
+  // authenticated means the user wants to start fresh (different role or new
+  // account), so we sign them out first before showing the requested screen.
+  const loginAndRegisterScreens: Screen[] = [
+    "login", "login-guest", "login-provider", "login-admin",
+    "register", "register-guest",
+  ];
 
   const navigate = (s: string) => {
     const target = s as Screen;
@@ -335,22 +333,32 @@ function AppInner() {
       return;
     }
 
-    // Intercept navigating to a login portal that doesn't match the current
-    // role (e.g. admin clicking "Login as PUPTian") → logout first, then show
-    // the requested login form so no stale session bleeds through.
-    if (authStatus === "authenticated" && loginPortals.includes(target)) {
+    // Intercept navigating to any login or registration screen while
+    // authenticated. If the user is on their own portal (e.g. admin on
+    // "login-admin"), just redirect to their dashboard instead.
+    // For any OTHER portal or registration page, sign out first so no stale
+    // session carries over into the new login/register flow.
+    if (authStatus === "authenticated" && loginAndRegisterScreens.includes(target)) {
       const isOwnPortal =
         (isAdmin && target === "login-admin") ||
         (isStudent && target === "login") ||
         (isProvider && target === "login-provider") ||
         (isGuest && target === "login-guest");
-      if (!isOwnPortal) {
-        void logout().then(() => {
-          setScreen(target);
-          window.scrollTo(0, 0);
-        });
-        return;
+
+      if (isOwnPortal) {
+        // Already on their role — redirect to their dashboard instead
+        if (isAdmin) { setScreen("admin-dashboard"); window.scrollTo(0, 0); return; }
+        if (isProvider) { setScreen(providerPending ? "provider-pending" : "provider-dashboard"); window.scrollTo(0, 0); return; }
+        if (isStudent) { setScreen("student-dashboard"); window.scrollTo(0, 0); return; }
+        if (isGuest) { setScreen("guest-dashboard"); window.scrollTo(0, 0); return; }
       }
+
+      // Different portal or registration — log out first, then show target
+      void logout().then(() => {
+        setScreen(target);
+        window.scrollTo(0, 0);
+      });
+      return;
     }
 
     setScreen(target);

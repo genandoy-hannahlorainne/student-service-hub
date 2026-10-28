@@ -204,10 +204,9 @@ export function Login({ navigate }: { navigate: (s: string) => void }) {
 
       <div className="mt-4 flex flex-col gap-2">
         <p className="text-xs text-gray-400 text-center mb-1">Other login portals:</p>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <WireBtn variant="secondary" size="sm" onClick={() => navigate("login-guest")}>Guest</WireBtn>
           <WireBtn variant="secondary" size="sm" onClick={() => navigate("login-provider")}>Provider</WireBtn>
-          <WireBtn variant="secondary" size="sm" onClick={() => navigate("login-admin")}>Admin</WireBtn>
         </div>
         <p className="text-center text-xs text-gray-400 mt-1">
           <span className="underline cursor-pointer" onClick={() => navigate("landing")}>&larr; Back to Landing</span>
@@ -296,10 +295,9 @@ export function GuestLogin({ navigate }: { navigate: (s: string) => void }) {
 
       <div className="mt-4 flex flex-col gap-2">
         <p className="text-xs text-gray-400 text-center mb-1">Other login portals:</p>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <WireBtn variant="secondary" size="sm" onClick={() => navigate("login")}>PUPTian</WireBtn>
           <WireBtn variant="secondary" size="sm" onClick={() => navigate("login-provider")}>Provider</WireBtn>
-          <WireBtn variant="secondary" size="sm" onClick={() => navigate("login-admin")}>Admin</WireBtn>
         </div>
         <p className="text-center text-xs text-gray-400 mt-1">
           <span className="underline cursor-pointer" onClick={() => navigate("landing")}>&larr; Back to Landing</span>
@@ -392,10 +390,9 @@ export function ProviderLogin({ navigate }: { navigate: (s: string) => void }) {
 
       <div className="mt-4 flex flex-col gap-2">
         <p className="text-xs text-gray-400 text-center mb-1">Other login portals:</p>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <WireBtn variant="secondary" size="sm" onClick={() => navigate("login")}>PUPTian</WireBtn>
           <WireBtn variant="secondary" size="sm" onClick={() => navigate("login-guest")}>Guest</WireBtn>
-          <WireBtn variant="secondary" size="sm" onClick={() => navigate("login-admin")}>Admin</WireBtn>
         </div>
         <p className="text-center text-xs text-gray-400 mt-1">
           <span className="underline cursor-pointer" onClick={() => navigate("landing")}>&larr; Back to Landing</span>
