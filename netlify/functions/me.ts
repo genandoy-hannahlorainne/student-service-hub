@@ -30,6 +30,12 @@ export const handler: Handler = async (
     return errorResponse(401, "Unauthorized").then(toHandlerResponse);
   }
 
+  // Guard: check DATABASE_URL before attempting any DB call
+  if (!process.env.DATABASE_URL) {
+    console.error("[me] DATABASE_URL env var is not set");
+    return errorResponse(503, "Database not configured. Contact administrator.").then(toHandlerResponse);
+  }
+
   try {
     const profileResult = await sql`
       SELECT
@@ -121,8 +127,9 @@ export const handler: Handler = async (
 
     return jsonResponse({ profile, provider }).then(toHandlerResponse);
   } catch (err) {
-    console.error("[me] DB error:", err);
-    return errorResponse(500, "Internal server error").then(toHandlerResponse);
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[me] DB error:", msg);
+    return errorResponse(500, `Database error: ${msg}`).then(toHandlerResponse);
   }
 };
 
