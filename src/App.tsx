@@ -28,6 +28,7 @@ import ProviderDashboard from "./screens/provider/ProviderDashboard";
 import ProviderProfile from "./screens/provider/ProviderProfile";
 
 // Admin screens
+import AdminLanding from "./screens/admin/AdminLanding";
 import AdminDashboard from "./screens/admin/AdminDashboard";
 import AdminProviders from "./screens/admin/AdminProviders";
 import AdminRentalApproval from "./screens/admin/AdminRentalApproval";
@@ -56,7 +57,7 @@ type Screen =
   // Provider
   | "provider-dashboard" | "provider-profile"
   // Admin
-  | "admin-dashboard" | "admin-providers" | "admin-rental-approval"
+  | "admin-landing" | "admin-dashboard" | "admin-providers" | "admin-rental-approval"
   | "admin-orders" | "admin-website"
   // Shared
   | "transaction-receipt";
@@ -81,6 +82,11 @@ const PROVIDER_SCREENS = new Set<Screen>([
 const ADMIN_SCREENS = new Set<Screen>([
   "admin-dashboard", "admin-providers", "admin-rental-approval",
   "admin-orders", "admin-website",
+]);
+
+// Admin entry screens (landing + login) — unauthenticated access is allowed
+const ADMIN_ENTRY_SCREENS = new Set<Screen>([
+  "admin-landing", "login-admin",
 ]);
 
 // ─── Screen label map ─────────────────────────────────────────────────────────
@@ -114,6 +120,7 @@ const SCREEN_LABELS: Record<Screen, string> = {
   "provider-dashboard": "Provider Dashboard",
   "provider-profile": "Provider Profile",
   "admin-dashboard": "Admin Dashboard",
+  "admin-landing": "Admin — Portal Landing",
   "admin-providers": "Admin — Providers",
   "admin-rental-approval": "Admin — Rental Approval",
   "admin-orders": "Admin — Orders",
@@ -128,7 +135,7 @@ const GROUPS: { label: string; screens: Screen[] }[] = [
   { label: "PUPTian (Student)", screens: ["student-dashboard", "browse-services", "printing-service", "printing-confirmation", "order-tracking", "school-supplies", "resource-rental", "create-rental-post", "rental-post-status", "transaction-receipt"] },
   { label: "Guest (Limited Access)", screens: ["guest-dashboard", "guest-post", "guest-my-posts"] },
   { label: "Service Provider", screens: ["provider-pending", "provider-dashboard", "provider-profile"] },
-  { label: "Administrator (Internal)", screens: ["admin-dashboard", "admin-providers", "admin-rental-approval", "admin-orders", "admin-website"] },
+  { label: "Administrator (Internal)", screens: ["admin-landing", "admin-dashboard", "admin-providers", "admin-rental-approval", "admin-orders", "admin-website"] },
 ];
 
 const GROUP_COLORS: Record<string, string> = {
@@ -178,41 +185,49 @@ function RouteGuard({
 
     const isAuthenticated = authStatus === "authenticated";
 
-    // 1. Authenticated users must not land on login or registration screens.
-    //    navigate() handles this proactively (logout-first or dashboard redirect),
-    //    but RouteGuard is the safety net for any edge case that slips through
-    //    (e.g. direct state manipulation, back-button after login, etc.).
-    //    Rule: if authenticated and on any auth screen, send to own dashboard.
-    const authScreens: Screen[] = [
-      "login", "login-guest", "login-provider", "login-admin",
+    // 1. Authenticated users must not land on public login or registration screens.
+    //    navigate() handles this proactively, but RouteGuard is the safety net.
+    //    Note: admin-landing and login-admin are NOT in this list — they are
+    //    the admin world's own entry screens and are handled separately below.
+    const publicAuthScreens: Screen[] = [
+      "login", "login-guest", "login-provider",
       "register", "register-guest",
     ];
-    if (isAuthenticated && authScreens.includes(screen)) {
+    if (isAuthenticated && publicAuthScreens.includes(screen)) {
       if (isAdmin) { setScreen("admin-dashboard"); return; }
       if (isProvider) { setScreen(providerPending ? "provider-pending" : "provider-dashboard"); return; }
       if (isStudent) { setScreen("student-dashboard"); return; }
       if (isGuest) { setScreen("guest-dashboard"); return; }
     }
 
-    // 2. Admin screens — must be admin
+    // 2. Admin entry screens (admin-landing, login-admin) — redirect
+    //    authenticated admins straight to their dashboard, block non-admins.
+    if (ADMIN_ENTRY_SCREENS.has(screen)) {
+      if (isAuthenticated && isAdmin) { setScreen("admin-dashboard"); return; }
+      // Non-admins who somehow land here get sent to the public landing
+      if (isAuthenticated && !isAdmin) { setScreen("landing"); return; }
+      // Unauthenticated: allow through (they are the intended audience)
+    }
+
+    // 3. Admin dashboard/pages — must be authenticated admin
     if (ADMIN_SCREENS.has(screen)) {
-      if (!isAuthenticated) { setScreen("login-admin"); return; }
+      if (!isAuthenticated) { setScreen("admin-landing"); return; }
       if (!isAdmin) { setScreen("landing"); return; }
     }
 
-    // 3. Student screens
+    // 4. Student screens
     if (STUDENT_SCREENS.has(screen)) {
       if (!isAuthenticated) { setScreen("login"); return; }
       if (!isStudent && !isAdmin) { setScreen("landing"); return; }
     }
 
-    // 4. Guest screens
+    // 5. Guest screens
     if (GUEST_SCREENS.has(screen)) {
       if (!isAuthenticated) { setScreen("login-guest"); return; }
       if (!isGuest && !isAdmin) { setScreen("landing"); return; }
     }
 
-    // 5. Provider screens — block pending providers
+    // 6. Provider screens — block pending providers
     if (PROVIDER_SCREENS.has(screen)) {
       if (!isAuthenticated) { setScreen("login-provider"); return; }
       if (!isProvider && !isAdmin) { setScreen("landing"); return; }
@@ -317,7 +332,7 @@ function AppInner() {
       const hash = window.location.hash;
       if (hash === "#/admin" || hash === "#/admin/") {
         window.history.replaceState(null, "", window.location.pathname);
-        return "login-admin";
+        return "admin-landing";
       }
     }
     return "landing";
@@ -338,7 +353,18 @@ function AppInner() {
   const navigate = (s: string) => {
     const target = s as Screen;
 
-    // Intercept "landing" while authenticated → logout then land
+    // Admin logout: the AdminLayout sidebar calls navigate("landing") when the
+    // admin clicks Logout. We intercept that here and send admins to
+    // admin-landing (not the public landing) after signing out.
+    if (target === "landing" && authStatus === "authenticated" && isAdmin) {
+      void logout().then(() => {
+        setScreen("admin-landing");
+        window.scrollTo(0, 0);
+      });
+      return;
+    }
+
+    // General logout: non-admin authenticated users navigating to "landing"
     if (target === "landing" && authStatus === "authenticated") {
       void logout().then(() => {
         setScreen("landing");
@@ -347,11 +373,13 @@ function AppInner() {
       return;
     }
 
-    // Intercept navigating to any login or registration screen while
-    // authenticated. If the user is on their own portal (e.g. admin on
-    // "login-admin"), just redirect to their dashboard instead.
-    // For any OTHER portal or registration page, sign out first so no stale
-    // session carries over into the new login/register flow.
+    // Intercept navigating to any public login or registration screen while
+    // authenticated. If the user is on their own portal, redirect to their
+    // dashboard. For any other screen, sign out first so no stale session
+    // carries over into the new login/register flow.
+    // Note: admin-landing is intentionally excluded — it's a static info page
+    // that any user can view. The RouteGuard handles redirecting admins who
+    // are already authenticated away from it to their dashboard.
     if (authStatus === "authenticated" && loginAndRegisterScreens.includes(target)) {
       const isOwnPortal =
         (isAdmin && target === "login-admin") ||
@@ -360,7 +388,7 @@ function AppInner() {
         (isGuest && target === "login-guest");
 
       if (isOwnPortal) {
-        // Already on their role — redirect to their dashboard instead
+        // Already their role — go to their dashboard
         if (isAdmin) { setScreen("admin-dashboard"); window.scrollTo(0, 0); return; }
         if (isProvider) { setScreen(providerPending ? "provider-pending" : "provider-dashboard"); window.scrollTo(0, 0); return; }
         if (isStudent) { setScreen("student-dashboard"); window.scrollTo(0, 0); return; }
@@ -379,13 +407,13 @@ function AppInner() {
     window.scrollTo(0, 0);
   };
 
-  // Handle /#/admin hash when navigated to while the app is already running
+  // Handle /#/admin hash when typed into the address bar while app is running
   useEffect(() => {
     const onHashChange = () => {
       const hash = window.location.hash;
       if (hash === "#/admin" || hash === "#/admin/") {
         window.history.replaceState(null, "", window.location.pathname);
-        navigate("login-admin");
+        navigate("admin-landing");
       }
     };
     window.addEventListener("hashchange", onHashChange);
@@ -427,6 +455,7 @@ function AppInner() {
       case "provider-dashboard": return <ProviderDashboard navigate={navigate} />;
       case "provider-profile": return <ProviderProfile navigate={navigate} />;
       // Admin
+      case "admin-landing": return <AdminLanding navigate={navigate} />;
       case "admin-dashboard": return <AdminDashboard navigate={navigate} />;
       case "admin-providers": return <AdminProviders navigate={navigate} />;
       case "admin-rental-approval": return <AdminRentalApproval navigate={navigate} />;

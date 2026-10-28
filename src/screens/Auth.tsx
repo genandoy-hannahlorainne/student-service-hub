@@ -636,8 +636,8 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
             </div>
           </div>
 
-          <button onClick={() => navigate("landing")} className="mt-5 block mx-auto text-xs text-gray-500 underline hover:text-[#4B3621]">
-            &larr; Back to Landing Page
+          <button onClick={() => navigate("admin-landing")} className="mt-5 block mx-auto text-xs text-gray-500 underline hover:text-[#4B3621]">
+            &larr; Back to Admin Portal
           </button>
         </div>
       </div>

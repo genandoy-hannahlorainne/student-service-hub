@@ -659,7 +659,7 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
             </div>
 
             <p className="text-sm text-gray-600 leading-relaxed">
-              You will be returned to the landing page and your admin session will be terminated.
+              You will be returned to the admin portal and your admin session will be terminated.
               Any unsaved work will be lost.
             </p>
 
