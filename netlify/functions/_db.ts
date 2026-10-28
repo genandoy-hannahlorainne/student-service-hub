@@ -1,45 +1,37 @@
 /**
  * _db.ts — Neon PostgreSQL connection helper for Netlify Functions.
  *
- * Uses the `@neondatabase/serverless` driver which is optimised for
- * serverless environments (HTTP-based, no persistent connection pool).
- *
- * Usage:
- *   import { sql } from "./_db";
- *   const rows = await sql`SELECT * FROM user_profiles WHERE id = ${id}`;
+ * Uses a static import so esbuild can bundle it correctly.
+ * The DATABASE_URL env var must be set in Netlify environment variables.
  */
 
-// Dynamic import so the module only fails at runtime when the env var is
-// missing, not during cold-start of unrelated Functions.
-type NeonQueryFunction = (
-  strings: TemplateStringsArray,
-  ...values: unknown[]
-) => Promise<{ rows: Record<string, unknown>[] }>;
+import { neon } from "@neondatabase/serverless";
 
-let _sql: NeonQueryFunction | null = null;
+type SqlQuery = ReturnType<typeof neon>;
 
-async function getClient(): Promise<NeonQueryFunction> {
+let _sql: SqlQuery | null = null;
+
+export function getSql(): SqlQuery {
   if (_sql) return _sql;
-
   const url = process.env.DATABASE_URL;
   if (!url) {
-    throw new Error(
-      "DATABASE_URL is not set. Add it to your Netlify environment variables."
-    );
+    throw new Error("DATABASE_URL is not set in Netlify environment variables.");
   }
-
-  // @neondatabase/serverless is installed as a Netlify Function dependency.
-  // It is intentionally not in the React client package.json.
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { neon } = await import("@neondatabase/serverless");
-  _sql = neon(url) as NeonQueryFunction;
+  _sql = neon(url);
   return _sql;
 }
 
+/**
+ * Tagged-template SQL helper. Usage:
+ *   const result = await sql`SELECT * FROM user_profiles WHERE id = ${id}`;
+ *   result.rows[0]
+ */
 export async function sql(
   strings: TemplateStringsArray,
   ...values: unknown[]
 ): Promise<{ rows: Record<string, unknown>[] }> {
-  const client = await getClient();
-  return client(strings, ...values);
+  const client = getSql();
+  const result = await client(strings, ...values);
+  // neon() returns rows directly as an array — wrap it to match existing usage
+  return { rows: result as Record<string, unknown>[] };
 }
