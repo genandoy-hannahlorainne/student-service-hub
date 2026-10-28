@@ -343,7 +343,7 @@ export default function Landing({ navigate }: LandingProps) {
           </div>
           <div className="text-left text-xs sm:text-right">
             <p>PUP Taguig Campus</p>
-            <p className="mt-1">pasoa@puptaguig.edu.ph</p>
+            <p className="mt-1">uniserve@puptaguig.edu.ph</p>
           </div>
         </div>
       </footer>

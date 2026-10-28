@@ -69,7 +69,7 @@ export interface AuthContextValue {
   providerPending: boolean;
 
   // Actions
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<UserRole[]>;
   logout: () => Promise<void>;
   registerAndCreateProfile: (
     email: string,
@@ -111,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [authError, setAuthError] = useState<string | null>(null);
 
   // ── Load profile from /me ──────────────────────────────────────────────────
-  const loadProfile = useCallback(async (user: NetlifyUser) => {
+  const loadProfile = useCallback(async (user: NetlifyUser): Promise<UserRole[]> => {
     setAuthStatus("loading_profile");
     setNetlifyUser(user);
     try {
@@ -119,6 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setProfile(p);
       setProviderRecord(provider);
       setAuthStatus("authenticated");
+      return (p.roles as UserRole[]) ?? [];
     } catch (err) {
       // Profile not yet created (first login after signup) — registration
       // Form will call registerAndCreateProfile to create it.
@@ -132,6 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setAuthError("Could not load your profile. Please try again.");
         setAuthStatus("unauthenticated");
       }
+      return [];
     }
   }, []);
 
@@ -166,11 +168,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [loadProfile]);
 
   // ── Login ─────────────────────────────────────────────────────────────────
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string): Promise<UserRole[]> => {
     setAuthError(null);
     try {
       const user = await loginWithEmail(email, password);
-      await loadProfile(user);
+      return await loadProfile(user);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Login failed. Please check your credentials.";
       setAuthError(msg);

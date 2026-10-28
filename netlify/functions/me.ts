@@ -47,7 +47,56 @@ export const handler: Handler = async (
     `;
 
     if (profileResult.rows.length === 0) {
-      // Profile not yet created — registration Function hasn't been called yet.
+      // Check if this is an admin user set up via Netlify Identity app_metadata.
+      // If so, auto-seed the profile and role so they don't need to run SQL manually.
+      const identityRoles: string[] = identity.app_metadata?.roles ?? [];
+      if (identityRoles.includes("admin") || identityRoles.includes("co_admin")) {
+        const role = identityRoles.includes("admin") ? "admin" : "co_admin";
+        const displayName =
+          identity.user_metadata?.full_name ??
+          identity.email.split("@")[0];
+
+        await sql`
+          INSERT INTO user_profiles (
+            id, display_name, email, account_status, student_verification_status
+          ) VALUES (
+            ${identity.sub}, ${displayName}, ${identity.email},
+            'active', 'not_required'
+          )
+          ON CONFLICT (id) DO NOTHING
+        `;
+        await sql`
+          INSERT INTO user_roles (user_id, role)
+          VALUES (${identity.sub}, ${role}::user_role)
+          ON CONFLICT (user_id, role) DO NOTHING
+        `;
+        await sql`
+          INSERT INTO audit_events (actor_id, action, target_type, target_id, metadata)
+          VALUES (
+            ${identity.sub}, 'auto_seed_admin', 'user', ${identity.sub},
+            ${JSON.stringify({ role, email: identity.email, source: "me_auto_seed" })}::jsonb
+          )
+        `;
+
+        // Re-fetch the freshly created profile
+        const seededResult = await sql`
+          SELECT
+            up.id, up.display_name, up.email, up.phone,
+            up.student_number, up.account_status,
+            up.student_verification_status, up.created_at,
+            COALESCE(
+              json_agg(ur.role ORDER BY ur.created_at) FILTER (WHERE ur.role IS NOT NULL),
+              '[]'::json
+            ) AS roles
+          FROM user_profiles up
+          LEFT JOIN user_roles ur ON ur.user_id = up.id
+          WHERE up.id = ${identity.sub}
+          GROUP BY up.id
+        `;
+        return jsonResponse({ profile: seededResult.rows[0], provider: null }).then(toHandlerResponse);
+      }
+
+      // Not an admin — profile not yet created, registration still needed.
       return errorResponse(404, "Profile not found. Complete registration first.").then(toHandlerResponse);
     }
 

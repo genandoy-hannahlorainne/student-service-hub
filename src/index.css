@@ -4,14 +4,14 @@
 @source "./";
 
 :root {
-  --pasoa-navy: #4B3621;
-  --pasoa-ink: #000000;
-  --pasoa-teal: #E3C565;
-  --pasoa-mango: #E3C565;
-  --pasoa-mist: #ffffff;
-  --pasoa-pale-teal: #E3C565;
-  --pasoa-slate: #4B3621;
-  --pasoa-border: #4B3621;
+  --uniserve-navy: #4B3621;
+  --uniserve-ink: #000000;
+  --uniserve-teal: #E3C565;
+  --uniserve-mango: #E3C565;
+  --uniserve-mist: #ffffff;
+  --uniserve-pale-teal: #E3C565;
+  --uniserve-slate: #4B3621;
+  --uniserve-border: #4B3621;
 }
 
 * {
@@ -30,7 +30,7 @@ html, body, #root {
 
 body {
   background: #ffffff;
-  color: var(--pasoa-ink);
+  color: var(--uniserve-ink);
 }
 
 button, input, select, textarea {

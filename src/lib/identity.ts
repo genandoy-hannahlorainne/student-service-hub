@@ -20,6 +20,16 @@ export function initIdentity(): void {
     // In local dev, `netlify dev` sets the Identity URL automatically.
     // In production, the Netlify site URL is detected from window.location.
   });
+
+  // Immediately close the widget modal after every login/signup event.
+  // Our app handles all navigation itself — we never want the widget's
+  // built-in "Logged in" popup to appear.
+  netlifyIdentity.on("login", () => {
+    netlifyIdentity.close();
+  });
+  netlifyIdentity.on("signup", () => {
+    netlifyIdentity.close();
+  });
 }
 
 /** Open the sign-up modal. */

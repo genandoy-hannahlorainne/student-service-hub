@@ -159,7 +159,7 @@ export function Contact({ navigate }: { navigate: PublicNavigate }) {
           <WireCard>
             <WireSectionTitle>Support channels</WireSectionTitle>
             <p className="text-sm text-gray-600">For order concerns, include your order number and registered email.</p>
-            <p className="mt-4 text-sm text-gray-600"><strong>Email:</strong> support@pasoa.example</p>
+            <p className="mt-4 text-sm text-gray-600"><strong>Email:</strong> support@uniserve.example</p>
             <p className="mt-2 text-sm text-gray-600"><strong>Location:</strong> PUP Taguig community</p>
           </WireCard>
           <WireCard className="bg-gray-100">

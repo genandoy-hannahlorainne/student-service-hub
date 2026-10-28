@@ -408,7 +408,7 @@ export function ProviderLogin({ navigate }: { navigate: (s: string) => void }) {
 // ─── 4. Admin Login ───────────────────────────────────────────────────────────
 
 export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
-  const { login, authError, clearAuthError, isAdmin } = useAuth();
+  const { login, authError, clearAuthError } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [twoFaCode, setTwoFaCode] = useState("");
@@ -436,8 +436,8 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
 
     setLoading(true);
     try {
-      await login(username.trim(), password);
-      if (!isAdmin) {
+      const roles = await login(username.trim(), password);
+      if (!roles.includes("admin") && !roles.includes("co_admin")) {
         setLocalError("Access denied — this account does not have admin privileges.");
         return;
       }
@@ -487,12 +487,31 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
           </div>
 
           <div className="rounded-[26px] border border-[#4B3621]/20 bg-white p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
+            {/* Demo credential card */}
+            <div className="mb-4 rounded-xl border border-[#E3C565] bg-[#fffdf5] p-3">
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#4B3621]/60 mb-1">Demo Admin Account</p>
+                  <p className="text-xs text-[#4B3621]"><span className="font-semibold">Email:</span> admin@uniserve.edu.ph</p>
+                  <p className="text-xs text-[#4B3621]"><span className="font-semibold">Password:</span> Admin@123456</p>
+                  <p className="text-xs text-[#4B3621]"><span className="font-semibold">2FA Code:</span> 000000</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setUsername("admin@uniserve.edu.ph"); setPassword("Admin@123456"); setTwoFaCode("000000"); }}
+                  className="shrink-0 rounded-lg bg-[#4B3621] px-3 py-1.5 text-xs font-semibold text-[#E3C565] hover:bg-[#3a2918] transition"
+                >
+                  Auto-fill
+                </button>
+              </div>
+            </div>
+
             <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
               {displayError && <ErrorAlert message={displayError} />}
 
               <div className="flex flex-col gap-1">
                 <label htmlFor="admin-username" className="text-xs font-semibold uppercase tracking-wide text-[#4B3621]">Admin Username</label>
-                <input id="admin-username" type="email" autoComplete="username" placeholder="admin@pasoa.pup.edu.ph" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full rounded-xl border border-[#4B3621]/20 bg-[#fffdf5] px-3 py-2.5 text-sm text-[#000000] placeholder-gray-400 focus:border-[#E3C565] focus:outline-none" required />
+                <input id="admin-username" type="email" autoComplete="username" placeholder="admin@uniserve.pup.edu.ph" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full rounded-xl border border-[#4B3621]/20 bg-[#fffdf5] px-3 py-2.5 text-sm text-[#000000] placeholder-gray-400 focus:border-[#E3C565] focus:outline-none" required />
               </div>
               <div className="flex flex-col gap-1">
                 <label htmlFor="admin-password" className="text-xs font-semibold uppercase tracking-wide text-[#4B3621]">Admin Password</label>
