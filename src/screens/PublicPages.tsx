@@ -1,5 +1,6 @@
-import { ReactNode } from "react";
+import { ReactNode, useRef, useState } from "react";
 import { WireBtn, WireCard, WireInput, WirePublicNav, WireSectionTitle, WireTextarea } from "../components/WireframeUI";
+import agreementFormPdf from "../documents/UNISERVE AGREEMENT FORM.pdf";
 
 type PublicNavigate = (screen: string) => void;
 
@@ -172,12 +173,24 @@ export function Contact({ navigate }: { navigate: PublicNavigate }) {
 }
 
 export function ProviderPartnership({ navigate }: { navigate: PublicNavigate }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [businessEmail, setBusinessEmail] = useState("");
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!businessEmail || !uploadedFile) return;
+    setSubmitted(true);
+  };
+
   return (
     <PublicShell
       navigate={navigate}
       title="Provider Partnership"
       intro="Partner with University Organization to serve PUP Taguig students through a trusted, organized platform."
     >
+      {/* Why partner */}
       <div className="grid gap-8 md:grid-cols-2">
         <div>
           <WireSectionTitle>Why partner with University Organization?</WireSectionTitle>
@@ -191,13 +204,131 @@ export function ProviderPartnership({ navigate }: { navigate: PublicNavigate }) 
         <WireCard>
           <WireSectionTitle>Partnership steps</WireSectionTitle>
           <ol className="space-y-3 text-sm text-gray-600">
-            <li><strong>1.</strong> Submit your provider application.</li>
-            <li><strong>2.</strong> University Organization reviews your business details.</li>
-            <li><strong>3.</strong> Approved providers receive portal access.</li>
-            <li><strong>4.</strong> Start managing student service orders.</li>
+            <li><strong>1.</strong> Download and fill out the UniServe Agreement Form.</li>
+            <li><strong>2.</strong> Submit the completed form along with your business email.</li>
+            <li><strong>3.</strong> University Organization reviews your application.</li>
+            <li><strong>4.</strong> Approved providers receive portal access.</li>
+            <li><strong>5.</strong> Start managing student service orders.</li>
           </ol>
-          <WireBtn className="mt-6 w-full" onClick={() => navigate("register")}>Apply as provider</WireBtn>
         </WireCard>
+      </div>
+
+      {/* Step 1 — Download form */}
+      <div className="mt-10">
+        <WireSectionTitle>Step 1 — Download the Agreement Form</WireSectionTitle>
+        <div className="flex flex-col gap-4 rounded-2xl border border-[#4B3621]/20 bg-[#fdf8f0] p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-4">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#4B3621] text-xl text-[#E3C565]">
+              <i className="bi bi-file-earmark-pdf" aria-hidden="true" />
+            </span>
+            <div>
+              <p className="font-semibold text-[#4B3621]">UniServe Agreement Form</p>
+              <p className="mt-0.5 text-xs text-gray-500">PDF document — fill out and sign before uploading</p>
+            </div>
+          </div>
+          <a
+            href={agreementFormPdf}
+            download="UNISERVE AGREEMENT FORM.pdf"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#4B3621] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#3a2918] shrink-0"
+          >
+            <i className="bi bi-download" aria-hidden="true" />
+            Download Form
+          </a>
+        </div>
+      </div>
+
+      {/* Step 2 — Submit application */}
+      <div className="mt-8">
+        <WireSectionTitle>Step 2 — Submit Your Application</WireSectionTitle>
+
+        {submitted ? (
+          <div className="rounded-2xl border border-green-200 bg-green-50 p-8 text-center">
+            <span className="flex h-14 w-14 mx-auto items-center justify-center rounded-full bg-green-100 text-2xl text-green-600">
+              <i className="bi bi-check2-circle" aria-hidden="true" />
+            </span>
+            <h3 className="mt-4 text-lg font-bold text-green-800">Application submitted!</h3>
+            <p className="mt-2 text-sm text-green-700">
+              We received your form and business email. The University Organization team will review your application and reach out to <strong>{businessEmail}</strong>.
+            </p>
+            <button
+              onClick={() => { setSubmitted(false); setBusinessEmail(""); setUploadedFile(null); }}
+              className="mt-5 text-xs text-green-700 underline hover:text-green-900"
+            >
+              Submit another application
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="grid gap-5 sm:grid-cols-2">
+              {/* Business email */}
+              <div className="flex flex-col gap-1 sm:col-span-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">
+                  Business Email Address <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="your-business@example.com"
+                  value={businessEmail}
+                  onChange={(e) => setBusinessEmail(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#4B3621] focus:outline-none focus:ring-1 focus:ring-[#4B3621]"
+                />
+                <p className="text-xs text-gray-400">We will send your approval notification to this email.</p>
+              </div>
+
+              {/* Upload completed form */}
+              <div className="flex flex-col gap-1 sm:col-span-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">
+                  Upload Completed Agreement Form <span className="text-red-500">*</span>
+                </label>
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-6 py-8 transition ${
+                    uploadedFile
+                      ? "border-[#4B3621] bg-[#fdf8f0]"
+                      : "border-gray-300 bg-gray-50 hover:border-[#4B3621] hover:bg-[#fdf8f0]"
+                  }`}
+                >
+                  {uploadedFile ? (
+                    <>
+                      <i className="bi bi-file-earmark-check text-3xl text-[#4B3621]" aria-hidden="true" />
+                      <p className="text-sm font-semibold text-[#4B3621]">{uploadedFile.name}</p>
+                      <p className="text-xs text-gray-400">{(uploadedFile.size / 1024).toFixed(1)} KB — click to replace</p>
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-cloud-upload text-3xl text-gray-400" aria-hidden="true" />
+                      <p className="text-sm font-semibold text-gray-600">Click to upload your filled-out form</p>
+                      <p className="text-xs text-gray-400">PDF, JPG, or PNG accepted</p>
+                    </>
+                  )}
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  className="hidden"
+                  onChange={(e) => setUploadedFile(e.target.files?.[0] ?? null)}
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xs text-gray-400">
+                <i className="bi bi-info-circle mr-1" aria-hidden="true" />
+                Make sure you have downloaded, filled out, and signed the form before uploading.
+              </p>
+              <button
+                type="submit"
+                disabled={!businessEmail || !uploadedFile}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#4B3621] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#3a2918] disabled:cursor-not-allowed disabled:opacity-40 shrink-0"
+              >
+                <i className="bi bi-send" aria-hidden="true" />
+                Submit Application
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </PublicShell>
   );
