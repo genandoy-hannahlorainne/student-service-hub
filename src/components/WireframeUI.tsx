@@ -516,27 +516,26 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
         ${collapsed ? "lg:w-16" : "w-56"}
       `}>
 
-        {/* Logo area */}
+        {/* Logo area ? click logo to collapse/expand on desktop, ? to close on mobile */}
         <div className={`flex items-center gap-3 px-4 py-4 border-b border-white/10 ${collapsed ? "justify-center" : ""}`}>
-          <img src={organizationLogo} alt="UniServe logo" className="h-8 w-8 shrink-0 object-contain" />
+          <button
+            onClick={() => setCollapsed((v: boolean) => !v)}
+            className="hidden lg:block shrink-0 rounded-xl p-0.5 hover:ring-2 hover:ring-[#E3C565]/50 transition"
+            aria-label="Toggle sidebar"
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            <img src={organizationLogo} alt="UniServe logo" className="h-8 w-8 object-contain" />
+          </button>
+          {/* Mobile: non-clickable logo */}
+          <img src={organizationLogo} alt="UniServe logo" className="lg:hidden h-8 w-8 shrink-0 object-contain" />
           {!collapsed && (
             <div className="min-w-0">
               <p className="text-[10px] font-bold text-[#E3C565] leading-none">UniServe</p>
               <p className="text-sm font-bold truncate">Admin Panel</p>
             </div>
           )}
-          {/* Mobile close */}
+          {/* Mobile close button */}
           <button onClick={() => setMobileOpen(false)} className="lg:hidden ml-auto text-white/60 hover:text-white text-xl leading-none">&times;</button>
-          {/* Desktop collapse toggle */}
-          <button
-            onClick={() => setCollapsed((v: boolean) => !v)}
-            className="hidden lg:flex ml-auto flex-col gap-1 h-7 w-7 items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition shrink-0"
-            aria-label="Toggle sidebar"
-          >
-            <span className="block w-4 h-0.5 bg-current" />
-            <span className="block w-4 h-0.5 bg-current" />
-            <span className="block w-4 h-0.5 bg-current" />
-          </button>
         </div>
 
         {/* Nav items */}
