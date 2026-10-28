@@ -1,5 +1,6 @@
 ﻿import { ReactNode, useState, useCallback } from "react";
 import organizationLogo from "../assets/images/org_ssh_logo.png";
+import { useAuth } from "../context/AuthContext";
 
 // â”€â”€â”€ Primitives â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -492,6 +493,8 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const { logout } = useAuth();
 
   const handleLogoutRequest = useCallback(() => {
     setShowLogoutConfirm(true);
@@ -499,8 +502,12 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
 
   const handleLogoutConfirm = useCallback(() => {
     setShowLogoutConfirm(false);
-    navigate("landing"); // App.tsx intercepts "landing" while authenticated to call logout()
-  }, [navigate]);
+    setLoggingOut(true);
+    void logout().then(() => {
+      setLoggingOut(false);
+      navigate("admin-landing");
+    });
+  }, [logout, navigate]);
 
   const handleLogoutCancel = useCallback(() => {
     setShowLogoutConfirm(false);
@@ -672,10 +679,23 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
               </button>
               <button
                 onClick={handleLogoutConfirm}
-                className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition flex items-center justify-center gap-1.5"
+                disabled={loggingOut}
+                className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <i className="bi bi-box-arrow-right" aria-hidden="true" />
-                Sign Out
+                {loggingOut ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                    Signing out…
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-box-arrow-right" aria-hidden="true" />
+                    Sign Out
+                  </>
+                )}
               </button>
             </div>
           </div>
