@@ -1,13 +1,6 @@
 /**
  * me.ts — GET /.netlify/functions/me
- *
- * Returns the authenticated user's profile, roles, and (for providers)
- * their provider record including approval status.
- *
- * The React client calls this on every app load to:
- *  - Determine which dashboard to show
- *  - Know if a provider is still pending
- *  - Gate admin routes
+ * v3 — robust DB guard, detailed error logging
  */
 
 import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
