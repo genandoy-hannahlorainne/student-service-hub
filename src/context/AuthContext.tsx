@@ -149,11 +149,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAuthStatus("unauthenticated");
     }
 
-    // React to login / logout events (e.g. from the Identity modal or other tabs)
+    // React to login events (e.g. from the Identity modal or other tabs)
     identity.on("login", (user) => {
       void loadProfile(user);
     });
 
+    // Cross-tab logout: if the session is cleared in another tab, clear state here too.
+    // (Single-tab logouts are handled by the logout() function itself.)
     identity.on("logout", () => {
       setNetlifyUser(null);
       setProfile(null);
@@ -181,10 +183,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [loadProfile]);
 
   // ── Logout ────────────────────────────────────────────────────────────────
-  const logout = useCallback(async () => {
+  const logout = useCallback((): Promise<void> => {
     setAuthError(null);
-    identityLogout();
-    // The 'logout' event listener above handles clearing state.
+    return new Promise<void>((resolve) => {
+      // Listen for the GoTrue logout event which fires after the session is
+      // fully cleared from localStorage. Only then do we update React state
+      // and resolve so callers can safely navigate away.
+      identity.on("logout", () => {
+        setNetlifyUser(null);
+        setProfile(null);
+        setProviderRecord(null);
+        setAuthStatus("unauthenticated");
+        resolve();
+      });
+      identityLogout();
+    });
   }, []);
 
   // ── Register + create profile ─────────────────────────────────────────────

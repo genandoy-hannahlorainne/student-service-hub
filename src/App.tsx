@@ -321,30 +321,95 @@ function RouteGuard({
   return <>{children}</>;
 }
 
-// ─── Main App ─────────────────────────────────────────────────────────────────
+// ─── Hash ↔ Screen maps ───────────────────────────────────────────────────────
+// Every screen has a canonical URL hash. The public landing page uses "" (no hash).
+// Admin pages all live under #/admin/... for clear namespace separation.
+
+const SCREEN_TO_HASH: Record<Screen, string> = {
+  // Public
+  "landing":              "",
+  "public-services":      "#/services",
+  "about":                "#/about",
+  "how-it-works":         "#/how-it-works",
+  "contact":              "#/contact",
+  "provider-partnership": "#/provider-partnership",
+  // Auth
+  "login":                "#/login",
+  "login-guest":          "#/login/guest",
+  "login-provider":       "#/login/provider",
+  "login-admin":          "#/admin/login",
+  "register":             "#/register",
+  "register-guest":       "#/register/guest",
+  // Student
+  "provider-pending":     "#/provider/pending",
+  "student-dashboard":    "#/student/dashboard",
+  "browse-services":      "#/student/services",
+  "printing-service":     "#/student/printing",
+  "printing-confirmation":"#/student/printing/confirm",
+  "order-tracking":       "#/student/orders",
+  "school-supplies":      "#/student/supplies",
+  "resource-rental":      "#/student/rentals",
+  "create-rental-post":   "#/student/rentals/new",
+  "rental-post-status":   "#/student/rentals/mine",
+  "transaction-receipt":  "#/student/receipt",
+  // Guest
+  "guest-dashboard":      "#/guest/dashboard",
+  "guest-post":           "#/guest/post",
+  "guest-my-posts":       "#/guest/posts",
+  // Provider
+  "provider-dashboard":   "#/provider/dashboard",
+  "provider-profile":     "#/provider/profile",
+  // Admin
+  "admin-landing":        "#/admin",
+  "admin-dashboard":      "#/admin/dashboard",
+  "admin-providers":      "#/admin/providers",
+  "admin-rental-approval":"#/admin/rentals",
+  "admin-orders":         "#/admin/orders",
+  "admin-website":        "#/admin/website",
+};
+
+// Reverse map: hash string → Screen
+const HASH_TO_SCREEN: Record<string, Screen> = Object.fromEntries(
+  Object.entries(SCREEN_TO_HASH).map(([screen, hash]) => [hash, screen as Screen])
+) as Record<string, Screen>;
+
+/** Derive the initial screen from window.location.hash. */
+function screenFromHash(): Screen {
+  const hash = window.location.hash;
+  // Exact match first
+  if (hash in HASH_TO_SCREEN) return HASH_TO_SCREEN[hash];
+  // No hash → landing
+  if (!hash || hash === "#") return "landing";
+  // Unknown hash → landing
+  return "landing";
+}
+
 
 function AppInner() {
-  // Read the URL hash on first mount to support direct admin URL:
-  //   /#/admin  →  admin login screen
-  // The hash is cleared immediately so it doesn't persist or confuse navigation.
-  const initialScreen: Screen = (() => {
-    if (typeof window !== "undefined") {
-      const hash = window.location.hash;
-      if (hash === "#/admin" || hash === "#/admin/") {
-        window.history.replaceState(null, "", window.location.pathname);
-        return "admin-landing";
-      }
-    }
-    return "landing";
-  })();
-
-  const [screen, setScreen] = useState<Screen>(initialScreen);
+  const [screen, setScreen] = useState<Screen>(screenFromHash);
   const [open, setOpen] = useState(false);
   const { logout, authStatus, isAdmin, isStudent, isProvider, isGuest, providerPending } = useAuth();
 
-  // Login portals and registration pages — navigating to these while
-  // authenticated means the user wants to start fresh (different role or new
-  // account), so we sign them out first before showing the requested screen.
+  // ── Push URL hash whenever the active screen changes ─────────────────────
+  useEffect(() => {
+    const hash = SCREEN_TO_HASH[screen] ?? "";
+    const current = window.location.hash;
+    if (current !== hash) {
+      window.history.pushState(null, "", hash === "" ? window.location.pathname : hash);
+    }
+  }, [screen]);
+
+  // ── Sync screen from browser back / forward and direct URL entry ──────────
+  useEffect(() => {
+    const onPopState = () => {
+      const target = screenFromHash();
+      setScreen(target);
+      window.scrollTo(0, 0);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
   const loginAndRegisterScreens: Screen[] = [
     "login", "login-guest", "login-provider", "login-admin",
     "register", "register-guest",
@@ -353,9 +418,7 @@ function AppInner() {
   const navigate = (s: string) => {
     const target = s as Screen;
 
-    // Admin logout: the AdminLayout sidebar calls navigate("landing") when the
-    // admin clicks Logout. We intercept that here and send admins to
-    // admin-landing (not the public landing) after signing out.
+    // Admin logout → sign out then land on admin portal
     if (target === "landing" && authStatus === "authenticated" && isAdmin) {
       void logout().then(() => {
         setScreen("admin-landing");
@@ -364,7 +427,7 @@ function AppInner() {
       return;
     }
 
-    // General logout: non-admin authenticated users navigating to "landing"
+    // Non-admin logout → sign out then land on public landing
     if (target === "landing" && authStatus === "authenticated") {
       void logout().then(() => {
         setScreen("landing");
@@ -373,13 +436,7 @@ function AppInner() {
       return;
     }
 
-    // Intercept navigating to any public login or registration screen while
-    // authenticated. If the user is on their own portal, redirect to their
-    // dashboard. For any other screen, sign out first so no stale session
-    // carries over into the new login/register flow.
-    // Note: admin-landing is intentionally excluded — it's a static info page
-    // that any user can view. The RouteGuard handles redirecting admins who
-    // are already authenticated away from it to their dashboard.
+    // Authenticated user hitting a login/register screen
     if (authStatus === "authenticated" && loginAndRegisterScreens.includes(target)) {
       const isOwnPortal =
         (isAdmin && target === "login-admin") ||
@@ -388,14 +445,13 @@ function AppInner() {
         (isGuest && target === "login-guest");
 
       if (isOwnPortal) {
-        // Already their role — go to their dashboard
         if (isAdmin) { setScreen("admin-dashboard"); window.scrollTo(0, 0); return; }
         if (isProvider) { setScreen(providerPending ? "provider-pending" : "provider-dashboard"); window.scrollTo(0, 0); return; }
         if (isStudent) { setScreen("student-dashboard"); window.scrollTo(0, 0); return; }
         if (isGuest) { setScreen("guest-dashboard"); window.scrollTo(0, 0); return; }
       }
 
-      // Different portal or registration — log out first, then show target
+      // Different role's portal or registration — sign out first
       void logout().then(() => {
         setScreen(target);
         window.scrollTo(0, 0);
@@ -406,19 +462,6 @@ function AppInner() {
     setScreen(target);
     window.scrollTo(0, 0);
   };
-
-  // Handle /#/admin hash when typed into the address bar while app is running
-  useEffect(() => {
-    const onHashChange = () => {
-      const hash = window.location.hash;
-      if (hash === "#/admin" || hash === "#/admin/") {
-        window.history.replaceState(null, "", window.location.pathname);
-        navigate("admin-landing");
-      }
-    };
-    window.addEventListener("hashchange", onHashChange);
-    return () => window.removeEventListener("hashchange", onHashChange);
-  });
 
   const renderScreen = () => {
     switch (screen) {
@@ -493,7 +536,7 @@ function AppInner() {
                   {group.screens.map((s) => (
                     <button
                       key={s}
-                      onClick={() => { setScreen(s); setOpen(false); window.scrollTo(0, 0); }}
+                      onClick={() => { navigate(s); setOpen(false); }}
                       className={`w-full text-left px-3 py-2 text-xs border-b border-gray-100 hover:bg-gray-50 transition-colors ${screen === s ? "bg-gray-200 font-semibold text-gray-900" : "text-gray-700"}`}
                     >
                       {screen === s && "▶ "}
