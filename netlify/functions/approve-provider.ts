@@ -28,7 +28,7 @@ export const handler: Handler = async (
   context: HandlerContext
 ) => {
   if (event.httpMethod !== "POST") {
-    return errorResponse(405, "Method not allowed").then(toHandlerResponse);
+    return errorResponse(405, "Method not allowed");
   }
 
   // 1. Verify identity
@@ -37,7 +37,7 @@ export const handler: Handler = async (
     (event.headers ?? {}) as Record<string, string | undefined>
   );
   if (!identity) {
-    return errorResponse(401, "Unauthorized").then(toHandlerResponse);
+    return errorResponse(401, "Unauthorized");
   }
 
   // 2. Authorize — admin or co_admin only
@@ -52,7 +52,7 @@ export const handler: Handler = async (
       LIMIT 1
     `;
     if (roleCheck.rows.length === 0) {
-      return errorResponse(403, "Forbidden — admin access required").then(toHandlerResponse);
+      return errorResponse(403, "Forbidden — admin access required");
     }
   }
 
@@ -61,13 +61,13 @@ export const handler: Handler = async (
   try {
     body = JSON.parse(event.body ?? "{}") as ApproveBody;
   } catch {
-    return errorResponse(400, "Invalid JSON").then(toHandlerResponse);
+    return errorResponse(400, "Invalid JSON");
   }
 
   const { provider_id, action, reason } = body;
 
   if (!provider_id || !["approve", "reject"].includes(action)) {
-    return errorResponse(400, "provider_id and action (approve|reject) are required").then(toHandlerResponse);
+    return errorResponse(400, "provider_id and action (approve|reject) are required");
   }
 
   try {
@@ -76,13 +76,13 @@ export const handler: Handler = async (
       SELECT id, user_id, status FROM providers WHERE id = ${provider_id} LIMIT 1
     `;
     if (providerResult.rows.length === 0) {
-      return errorResponse(404, "Provider not found").then(toHandlerResponse);
+      return errorResponse(404, "Provider not found");
     }
 
     const provider = providerResult.rows[0];
 
     if (provider.status !== "pending_approval") {
-      return errorResponse(409, `Provider is already ${provider.status}`).then(toHandlerResponse);
+      return errorResponse(409, `Provider is already ${provider.status}`);
     }
 
     const actorId = identity.sub;
@@ -133,16 +133,9 @@ export const handler: Handler = async (
         action === "approve"
           ? "Provider approved and account activated."
           : "Provider application rejected.",
-    }).then(toHandlerResponse);
+    });
   } catch (err) {
     console.error("[approve-provider] DB error:", err);
-    return errorResponse(500, "Internal server error").then(toHandlerResponse);
+    return errorResponse(500, "Internal server error");
   }
 };
-
-async function toHandlerResponse(res: Response) {
-  const body = await res.text();
-  const headers: Record<string, string> = {};
-  res.headers.forEach((value, key) => { headers[key] = value; });
-  return { statusCode: res.status, headers, body };
-}

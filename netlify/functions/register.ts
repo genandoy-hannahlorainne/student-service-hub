@@ -46,7 +46,7 @@ export const handler: Handler = async (
   context: HandlerContext
 ) => {
   if (event.httpMethod !== "POST") {
-    return errorResponse(405, "Method not allowed").then(toHandlerResponse);
+    return errorResponse(405, "Method not allowed");
   }
 
   // 1. Verify identity
@@ -55,7 +55,7 @@ export const handler: Handler = async (
     (event.headers ?? {}) as Record<string, string | undefined>
   );
   if (!identity) {
-    return errorResponse(401, "Unauthorized — missing or invalid Identity token").then(toHandlerResponse);
+    return errorResponse(401, "Unauthorized — missing or invalid Identity token");
   }
 
   // 2. Parse body
@@ -63,18 +63,18 @@ export const handler: Handler = async (
   try {
     body = JSON.parse(event.body ?? "{}") as RegisterBody;
   } catch {
-    return errorResponse(400, "Invalid JSON body").then(toHandlerResponse);
+    return errorResponse(400, "Invalid JSON body");
   }
 
   const { role } = body;
 
   // Guard: block admin self-registration
   if (role === "admin" || (role as string) === "co_admin") {
-    return errorResponse(403, "Admin accounts cannot be self-registered").then(toHandlerResponse);
+    return errorResponse(403, "Admin accounts cannot be self-registered");
   }
 
   if (!role || !["student", "provider", "guest"].includes(role)) {
-    return errorResponse(400, "Invalid role. Must be student, provider, or guest").then(toHandlerResponse);
+    return errorResponse(400, "Invalid role. Must be student, provider, or guest");
   }
 
   const userId = identity.sub;
@@ -88,7 +88,7 @@ export const handler: Handler = async (
       return errorResponse(
         400,
         "Invalid student number format. Required: YYYY-NNNNN-TG-D where D is 0 or 1 (e.g. 2023-00438-TG-0)"
-      ).then(toHandlerResponse);
+      );
     }
   }
 
@@ -104,7 +104,7 @@ export const handler: Handler = async (
     return errorResponse(
       400,
       "Password must be at least 8 characters and include an uppercase letter, lowercase letter, number, and special character."
-    ).then(toHandlerResponse);
+    );
   }
 
   try {
@@ -113,7 +113,7 @@ export const handler: Handler = async (
       SELECT id FROM user_profiles WHERE id = ${userId}
     `;
     if (existing.rows.length > 0) {
-      return jsonResponse({ message: "Profile already exists", user_id: userId }).then(toHandlerResponse);
+      return jsonResponse({ message: "Profile already exists", user_id: userId });
     }
 
     // 4. Determine account_status and student_verification
@@ -157,7 +157,7 @@ export const handler: Handler = async (
         return errorResponse(
           400,
           "Provider registration requires: business_name, contact_person, business_address, service_type"
-        ).then(toHandlerResponse);
+        );
       }
 
       await sql`
@@ -191,23 +191,9 @@ export const handler: Handler = async (
         role === "provider"
           ? "Provider application submitted. Pending admin approval."
           : "Registration successful.",
-    }).then(toHandlerResponse);
+    });
   } catch (err) {
     console.error("[register] DB error:", err);
-    return errorResponse(500, "Internal server error").then(toHandlerResponse);
+    return errorResponse(500, "Internal server error");
   }
 };
-
-// Convert Web Response to Netlify Handler response shape
-async function toHandlerResponse(res: Response) {
-  const body = await res.text();
-  const headers: Record<string, string> = {};
-  res.headers.forEach((value, key) => {
-    headers[key] = value;
-  });
-  return {
-    statusCode: res.status,
-    headers,
-    body,
-  };
-}
