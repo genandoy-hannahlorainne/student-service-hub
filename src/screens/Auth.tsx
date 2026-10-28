@@ -12,7 +12,7 @@
  *  admin     → admin-dashboard     (cannot self-register)
  */
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import organizationLogo from "../assets/images/org_ssh_logo.png";
 import {
   WireBtn, WireCard, WirePublicNav, WireSelect,
@@ -407,17 +407,53 @@ export function ProviderLogin({ navigate }: { navigate: (s: string) => void }) {
 
 // ─── 4. Admin Login ───────────────────────────────────────────────────────────
 
+/**
+ * Rate-limit constants for the admin login form.
+ * After MAX_ATTEMPTS failed tries the form locks for LOCKOUT_SECONDS.
+ */
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_SECONDS = 30;
+
 export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
-  const { login, authError, clearAuthError } = useAuth();
+  const { login, authError, clearAuthError, logout } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState("");
+
+  // Rate-limiting state
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
+  const [countdown, setCountdown] = useState(0);
+
+  // Count down the lockout timer every second
+  useEffect(() => {
+    if (lockedUntil === null) return;
+    const tick = () => {
+      const remaining = Math.ceil((lockedUntil - Date.now()) / 1000);
+      if (remaining <= 0) {
+        setLockedUntil(null);
+        setCountdown(0);
+        setFailedAttempts(0);
+        setLocalError("");
+      } else {
+        setCountdown(remaining);
+      }
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [lockedUntil]);
+
+  const isLocked = lockedUntil !== null && Date.now() < lockedUntil;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLocalError("");
     clearAuthError();
+
+    if (isLocked) return;
 
     if (!username.trim() || !password) {
       setLocalError("Admin username and password are required.");
@@ -427,19 +463,47 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
     setLoading(true);
     try {
       const roles = await login(username.trim(), password);
+
       if (!roles.includes("admin") && !roles.includes("co_admin")) {
-        setLocalError("Access denied — this account does not have admin privileges.");
+        // Logged in successfully but wrong role — sign them back out immediately
+        // so no session is left open for a non-admin account.
+        await logout();
+        const next = failedAttempts + 1;
+        setFailedAttempts(next);
+        if (next >= MAX_ATTEMPTS) {
+          setLockedUntil(Date.now() + LOCKOUT_SECONDS * 1000);
+          setLocalError(`Too many failed attempts. Try again in ${LOCKOUT_SECONDS} seconds.`);
+        } else {
+          setLocalError("Invalid credentials or insufficient privileges.");
+        }
         return;
       }
+
+      // Success — reset rate-limit state and go to dashboard
+      setFailedAttempts(0);
+      setLockedUntil(null);
       navigate("admin-dashboard");
-    } catch (err) {
-      setLocalError(err instanceof Error ? err.message : "Login failed.");
+    } catch {
+      // Use a generic message to avoid confirming whether an email exists
+      const next = failedAttempts + 1;
+      setFailedAttempts(next);
+      if (next >= MAX_ATTEMPTS) {
+        setLockedUntil(Date.now() + LOCKOUT_SECONDS * 1000);
+        setLocalError(`Too many failed attempts. Try again in ${LOCKOUT_SECONDS} seconds.`);
+      } else {
+        const remaining = MAX_ATTEMPTS - next;
+        setLocalError(
+          `Invalid credentials. ${remaining} attempt${remaining === 1 ? "" : "s"} remaining before temporary lockout.`
+        );
+      }
+      // Clear the password field on every failure
+      setPassword("");
     } finally {
       setLoading(false);
     }
   };
 
-  const displayError = localError || authError || "";
+  const displayError = localError || (!localError ? authError : "") || "";
 
   return (
     <div className="min-h-screen bg-white text-[#000000]">
@@ -462,9 +526,13 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
               <h1 className="text-4xl font-bold leading-tight tracking-[-0.04em]">University Organization Admin Access</h1>
               <p className="mt-5 text-sm leading-6 text-[#E3C565]">Internal operations for approvals, providers, orders, and platform content.</p>
             </div>
-            <p className="border-t border-white/15 pt-5 text-xs text-gray-400">
-              Administrator credentials are issued by University Organization management only.
-            </p>
+            <div className="border-t border-white/15 pt-5 space-y-1.5">
+              <p className="text-xs text-gray-400">Administrator credentials are issued by University Organization management only.</p>
+              <p className="text-xs text-[#E3C565]/70 flex items-center gap-1.5">
+                <i className="bi bi-shield-lock-fill" aria-hidden="true" />
+                All admin activity is logged and monitored.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -477,22 +545,98 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
           </div>
 
           <div className="rounded-[26px] border border-[#4B3621]/20 bg-white p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
-            <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
-              {displayError && <ErrorAlert message={displayError} />}
+            <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate autoComplete="off">
+              {displayError && (
+                <div role="alert" className={`flex items-start gap-2 rounded-xl px-3 py-2.5 text-sm ${isLocked ? "bg-red-100 border border-red-300 text-red-700" : "bg-red-50 border border-red-200 text-red-600"}`}>
+                  <i className={`bi ${isLocked ? "bi-lock-fill" : "bi-exclamation-triangle-fill"} mt-0.5 shrink-0`} aria-hidden="true" />
+                  <span>
+                    {isLocked
+                      ? `Account temporarily locked. Try again in ${countdown}s.`
+                      : displayError}
+                  </span>
+                </div>
+              )}
+
+              {/* Attempt counter warning (shows after 2 failures) */}
+              {!isLocked && failedAttempts >= 2 && !displayError && (
+                <div className="flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-700">
+                  <i className="bi bi-exclamation-circle shrink-0" aria-hidden="true" />
+                  {MAX_ATTEMPTS - failedAttempts} attempt{MAX_ATTEMPTS - failedAttempts === 1 ? "" : "s"} remaining before temporary lockout.
+                </div>
+              )}
 
               <div className="flex flex-col gap-1">
                 <label htmlFor="admin-username" className="text-xs font-semibold uppercase tracking-wide text-[#4B3621]">Admin Username</label>
-                <input id="admin-username" type="email" autoComplete="username" placeholder="admin@uniserve.pup.edu.ph" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full rounded-xl border border-[#4B3621]/20 bg-[#fffdf5] px-3 py-2.5 text-sm text-[#000000] placeholder-gray-400 focus:border-[#E3C565] focus:outline-none" required />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label htmlFor="admin-password" className="text-xs font-semibold uppercase tracking-wide text-[#4B3621]">Admin Password</label>
-                <input id="admin-password" type="password" autoComplete="current-password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-xl border border-[#4B3621]/20 bg-[#fffdf5] px-3 py-2.5 text-sm text-[#000000] placeholder-gray-400 focus:border-[#E3C565] focus:outline-none" required />
+                <input
+                  id="admin-username"
+                  type="email"
+                  autoComplete="off"
+                  placeholder="admin@uniserve.pup.edu.ph"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  disabled={isLocked || loading}
+                  className="w-full rounded-xl border border-[#4B3621]/20 bg-[#fffdf5] px-3 py-2.5 text-sm text-[#000000] placeholder-gray-400 focus:border-[#E3C565] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  required
+                />
               </div>
 
-              <WireBtn type="submit" size="lg" className="mt-1 w-full rounded-xl border-[#4B3621] bg-[#4B3621] text-white hover:bg-[#000000]" disabled={loading}>
-                {loading ? "Verifying…" : "Access Admin Panel"}
+              <div className="flex flex-col gap-1">
+                <label htmlFor="admin-password" className="text-xs font-semibold uppercase tracking-wide text-[#4B3621]">Admin Password</label>
+                <div className="relative">
+                  <input
+                    id="admin-password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLocked || loading}
+                    className="w-full rounded-xl border border-[#4B3621]/20 bg-[#fffdf5] px-3 py-2.5 pr-10 text-sm text-[#000000] placeholder-gray-400 focus:border-[#E3C565] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                    required
+                  />
+                  <button
+                    type="button"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    onClick={() => setShowPassword((v) => !v)}
+                    disabled={isLocked || loading}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#4B3621] transition disabled:opacity-30"
+                  >
+                    <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"} text-base`} aria-hidden="true" />
+                  </button>
+                </div>
+              </div>
+
+              <WireBtn
+                type="submit"
+                size="lg"
+                className="mt-1 w-full rounded-xl border-[#4B3621] bg-[#4B3621] text-white hover:bg-[#000000] disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={loading || isLocked}
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                    Verifying…
+                  </span>
+                ) : isLocked ? (
+                  `Locked — wait ${countdown}s`
+                ) : (
+                  "Access Admin Panel"
+                )}
               </WireBtn>
             </form>
+
+            {/* Security notice */}
+            <div className="mt-4 flex items-start gap-2 rounded-xl bg-[#fffdf5] border border-[#4B3621]/10 px-3 py-2.5 text-xs text-gray-500">
+              <i className="bi bi-info-circle shrink-0 mt-0.5 text-[#4B3621]/50" aria-hidden="true" />
+              <span>
+                Sessions are tied to this device and browser. Always{" "}
+                <strong className="text-[#4B3621]">log out</strong> when you leave.
+                This portal is restricted to authorised administrators only.
+              </span>
+            </div>
           </div>
 
           <button onClick={() => navigate("landing")} className="mt-5 block mx-auto text-xs text-gray-500 underline hover:text-[#4B3621]">

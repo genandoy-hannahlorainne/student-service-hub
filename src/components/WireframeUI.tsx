@@ -1,4 +1,4 @@
-﻿import { ReactNode, useState } from "react";
+﻿import { ReactNode, useState, useCallback } from "react";
 import organizationLogo from "../assets/images/org_ssh_logo.png";
 
 // â”€â”€â”€ Primitives â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -491,6 +491,20 @@ export function ProviderLayout({ children, active, navigate }: { children: React
 export function AdminLayout({ children, active, navigate }: { children: ReactNode; active: string; navigate: (s: string) => void }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  const handleLogoutRequest = useCallback(() => {
+    setShowLogoutConfirm(true);
+  }, []);
+
+  const handleLogoutConfirm = useCallback(() => {
+    setShowLogoutConfirm(false);
+    navigate("landing"); // App.tsx intercepts "landing" while authenticated to call logout()
+  }, [navigate]);
+
+  const handleLogoutCancel = useCallback(() => {
+    setShowLogoutConfirm(false);
+  }, []);
 
   const navItems = [
     { label: "Dashboard",    screen: "admin-dashboard",       icon: "bi-grid-1x2" },
@@ -568,7 +582,7 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
             </div>
           )}
           <button
-            onClick={() => navigate("landing")}
+            onClick={handleLogoutRequest}
             title="Logout"
             className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-white/60 hover:text-white hover:bg-white/10 transition ${collapsed ? "justify-center w-full" : "w-full"}`}
           >
@@ -617,6 +631,56 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
         </main>
       </div>
 
+      {/* ── Logout confirm dialog ─────────────────────────────────────────── */}
+      {showLogoutConfirm && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="logout-dialog-title"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        >
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={handleLogoutCancel}
+            aria-hidden="true"
+          />
+
+          {/* Panel */}
+          <div className="relative w-full max-w-sm rounded-2xl bg-white shadow-2xl p-6 flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50">
+                <i className="bi bi-box-arrow-right text-lg text-red-600" aria-hidden="true" />
+              </span>
+              <div>
+                <h2 id="logout-dialog-title" className="text-base font-bold text-[#4B3621]">Sign out of Admin Panel?</h2>
+                <p className="text-xs text-gray-500 mt-0.5">Make sure you have saved any unsaved changes.</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-gray-600 leading-relaxed">
+              You will be returned to the landing page and your admin session will be terminated.
+              Any unsaved work will be lost.
+            </p>
+
+            <div className="flex gap-2 mt-1">
+              <button
+                onClick={handleLogoutCancel}
+                className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogoutConfirm}
+                className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition flex items-center justify-center gap-1.5"
+              >
+                <i className="bi bi-box-arrow-right" aria-hidden="true" />
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
