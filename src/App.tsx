@@ -178,16 +178,25 @@ function RouteGuard({
 
     const isAuthenticated = authStatus === "authenticated";
 
-    // 1. Redirect authenticated users away from login/register pages
-    const authPages: Screen[] = [
-      "login", "login-guest", "login-provider", "login-admin",
-      "register", "register-guest",
-    ];
-    if (isAuthenticated && authPages.includes(screen)) {
+    // 1. Redirect authenticated users away from their *own* login/register pages.
+    //    Only bounce the user if they land on the portal that matches their role —
+    //    visiting a *different* role's login page is intentional (e.g. an admin
+    //    who just logged out and wants to sign back in as a student, or a user
+    //    who deliberately navigated to "login" to pick a different role).
+    //    Registration pages always redirect authenticated users (no role-switching
+    //    via registration makes sense while already signed in).
+    const registrationPages: Screen[] = ["register", "register-guest"];
+    if (isAuthenticated && registrationPages.includes(screen)) {
       if (isAdmin) { setScreen("admin-dashboard"); return; }
       if (isProvider) { setScreen(providerPending ? "provider-pending" : "provider-dashboard"); return; }
       if (isStudent) { setScreen("student-dashboard"); return; }
       if (isGuest) { setScreen("guest-dashboard"); return; }
+    }
+    if (isAuthenticated) {
+      if (isAdmin && screen === "login-admin") { setScreen("admin-dashboard"); return; }
+      if (isProvider && screen === "login-provider") { setScreen(providerPending ? "provider-pending" : "provider-dashboard"); return; }
+      if (isStudent && screen === "login") { setScreen("student-dashboard"); return; }
+      if (isGuest && screen === "login-guest") { setScreen("guest-dashboard"); return; }
     }
 
     // 2. Admin screens — must be admin
@@ -307,19 +316,44 @@ function RouteGuard({
 function AppInner() {
   const [screen, setScreen] = useState<Screen>("landing");
   const [open, setOpen] = useState(false);
-  const { logout, authStatus } = useAuth();
+  const { logout, authStatus, isAdmin, isStudent, isProvider, isGuest } = useAuth();
+
+  // Login portals that are NOT the user's own — navigating to one while
+  // authenticated means the user wants to switch accounts, so we sign them
+  // out first and then show the requested login form.
+  const loginPortals: Screen[] = ["login", "login-guest", "login-provider", "login-admin"];
 
   const navigate = (s: string) => {
-    // Handle logout navigation — call real logout
-    if (s === "landing" && authStatus === "authenticated") {
-      // The sidebar Logout items navigate to "landing"; intercept to log out properly
+    const target = s as Screen;
+
+    // Intercept "landing" while authenticated → logout then land
+    if (target === "landing" && authStatus === "authenticated") {
       void logout().then(() => {
         setScreen("landing");
         window.scrollTo(0, 0);
       });
       return;
     }
-    setScreen(s as Screen);
+
+    // Intercept navigating to a login portal that doesn't match the current
+    // role (e.g. admin clicking "Login as PUPTian") → logout first, then show
+    // the requested login form so no stale session bleeds through.
+    if (authStatus === "authenticated" && loginPortals.includes(target)) {
+      const isOwnPortal =
+        (isAdmin && target === "login-admin") ||
+        (isStudent && target === "login") ||
+        (isProvider && target === "login-provider") ||
+        (isGuest && target === "login-guest");
+      if (!isOwnPortal) {
+        void logout().then(() => {
+          setScreen(target);
+          window.scrollTo(0, 0);
+        });
+        return;
+      }
+    }
+
+    setScreen(target);
     window.scrollTo(0, 0);
   };
 
