@@ -3,9 +3,8 @@
 -- Migration: 002_seed_admin
 --
 -- BEFORE running this migration:
---   1. Create the admin account in Netlify Identity:
---        Email   : admin@uniserve.edu.ph
---        Password: Admin@123456
+--   1. The admin account in Netlify Identity is:
+--        Email   : genandoyhannahlorainne@gmail.com
 --   2. Copy the user's UUID from:
 --        Netlify dashboard → Identity → Users → click the user → copy "ID"
 --   3. Replace EVERY occurrence of the placeholder UUID below:
@@ -30,7 +29,7 @@ INSERT INTO user_profiles (
 ) VALUES (
   '00000000-0000-0000-0000-000000000001',   -- REPLACE with real Netlify Identity UUID
   'UniServe Administrator',
-  'admin@uniserve.edu.ph',
+  'genandoyhannahlorainne@gmail.com',
   NULL,
   NULL,
   'active',
@@ -72,6 +71,6 @@ INSERT INTO audit_events (
   'seed_admin_account',
   'user',
   '00000000-0000-0000-0000-000000000001',   -- REPLACE with real Netlify Identity UUID
-  '{"note": "Initial admin seed via 002_seed_admin.sql", "email": "admin@uniserve.edu.ph"}',
+  '{"note": "Initial admin seed via 002_seed_admin.sql", "email": "genandoyhannahlorainne@gmail.com"}',
   now()
 );

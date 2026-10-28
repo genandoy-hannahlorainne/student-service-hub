@@ -411,7 +411,6 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
   const { login, authError, clearAuthError } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [twoFaCode, setTwoFaCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState("");
 
@@ -422,15 +421,6 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
 
     if (!username.trim() || !password) {
       setLocalError("Admin username and password are required.");
-      return;
-    }
-    if (!twoFaCode.trim()) {
-      setLocalError("2FA code is required.");
-      return;
-    }
-    // Basic 6-digit 2FA format check (real TOTP verification happens server-side)
-    if (!/^\d{6}$/.test(twoFaCode.trim())) {
-      setLocalError("Enter a valid 6-digit authentication code.");
       return;
     }
 
@@ -483,7 +473,7 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
           <div className="mb-5">
             <div className="mb-2 inline-block rounded-full bg-[#000000] px-3 py-1 text-xs font-bold text-[#E3C565]">ADMINISTRATOR PORTAL</div>
             <h2 className="text-2xl font-bold tracking-tight text-[#4B3621]">Sign in securely</h2>
-            <p className="mt-1 text-sm text-gray-500">Two-factor authentication is required for admin access.</p>
+            <p className="mt-1 text-sm text-gray-500">Enter your administrator credentials to continue.</p>
           </div>
 
           <div className="rounded-[26px] border border-[#4B3621]/20 bg-white p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
@@ -491,14 +481,13 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
             <div className="mb-4 rounded-xl border border-[#E3C565] bg-[#fffdf5] p-3">
               <div className="flex items-center justify-between gap-2">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#4B3621]/60 mb-1">Demo Admin Account</p>
-                  <p className="text-xs text-[#4B3621]"><span className="font-semibold">Email:</span> admin@uniserve.edu.ph</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#4B3621]/60 mb-1">Admin Account</p>
+                  <p className="text-xs text-[#4B3621]"><span className="font-semibold">Email:</span> genandoyhannahlorainne@gmail.com</p>
                   <p className="text-xs text-[#4B3621]"><span className="font-semibold">Password:</span> Admin@123456</p>
-                  <p className="text-xs text-[#4B3621]"><span className="font-semibold">2FA Code:</span> 000000</p>
                 </div>
                 <button
                   type="button"
-                  onClick={() => { setUsername("admin@uniserve.edu.ph"); setPassword("Admin@123456"); setTwoFaCode("000000"); }}
+                  onClick={() => { setUsername("genandoyhannahlorainne@gmail.com"); setPassword("Admin@123456"); }}
                   className="shrink-0 rounded-lg bg-[#4B3621] px-3 py-1.5 text-xs font-semibold text-[#E3C565] hover:bg-[#3a2918] transition"
                 >
                   Auto-fill
@@ -516,10 +505,6 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
               <div className="flex flex-col gap-1">
                 <label htmlFor="admin-password" className="text-xs font-semibold uppercase tracking-wide text-[#4B3621]">Admin Password</label>
                 <input id="admin-password" type="password" autoComplete="current-password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-xl border border-[#4B3621]/20 bg-[#fffdf5] px-3 py-2.5 text-sm text-[#000000] placeholder-gray-400 focus:border-[#E3C565] focus:outline-none" required />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label htmlFor="admin-2fa" className="text-xs font-semibold uppercase tracking-wide text-[#4B3621]">Admin Code (2FA)</label>
-                <input id="admin-2fa" type="text" inputMode="numeric" placeholder="6-digit authentication code" maxLength={6} value={twoFaCode} onChange={(e) => setTwoFaCode(e.target.value.replace(/\D/g, "").slice(0, 6))} className="w-full rounded-xl border border-[#4B3621]/20 bg-[#fffdf5] px-3 py-2.5 text-sm text-[#000000] placeholder-gray-400 focus:border-[#E3C565] focus:outline-none" required />
               </div>
 
               <WireBtn type="submit" size="lg" className="mt-1 w-full rounded-xl border-[#4B3621] bg-[#4B3621] text-white hover:bg-[#000000]" disabled={loading}>
