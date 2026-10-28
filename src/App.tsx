@@ -309,7 +309,21 @@ function RouteGuard({
 // ─── Main App ─────────────────────────────────────────────────────────────────
 
 function AppInner() {
-  const [screen, setScreen] = useState<Screen>("landing");
+  // Read the URL hash on first mount to support direct admin URL:
+  //   /#/admin  →  admin login screen
+  // The hash is cleared immediately so it doesn't persist or confuse navigation.
+  const initialScreen: Screen = (() => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash;
+      if (hash === "#/admin" || hash === "#/admin/") {
+        window.history.replaceState(null, "", window.location.pathname);
+        return "login-admin";
+      }
+    }
+    return "landing";
+  })();
+
+  const [screen, setScreen] = useState<Screen>(initialScreen);
   const [open, setOpen] = useState(false);
   const { logout, authStatus, isAdmin, isStudent, isProvider, isGuest, providerPending } = useAuth();
 
@@ -364,6 +378,19 @@ function AppInner() {
     setScreen(target);
     window.scrollTo(0, 0);
   };
+
+  // Handle /#/admin hash when navigated to while the app is already running
+  useEffect(() => {
+    const onHashChange = () => {
+      const hash = window.location.hash;
+      if (hash === "#/admin" || hash === "#/admin/") {
+        window.history.replaceState(null, "", window.location.pathname);
+        navigate("login-admin");
+      }
+    };
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  });
 
   const renderScreen = () => {
     switch (screen) {
