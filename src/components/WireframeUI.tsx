@@ -493,7 +493,6 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
   const { logout } = useAuth();
 
   const handleLogoutRequest = useCallback(() => {
@@ -502,10 +501,8 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
 
   const handleLogoutConfirm = useCallback(() => {
     setShowLogoutConfirm(false);
-    setLoggingOut(true);
     void logout().then(() => {
-      setLoggingOut(false);
-      navigate("admin-landing");
+      navigate("landing");
     });
   }, [logout, navigate]);
 
@@ -666,7 +663,7 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
             </div>
 
             <p className="text-sm text-gray-600 leading-relaxed">
-              You will be returned to the admin portal and your admin session will be terminated.
+              You will be returned to the main landing page and your admin session will be terminated.
               Any unsaved work will be lost.
             </p>
 
@@ -679,23 +676,10 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
               </button>
               <button
                 onClick={handleLogoutConfirm}
-                disabled={loggingOut}
-                className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition flex items-center justify-center gap-1.5"
               >
-                {loggingOut ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                    </svg>
-                    Signing out…
-                  </>
-                ) : (
-                  <>
-                    <i className="bi bi-box-arrow-right" aria-hidden="true" />
-                    Sign Out
-                  </>
-                )}
+                <i className="bi bi-box-arrow-right" aria-hidden="true" />
+                Sign Out
               </button>
             </div>
           </div>

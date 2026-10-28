@@ -418,10 +418,10 @@ function AppInner() {
   const navigate = (s: string) => {
     const target = s as Screen;
 
-    // Admin logout → sign out then land on admin portal
+    // Admin logout → sign out then land on public landing (same as everyone else)
     if (target === "landing" && authStatus === "authenticated" && isAdmin) {
       void logout().then(() => {
-        setScreen("admin-landing");
+        setScreen("landing");
         window.scrollTo(0, 0);
       });
       return;

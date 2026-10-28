@@ -185,19 +185,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // ── Logout ────────────────────────────────────────────────────────────────
   const logout = useCallback((): Promise<void> => {
     setAuthError(null);
-    return new Promise<void>((resolve) => {
-      // Listen for the GoTrue logout event which fires after the session is
-      // fully cleared from localStorage. Only then do we update React state
-      // and resolve so callers can safely navigate away.
-      identity.on("logout", () => {
-        setNetlifyUser(null);
-        setProfile(null);
-        setProviderRecord(null);
-        setAuthStatus("unauthenticated");
-        resolve();
-      });
-      identityLogout();
-    });
+    // Clear React state immediately so the UI responds at once —
+    // no waiting for the GoTrue event.
+    setNetlifyUser(null);
+    setProfile(null);
+    setProviderRecord(null);
+    setAuthStatus("unauthenticated");
+    // Fire the actual GoTrue logout in the background.
+    identityLogout();
+    return Promise.resolve();
   }, []);
 
   // ── Register + create profile ─────────────────────────────────────────────
