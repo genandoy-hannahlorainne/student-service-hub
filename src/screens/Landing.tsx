@@ -223,7 +223,92 @@ export default function Landing({ navigate }: LandingProps) {
           </div>
         </section>
 
-        <section className="px-4 pb-16 sm:px-6 lg:px-8">
+        {/* ── About ───────────────────────────────────────────────────── */}
+        <section id="about" className="px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-8 text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#E3C565]">About University Organization</p>
+              <h2 className="mt-2 text-3xl font-bold tracking-tight text-[#4B3621] sm:text-4xl">Bringing campus essentials together.</h2>
+              <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#4B3621]">University Organization brings everyday student services and academic resources into one organized platform.</p>
+            </div>
+            <div className="grid gap-8 md:grid-cols-2">
+              <div className="rounded-[24px] border border-[#4B3621]/20 bg-white p-7">
+                <h3 className="text-base font-bold text-[#4B3621] border-b border-[#4B3621]/10 pb-2 mb-4">What University Organization solves</h3>
+                <p className="text-sm leading-7 text-[#4B3621]">
+                  Students often need printing, school supplies, and academic resources at the same time.
+                  University Organization gives them one trusted place to discover services, submit requests, and follow
+                  updates without relying on scattered messages or posts.
+                </p>
+              </div>
+              <div className="rounded-[24px] bg-[#E3C565] p-7">
+                <h3 className="text-base font-bold text-[#4B3621] border-b border-[#4B3621]/20 pb-2 mb-4">Our focus</h3>
+                <ul className="space-y-3 text-sm text-[#4B3621]">
+                  <li className="flex items-start gap-2"><i className="bi bi-check2 mt-0.5 shrink-0" aria-hidden="true" /> Convenient student-first services</li>
+                  <li className="flex items-start gap-2"><i className="bi bi-check2 mt-0.5 shrink-0" aria-hidden="true" /> Verified and accountable providers</li>
+                  <li className="flex items-start gap-2"><i className="bi bi-check2 mt-0.5 shrink-0" aria-hidden="true" /> Clear order and request status updates</li>
+                  <li className="flex items-start gap-2"><i className="bi bi-check2 mt-0.5 shrink-0" aria-hidden="true" /> A safer academic resource community</li>
+                </ul>
+              </div>
+            </div>
+            <div className="mt-6 grid gap-5 sm:grid-cols-3">
+              {[
+                ["bi-mortarboard", "Student-first", "Designed around the daily needs of PUP Taguig students."],
+                ["bi-people", "Community-based", "Connects students, guests, and local service providers."],
+                ["bi-shield-check", "Managed", "Admin review helps keep providers and rental posts reliable."],
+              ].map(([icon, title, description]) => (
+                <div key={title} className="rounded-[22px] border border-[#4B3621]/10 bg-white p-6">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4B3621] text-lg text-[#E3C565]">
+                    <i className={`bi ${icon}`} aria-hidden="true" />
+                  </span>
+                  <h3 className="mt-4 font-bold text-[#4B3621]">{title}</h3>
+                  <p className="mt-2 text-sm text-[#4B3621]/70">{description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── How It Works ─────────────────────────────────────────────── */}
+        <section id="how-it-works" className="bg-[#4B3621] px-4 py-16 text-white sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-10 text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#E3C565]">How It Works</p>
+              <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Four simple steps.</h2>
+              <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#E3C565]">Choose your access level, select a service, and keep track of what happens next.</p>
+            </div>
+            <div className="grid gap-5 md:grid-cols-4">
+              {[
+                ["01", "bi-person-plus", "Create an account", "Choose PUPTian, Guest, or Provider access."],
+                ["02", "bi-grid", "Choose a service", "Browse printing, supplies, or academic resources."],
+                ["03", "bi-send", "Submit a request", "Provide the details needed to process your request."],
+                ["04", "bi-graph-up-arrow", "Track updates", "See order status and next steps in your portal."],
+              ].map(([number, icon, title, description]) => (
+                <div key={number} className="rounded-[22px] bg-white/10 p-6 ring-1 ring-white/10">
+                  <div className="flex items-center justify-between">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E3C565] text-lg text-[#4B3621]">
+                      <i className={`bi ${icon}`} aria-hidden="true" />
+                    </span>
+                    <span className="text-xs font-bold text-white/50">{number}</span>
+                  </div>
+                  <h3 className="mt-6 font-bold text-white">{title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-[#E3C565]/80">{description}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-8 rounded-[18px] border border-white/10 bg-white/5 p-5 text-sm text-[#E3C565]">
+              <strong className="text-white">Note for guests:</strong> Guest accounts can browse services
+              and submit public requests, while ordering and purchasing are reserved for PUPTian accounts.
+            </div>
+            <div className="mt-8 text-center">
+              <WireBtn size="lg" onClick={() => navigate("register")} className="rounded-xl border-[#E3C565] bg-[#E3C565] px-6 font-semibold text-[#000000] hover:bg-[#E3C565]">
+                Get started <i className="bi bi-arrow-up-right ml-2" aria-hidden="true" />
+              </WireBtn>
+            </div>
+          </div>
+        </section>
+
+        {/* ── CTA / Community ──────────────────────────────────────────── */}
+        <section className="px-4 pb-16 pt-16 sm:px-6 lg:px-8">
           <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-[1.2fr_0.8fr]">
             <div className="rounded-[26px] border border-[#4B3621] bg-white p-7 sm:p-9">
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#E3C565]">A trusted campus network</p>

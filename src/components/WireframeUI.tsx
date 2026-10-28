@@ -234,9 +234,6 @@ export function WirePublicNav({ navigate }: { navigate: (s: string) => void }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navLinks: { label: string; screen: string }[] = [
     { label: "Home", screen: "landing" },
-    { label: "Services", screen: "public-services" },
-    { label: "About", screen: "about" },
-    { label: "How It Works", screen: "how-it-works" },
     { label: "Contact", screen: "contact" },
     { label: "Provider Partnership", screen: "provider-partnership" },
   ];
