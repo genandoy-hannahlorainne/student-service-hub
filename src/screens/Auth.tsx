@@ -106,22 +106,36 @@ function SuccessAlert({ message }: { message: string }) {
   );
 }
 
-// ─── Role-based post-login redirect ──────────────────────────────────────────
+// ─── Role-based post-login redirect + portal access check ────────────────────
 
-/**
- * After a successful login, navigate to the correct dashboard based on
- * the roles the server returned. Falls back to landing if no known role.
- */
-function dashboardForRoles(
-  roles: UserRole[],
-  providerPending: boolean
-): string {
+/** Navigate to the correct dashboard for a given role set. */
+function dashboardForRoles(roles: UserRole[], providerPending: boolean): string {
   if (roles.includes("admin") || roles.includes("co_admin")) return "admin-dashboard";
   if (roles.includes("provider")) return providerPending ? "provider-pending" : "provider-dashboard";
   if (roles.includes("student")) return "student-dashboard";
   if (roles.includes("guest")) return "guest-dashboard";
-  // No DB profile yet — handled by RouteGuard redirecting to register
   return "landing";
+}
+
+/**
+ * Check that the logged-in user's roles match the portal they used.
+ * Returns a user-facing error string, or null if access is allowed.
+ *
+ * This enforces portal separation: an admin who accidentally uses the
+ * student login page will be told to use the admin portal instead of
+ * silently landing on the admin dashboard.
+ */
+function portalRoleCheck(roles: UserRole[], allowedRoles: UserRole[]): string | null {
+  if (roles.some((r) => allowedRoles.includes(r))) return null;
+  if (roles.includes("admin") || roles.includes("co_admin"))
+    return "Admin accounts must sign in through the Admin portal.";
+  if (roles.includes("student"))
+    return "Student accounts must sign in through the PUPTian login portal.";
+  if (roles.includes("provider"))
+    return "Provider accounts must sign in through the Provider login portal.";
+  if (roles.includes("guest"))
+    return "Guest accounts must sign in through the Guest login portal.";
+  return "You do not have access to this portal.";
 }
 
 // ─── Password helpers ─────────────────────────────────────────────────────────
@@ -188,7 +202,7 @@ function formatStudentNumber(raw: string): string {
 // ─── 1. PUPTian Login ─────────────────────────────────────────────────────────
 
 export function Login({ navigate }: { navigate: (s: string) => void }) {
-  const { login, authError, clearAuthError, providerPending } = useAuth();
+  const { login, logout, authError, clearAuthError, providerPending } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -207,9 +221,22 @@ export function Login({ navigate }: { navigate: (s: string) => void }) {
     setLoading(true);
     try {
       const roles = await login(email.trim(), password);
+
+      // Portal enforcement — only student (and admin as override) may use this portal
+      const portalError = portalRoleCheck(roles, ["student"]);
+      if (portalError) {
+        await logout();
+        setLocalError(portalError);
+        return;
+      }
+
       navigate(dashboardForRoles(roles, providerPending));
     } catch (err) {
-      setLocalError(err instanceof Error ? err.message : "Login failed.");
+      const msg = err instanceof Error ? err.message : "Login failed.";
+      // NEEDS_REGISTRATION is handled silently — RouteGuard redirects to register
+      if (msg !== "NEEDS_REGISTRATION") {
+        setLocalError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -301,7 +328,7 @@ export function Login({ navigate }: { navigate: (s: string) => void }) {
 // ─── 2. Guest Login ───────────────────────────────────────────────────────────
 
 export function GuestLogin({ navigate }: { navigate: (s: string) => void }) {
-  const { login, authError, clearAuthError, providerPending } = useAuth();
+  const { login, logout, authError, clearAuthError, providerPending } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -315,9 +342,12 @@ export function GuestLogin({ navigate }: { navigate: (s: string) => void }) {
     setLoading(true);
     try {
       const roles = await login(email.trim(), password);
+      const portalError = portalRoleCheck(roles, ["guest"]);
+      if (portalError) { await logout(); setLocalError(portalError); return; }
       navigate(dashboardForRoles(roles, providerPending));
     } catch (err) {
-      setLocalError(err instanceof Error ? err.message : "Login failed.");
+      const msg = err instanceof Error ? err.message : "Login failed.";
+      if (msg !== "NEEDS_REGISTRATION") setLocalError(msg);
     } finally {
       setLoading(false);
     }
@@ -376,7 +406,7 @@ export function GuestLogin({ navigate }: { navigate: (s: string) => void }) {
 // ─── 3. Provider Login ────────────────────────────────────────────────────────
 
 export function ProviderLogin({ navigate }: { navigate: (s: string) => void }) {
-  const { login, authError, clearAuthError, providerPending } = useAuth();
+  const { login, logout, authError, clearAuthError, providerPending } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -390,9 +420,12 @@ export function ProviderLogin({ navigate }: { navigate: (s: string) => void }) {
     setLoading(true);
     try {
       const roles = await login(email.trim(), password);
+      const portalError = portalRoleCheck(roles, ["provider"]);
+      if (portalError) { await logout(); setLocalError(portalError); return; }
       navigate(dashboardForRoles(roles, providerPending));
     } catch (err) {
-      setLocalError(err instanceof Error ? err.message : "Login failed.");
+      const msg = err instanceof Error ? err.message : "Login failed.";
+      if (msg !== "NEEDS_REGISTRATION") setLocalError(msg);
     } finally {
       setLoading(false);
     }

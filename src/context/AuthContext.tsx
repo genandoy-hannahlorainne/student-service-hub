@@ -200,22 +200,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [loadProfile]);
 
   // ── login ──────────────────────────────────────────────────────────────────
+  /**
+   * Authenticate with GoTrue then load the DB profile.
+   *
+   * Returns the user's roles on success so the caller can navigate to the
+   * correct dashboard.
+   *
+   * Throws with a user-facing message on failure. The thrown error is also
+   * stored in authError so callers that don't catch can still surface it.
+   *
+   * If the DB profile doesn't exist yet (404 from /me), sets authStatus to
+   * "needs_registration" and throws so the form handler knows not to navigate.
+   */
   const login = useCallback(
     async (email: string, password: string): Promise<UserRole[]> => {
       setAuthError(null);
+
+      // Step 1 — authenticate with GoTrue
       const user = await loginWithEmail(email, password).catch((err: unknown) => {
-        const raw = err instanceof Error ? err.message : "Login failed.";
-        // Normalise: don't expose whether the email exists or not
+        const raw = err instanceof Error ? err.message : String(err);
         const msg =
           raw.toLowerCase().includes("invalid") ||
           raw.toLowerCase().includes("email") ||
-          raw.toLowerCase().includes("password")
+          raw.toLowerCase().includes("password") ||
+          raw.toLowerCase().includes("no user found") ||
+          raw.toLowerCase().includes("failed")
             ? "Invalid email or password."
             : "Login failed. Please try again.";
         setAuthError(msg);
         throw new Error(msg);
       });
-      return loadProfile(user);
+
+      // Step 2 — fetch DB profile. This is the authoritative source of roles.
+      // loadProfile returns [] and sets needs_registration if no profile row exists.
+      const roles = await loadProfile(user);
+
+      // Step 3 — if no profile row exists, the user needs to complete registration.
+      // Throw so the Login form handler knows not to navigate anywhere.
+      if (roles.length === 0) {
+        // authStatus is already "needs_registration" — RouteGuard will redirect.
+        throw new Error("NEEDS_REGISTRATION");
+      }
+
+      return roles;
     },
     [loadProfile]
   );
