@@ -651,6 +651,12 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
   const [liveUser] = useState(() => getIdentityCurrentUser());
   const isProfileCompletion = liveUser != null && authStatus !== "authenticated";
 
+  // Block admin/co_admin accounts from self-registering as students or providers.
+  // app_metadata is set by Netlify Identity admins and cannot be forged by the client.
+  const isAdminByMetadata =
+    ((liveUser?.app_metadata as { roles?: string[] } | undefined)?.roles ?? []).includes("admin") ||
+    ((liveUser?.app_metadata as { roles?: string[] } | undefined)?.roles ?? []).includes("co_admin");
+
   const [role, setRole] = useState<"puptian" | "provider">("puptian");
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState("");
@@ -684,6 +690,12 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
     setLocalError("");
     clearAuthError();
     setSuccessMsg("");
+
+    // Defense-in-depth: block admin accounts even if the disabled button is bypassed.
+    if (isAdminByMetadata) {
+      setLocalError("Admin accounts cannot self-register. Contact the system administrator.");
+      return;
+    }
 
     // Password validation — skip when the Identity session already exists
     // (invite / email-confirmation flows: password was already set)
@@ -780,6 +792,13 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
       {isProfileCompletion && (
         <div className="mb-5 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
           <strong>Almost there!</strong> Your email is confirmed — just fill in your profile details below to finish setting up your account.
+        </div>
+      )}
+
+      {/* Admin self-registration block */}
+      {isAdminByMetadata && (
+        <div role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          Admin accounts cannot self-register. Contact the system administrator.
         </div>
       )}
 
@@ -943,7 +962,7 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
             </div>
           )}
 
-          <WireBtn type="submit" size="lg" className="w-full mt-2" disabled={loading || !!successMsg}>
+          <WireBtn type="submit" size="lg" className="w-full mt-2" disabled={loading || !!successMsg || isAdminByMetadata}>
             {loading ? "Creating account…" : isProfileCompletion ? "Complete Profile Setup" : role === "puptian" ? "Register as PUPTian" : "Submit Provider Application"}
           </WireBtn>
         </form>

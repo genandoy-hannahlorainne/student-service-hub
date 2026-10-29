@@ -121,29 +121,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [providerRecord, setProviderRecord] = useState<ProviderRecord | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
 
-  // Guard against concurrent loadProfile() calls (e.g. widget login event
-  // firing at the same time as our programmatic login).
-  const loadingRef = useRef(false);
+  // Monotonic session counter — each loadProfile() call gets a unique ID.
+  // Stale results (from calls superseded by a newer call) are discarded without
+  // touching React state, eliminating the boolean-guard race conditions.
+  const sessionCounterRef = useRef(0);
 
   // ── loadProfile ────────────────────────────────────────────────────────────
   const loadProfile = useCallback(async (user: NetlifyUser): Promise<UserRole[]> => {
-    // Deduplicate concurrent calls
-    if (loadingRef.current) return [];
-    loadingRef.current = true;
+    // Each call gets a unique session ID. Any result arriving after a newer call
+    // has started will be discarded — no boolean guard, no manual resets needed.
+    const sessionId = ++sessionCounterRef.current;
 
     setAuthStatus("loading_profile");
     setNetlifyUser(user);
 
     try {
       const { profile: p, provider } = await fetchMe();
+
+      // Discard this result if a newer loadProfile call has already started.
+      if (sessionId !== sessionCounterRef.current) {
+        return (p.roles as UserRole[]) ?? [];
+      }
+
       setProfile(p);
       setProviderRecord(provider ?? null);
       setAuthStatus("authenticated");
-      loadingRef.current = false;
       return (p.roles as UserRole[]) ?? [];
     } catch (err) {
-      loadingRef.current = false;
       const msg = err instanceof Error ? err.message : String(err);
+
+      // Discard stale error — don't corrupt auth state for an older session.
+      if (sessionId !== sessionCounterRef.current) {
+        return [];
+      }
 
       if (msg.includes("404") || msg.toLowerCase().includes("profile not found")) {
         // Valid GoTrue session but no DB profile.
@@ -176,11 +186,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     //   - invite-acceptance redirects
     //   - confirmation-link redirects
     //   - any other tab logging in
-    // We only respond if we're not already loading (deduplication).
+    // The session counter ensures only the most recent call's result is applied.
     const onLogin = (user: NetlifyUser) => {
-      if (!loadingRef.current) {
-        void loadProfile(user);
-      }
+      void loadProfile(user);
     };
 
     const onLogout = () => {
@@ -303,11 +311,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        // Reset the concurrency guard before calling loadProfile again,
-        // since the initial loadProfile (which set needs_registration) already finished.
-        loadingRef.current = false;
-
-        await registerProfile({ ...payload, display_name: displayName });
+        // Session counter handles deduplication automatically — no manual reset needed.
+        try {
+          await registerProfile({ ...payload, display_name: displayName });
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "Registration failed.";
+          setAuthError(msg);
+          throw err;
+        }
         await loadProfile(liveUser);
         return;
       }
