@@ -1,24 +1,16 @@
 /**
  * register.ts — POST /.netlify/functions/register
  *
- * Called AFTER Netlify Identity creates the auth user account.  This Function
- * writes the extended profile, assigns the correct role, and creates a provider
- * record when the registrant is applying as a service provider.
+ * Called after the GoTrue account is confirmed (email verification or invite
+ * acceptance). Creates the extended profile row and assigns the user's role.
  *
- * Flow:
- *  1. Browser calls netlify-identity-widget to create the auth account.
- *  2. Browser calls this Function with the Identity JWT + registration payload.
- *  3. Function verifies identity, writes user_profiles + user_roles.
- *  4. For providers, also inserts into providers (status = pending_approval).
- *  5. Returns the created profile.
- *
- * Rules enforced here (server-side):
- *  - Guests receive role = 'guest'; they cannot self-assign 'student' or higher.
- *  - Students receive role = 'student' with account_status = 'active'.
- *  - Providers receive role = 'provider' with account_status = 'pending' until
- *    an admin approves them.
- *  - The 'admin' role CANNOT be self-registered — it is granted only by an
- *    existing admin through the approve-provider or a separate admin-grant flow.
+ * Security rules:
+ *  - Requires a valid Netlify Identity JWT (injected by the Functions runtime
+ *    via clientContext, or decoded from the Authorization header as fallback).
+ *  - Passwords are NEVER accepted here — GoTrue owns all credentials.
+ *  - Admin / co_admin roles cannot be self-assigned.
+ *  - Student number format is validated server-side.
+ *  - Duplicate registrations are handled gracefully (idempotent).
  */
 
 import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
@@ -27,17 +19,15 @@ import { getIdentity, errorResponse, jsonResponse } from "./_auth";
 
 interface RegisterBody {
   role: "student" | "provider" | "guest";
-  password?: string;
-  // PUPTian fields
   display_name?: string;
   student_number?: string;
   phone?: string;
-  // Provider-specific fields
+  // Provider-only
   business_name?: string;
   contact_person?: string;
   business_address?: string;
   service_type?: string;
-  // Guest fields
+  // Guest-only
   affiliation?: string;
 }
 
@@ -49,7 +39,7 @@ export const handler: Handler = async (
     return errorResponse(405, "Method not allowed");
   }
 
-  // 1. Verify identity
+  // 1. Verify the GoTrue identity
   const identity = getIdentity(
     context as Parameters<typeof getIdentity>[0],
     (event.headers ?? {}) as Record<string, string | undefined>
@@ -58,7 +48,7 @@ export const handler: Handler = async (
     return errorResponse(401, "Unauthorized — missing or invalid Identity token");
   }
 
-  // 2. Parse body
+  // 2. Parse and validate body
   let body: RegisterBody;
   try {
     body = JSON.parse(event.body ?? "{}") as RegisterBody;
@@ -68,70 +58,58 @@ export const handler: Handler = async (
 
   const { role } = body;
 
-  // Guard: block admin self-registration
-  if (role === "admin" || (role as string) === "co_admin") {
-    return errorResponse(403, "Admin accounts cannot be self-registered");
+  // Block admin self-registration
+  if (!role || role === ("admin" as string) || role === ("co_admin" as string)) {
+    return errorResponse(403, "This role cannot be self-registered");
   }
 
-  if (!role || !["student", "provider", "guest"].includes(role)) {
+  if (!["student", "provider", "guest"].includes(role)) {
     return errorResponse(400, "Invalid role. Must be student, provider, or guest");
+  }
+
+  // Student number validation
+  if (role === "student") {
+    const STUDENT_NUM_RE = /^\d{4}-\d{5}-TG-[01]$/;
+    if (!STUDENT_NUM_RE.test(body.student_number ?? "")) {
+      return errorResponse(
+        400,
+        "Invalid student number format. Required: YYYY-NNNNN-TG-D (e.g. 2023-00438-TG-0)"
+      );
+    }
+  }
+
+  // Provider field check
+  if (role === "provider") {
+    if (!body.business_name || !body.contact_person || !body.business_address || !body.service_type) {
+      return errorResponse(400, "Provider registration requires: business_name, contact_person, business_address, service_type");
+    }
   }
 
   const userId = identity.sub;
   const email = identity.email;
 
-  // Server-side student number validation
-  if (role === "student") {
-    const studentNum = body.student_number ?? "";
-    const STUDENT_NUM_RE = /^\d{4}-\d{5}-TG-[01]$/;
-    if (!STUDENT_NUM_RE.test(studentNum)) {
-      return errorResponse(
-        400,
-        "Invalid student number format. Required: YYYY-NNNNN-TG-D where D is 0 or 1 (e.g. 2023-00438-TG-0)"
-      );
-    }
-  }
-
-  // Server-side password strength validation
-  // Skip when no password is provided (invite-completion flow: password was already
-  // set when the user accepted the invite link).
-  const pw = body.password ?? "";
-  if (pw && pw !== "__invite__") {
-    const strongPassword =
-      pw.length >= 8 &&
-      /[A-Z]/.test(pw) &&
-      /[a-z]/.test(pw) &&
-      /[0-9]/.test(pw) &&
-      /[^A-Za-z0-9]/.test(pw);
-    if (!strongPassword) {
-      return errorResponse(
-        400,
-        "Password must be at least 8 characters and include an uppercase letter, lowercase letter, number, and special character."
-      );
-    }
+  if (!process.env.DATABASE_URL) {
+    console.error("[register] DATABASE_URL not set");
+    return errorResponse(503, "Database not configured");
   }
 
   try {
-    // 3. Check for duplicate registration
-    const existing = await sql`
-      SELECT id FROM user_profiles WHERE id = ${userId}
-    `;
+    // 3. Idempotency — if the profile already exists, return success
+    const existing = await sql`SELECT id FROM user_profiles WHERE id = ${userId}`;
     if (existing.rows.length > 0) {
+      console.log("[register] Profile already exists for sub =", userId.slice(0, 8) + "...");
       return jsonResponse({ message: "Profile already exists", user_id: userId });
     }
 
-    // 4. Determine account_status and student_verification
-    const accountStatus =
-      role === "provider" ? "pending" : "active";
-    const studentVerification =
-      role === "student" ? "pending" : "not_required";
+    const accountStatus = role === "provider" ? "pending" : "active";
+    const studentVerification = role === "student" ? "pending" : "not_required";
 
     const displayName =
       body.display_name ??
       identity.user_metadata?.full_name ??
       email.split("@")[0];
 
-    // 5. Insert user_profiles
+    // 4. Insert user_profiles
     await sql`
       INSERT INTO user_profiles (
         id, display_name, email, phone, student_number,
@@ -144,45 +122,30 @@ export const handler: Handler = async (
       )
     `;
 
-    // 6. Assign role
+    // 5. Assign role
     await sql`
       INSERT INTO user_roles (user_id, role)
       VALUES (${userId}, ${role}::user_role)
+      ON CONFLICT (user_id, role) DO NOTHING
     `;
 
-    // 7. Provider record (pending admin approval)
+    // 6. Provider record
     if (role === "provider") {
-      if (
-        !body.business_name ||
-        !body.contact_person ||
-        !body.business_address ||
-        !body.service_type
-      ) {
-        return errorResponse(
-          400,
-          "Provider registration requires: business_name, contact_person, business_address, service_type"
-        );
-      }
-
       await sql`
         INSERT INTO providers (user_id, business_name, contact_person, business_address, service_type, status)
         VALUES (
-          ${userId},
-          ${body.business_name},
-          ${body.contact_person},
-          ${body.business_address},
-          ${body.service_type},
-          'pending_approval'
+          ${userId}, ${body.business_name!}, ${body.contact_person!},
+          ${body.business_address!}, ${body.service_type!}, 'pending_approval'
         )
       `;
     }
 
-    // 8. Audit event
+    // 7. Audit log
     await sql`
       INSERT INTO audit_events (actor_id, action, target_type, target_id, metadata)
       VALUES (
         ${userId}, 'register', 'user', ${userId},
-        ${JSON.stringify({ role, email })}::jsonb
+        ${JSON.stringify({ role })}::jsonb
       )
     `;
 
@@ -191,13 +154,13 @@ export const handler: Handler = async (
       email,
       role,
       account_status: accountStatus,
-      message:
-        role === "provider"
-          ? "Provider application submitted. Pending admin approval."
-          : "Registration successful.",
+      message: role === "provider"
+        ? "Provider application submitted. Pending admin approval."
+        : "Registration successful.",
     });
   } catch (err) {
-    console.error("[register] DB error:", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[register] DB error:", msg);
     return errorResponse(500, "Internal server error");
   }
 };

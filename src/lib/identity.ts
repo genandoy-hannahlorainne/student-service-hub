@@ -1,9 +1,14 @@
 /**
- * identity.ts — Netlify Identity client wrapper.
+ * identity.ts — Netlify Identity (GoTrue) client wrapper.
  *
- * Initialises netlify-identity-widget once and exposes a typed promise-based
- * API that the AuthContext uses.  The widget manages token refresh, localStorage
- * persistence, and the Netlify Identity UI modal automatically.
+ * Single responsibility: wrap netlify-identity-widget with a clean,
+ * promise-based API. All auth state management lives in AuthContext.
+ *
+ * Design decisions:
+ *  - initIdentity() is idempotent — safe to call multiple times.
+ *  - loginWithEmail() uses the underlying GoTrue client directly so we
+ *    never have to fight the widget's event system for programmatic flows.
+ *  - The widget modal is suppressed — the app owns all UI.
  */
 
 import netlifyIdentity, { type User as NetlifyIdentityUser } from "netlify-identity-widget";
@@ -12,114 +17,94 @@ export type NetlifyUser = NetlifyIdentityUser;
 
 let _initialised = false;
 
-/** Call once at app startup (inside main.tsx or AuthProvider). */
+// ─── Initialisation ───────────────────────────────────────────────────────────
+
 export function initIdentity(): void {
   if (_initialised) return;
   _initialised = true;
+
   netlifyIdentity.init({
-    // In local dev, `netlify dev` sets the Identity URL automatically.
-    // In production, the Netlify site URL is detected from window.location.
+    // In production, the site URL is auto-detected from window.location.
+    // In local dev with `netlify dev`, the Identity proxy is set automatically.
   });
 
-  // Immediately close the widget modal after every login/signup event.
-  // Our app handles all navigation itself — we never want the widget's
-  // built-in "Logged in" popup to appear.
-  netlifyIdentity.on("login", () => {
-    netlifyIdentity.close();
-  });
-  netlifyIdentity.on("signup", () => {
-    netlifyIdentity.close();
-  });
+  // Suppress the built-in widget popup after every auth event.
+  // The app handles all routing — we never want the widget's own modals.
+  netlifyIdentity.on("login", () => netlifyIdentity.close());
+  netlifyIdentity.on("signup", () => netlifyIdentity.close());
 }
 
-/** Open the sign-up modal. */
-export function openSignup(): void {
-  netlifyIdentity.open("signup");
+// ─── Synchronous helpers ──────────────────────────────────────────────────────
+
+/** Returns the currently logged-in user from localStorage, or null. */
+export function currentUser(): NetlifyUser | null {
+  return netlifyIdentity.currentUser();
 }
 
-/** Open the sign-in modal. */
-export function openLogin(): void {
-  netlifyIdentity.open("login");
+/** Returns a fresh JWT for the current user, or null if none / expired. */
+export async function getToken(): Promise<string | null> {
+  const user = netlifyIdentity.currentUser();
+  if (!user) return null;
+  try {
+    return await user.jwt();
+  } catch {
+    return null;
+  }
 }
 
-/** Close the Identity modal. */
-export function closeModal(): void {
-  netlifyIdentity.close();
-}
+// ─── Auth actions ─────────────────────────────────────────────────────────────
 
 /**
- * Programmatic email/password login (no modal).
- * Returns the Netlify user on success.
+ * Programmatic email/password login — no widget modal.
+ *
+ * Uses the underlying GoTrue client that netlify-identity-widget wraps.
+ * Returns the Netlify user on success; throws on failure.
  */
-export async function loginWithEmail(
-  email: string,
-  password: string
-): Promise<NetlifyUser> {
-  return new Promise((resolve, reject) => {
-    netlifyIdentity.on("login", (user) => {
-      netlifyIdentity.off("login");
-      resolve(user);
-    });
-    netlifyIdentity.on("error", (err) => {
-      netlifyIdentity.off("error");
-      reject(err);
-    });
-    // Trigger login — netlify-identity-widget does not expose a direct
-    // programmatic login method in v1.  We use the modal-less approach by
-    // calling the underlying GoTrue client that the widget wraps.
-    const goTrue = (netlifyIdentity as unknown as { gotrue: { login: (email: string, password: string) => Promise<NetlifyUser> } }).gotrue;
-    if (goTrue?.login) {
-      goTrue.login(email, password).then(resolve).catch(reject);
-    } else {
-      // Fallback: open the modal pre-filled (user still has to submit)
-      reject(new Error("Direct login not available; use openLogin() instead."));
-    }
-  });
+export async function loginWithEmail(email: string, password: string): Promise<NetlifyUser> {
+  const goTrue = getGoTrue();
+  // GoTrue.login() returns a GoTrueUser which is the same shape as NetlifyUser.
+  return goTrue.login(email, password, false) as Promise<NetlifyUser>;
 }
 
 /**
- * Sign up a new user via email/password.
- * After this succeeds, call the /register Function to persist the profile.
+ * Create a new Identity account via email/password.
+ *
+ * IMPORTANT: After this call succeeds, GoTrue sends a confirmation email.
+ * The user must click that link before getToken() will return a JWT.
+ * Do NOT call /register until the token is available.
  */
 export async function signupWithEmail(
   email: string,
   password: string,
   data?: Record<string, unknown>
 ): Promise<NetlifyUser> {
-  const goTrue = (netlifyIdentity as unknown as { gotrue: { signup: (email: string, password: string, data?: Record<string, unknown>) => Promise<NetlifyUser> } }).gotrue;
-  if (!goTrue?.signup) {
-    throw new Error("GoTrue signup not available. Ensure netlify-identity-widget is initialised.");
-  }
-  return goTrue.signup(email, password, data);
+  const goTrue = getGoTrue();
+  return goTrue.signup(email, password, data) as Promise<NetlifyUser>;
 }
 
-/** Log out the current user. */
+/** Log out the current user. Clears the GoTrue session and localStorage. */
 export function logout(): void {
   netlifyIdentity.logout();
 }
 
-/** Returns the currently logged-in user, or null. */
-export function currentUser(): NetlifyUser | null {
-  return netlifyIdentity.currentUser();
-}
+// ─── Event bus (re-exported for AuthContext) ──────────────────────────────────
 
-/**
- * Get a fresh JWT for the current user.
- * Refreshes automatically if the stored token is expired.
- */
-export async function getToken(): Promise<string | null> {
-  const user = currentUser();
-  if (!user) return null;
-  try {
-    const jwt = await user.jwt();
-    return jwt;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Attach event listeners.  The AuthContext uses these to react to
- * login / logout events triggered by the widget modal or by other tabs.
- */
 export const identity = netlifyIdentity;
+
+// ─── Internal helpers ─────────────────────────────────────────────────────────
+
+interface GoTrueClient {
+  login(email: string, password: string, remember: boolean): Promise<unknown>;
+  signup(email: string, password: string, data?: Record<string, unknown>): Promise<unknown>;
+}
+
+function getGoTrue(): GoTrueClient {
+  const gt = (netlifyIdentity as unknown as { gotrue?: GoTrueClient }).gotrue;
+  if (!gt?.login || !gt?.signup) {
+    throw new Error(
+      "GoTrue client unavailable. Ensure initIdentity() was called and " +
+      "netlify-identity-widget is loaded."
+    );
+  }
+  return gt;
+}

@@ -1,21 +1,25 @@
 /**
- * AuthContext.tsx
+ * AuthContext.tsx — Application authentication state machine.
  *
- * Provides authentication state to the entire React application.
+ * State machine (authStatus):
  *
- * State machine:
- *  initialising → (user found) → loading_profile → authenticated
- *              → (no user)    → unauthenticated
+ *   "initialising"        App just mounted; checking localStorage for a persisted session.
+ *   "loading_profile"     GoTrue session found/created; fetching the DB profile from /me.
+ *   "needs_registration"  GoTrue account exists + token is valid, but no DB profile yet.
+ *                         Happens when: (a) email confirmed but browser was closed before
+ *                         completing the registration form, or (b) admin invited the user.
+ *   "authenticated"       DB profile loaded; user has a role and can access protected screens.
+ *   "unauthenticated"     No session, or the session was cleared.
  *
- * The context exposes:
- *  - authStatus: current phase of the state machine
- *  - netlifyUser: raw Netlify Identity user (has JWT)
- *  - profile: extended profile from the /me Function
- *  - roles: array of UserRole values for the current user
- *  - primaryRole: the highest-priority single role
- *  - isAdmin / isStudent / isProvider / isGuest: convenience booleans
- *  - providerRecord: provider info (pending/active/rejected) when applicable
- *  - login / logout / register helpers
+ * Security invariants enforced here:
+ *  - Passwords never pass through this context.
+ *  - The JWT is attached to every API call inside api.ts; this context never
+ *    reads or stores the raw token.
+ *  - Role resolution is derived exclusively from the server-side profile,
+ *    never from the GoTrue JWT payload (which is client-readable and unverified
+ *    from the app's perspective).
+ *  - loadProfile() is the single gate: a user is only "authenticated" once
+ *    the DB profile is successfully fetched and its roles confirmed.
  */
 
 import {
@@ -24,6 +28,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useRef,
   ReactNode,
 } from "react";
 import {
@@ -45,12 +50,12 @@ import {
   ProviderRecord,
 } from "../lib/api";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export type AuthStatus =
   | "initialising"
   | "loading_profile"
-  | "needs_registration"   // Identity account exists but /me profile hasn't been created yet
+  | "needs_registration"
   | "authenticated"
   | "unauthenticated";
 
@@ -62,36 +67,41 @@ export interface AuthContextValue {
   primaryRole: UserRole | null;
   providerRecord: ProviderRecord | null;
 
-  // Convenience
   isAdmin: boolean;
   isStudent: boolean;
   isProvider: boolean;
   isGuest: boolean;
   providerPending: boolean;
 
-  // Actions
+  /** Email+password login. Returns the user's roles on success. */
   login: (email: string, password: string) => Promise<UserRole[]>;
+  /** Clears the session both in GoTrue and in React state. */
   logout: () => Promise<void>;
-  registerAndCreateProfile: (
+  /**
+   * Complete registration after a GoTrue account is confirmed.
+   * Caller supplies profile metadata; passwords stay in GoTrue.
+   * Works for three cases:
+   *   1. Normal new signup (no existing session).
+   *   2. Email confirmation return (confirmed, no DB profile yet).
+   *   3. Admin invite acceptance (confirmed, no DB profile yet).
+   */
+  completeRegistration: (
     email: string,
-    password: string,
+    password: string | null,
     displayName: string,
     payload: RegisterPayload
   ) => Promise<void>;
-
-  /** Force-reload the /me profile (e.g. after admin approves a provider). */
   refreshProfile: () => Promise<void>;
 
-  /** Last auth error, cleared on next action. */
   authError: string | null;
   clearAuthError: () => void;
 }
 
-// ─── Context ─────────────────────────────────────────────────────────────────
+// ─── Context ──────────────────────────────────────────────────────────────────
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-// ─── Priority order for role resolution ──────────────────────────────────────
+// ─── Role priority ────────────────────────────────────────────────────────────
 
 const ROLE_PRIORITY: UserRole[] = ["admin", "co_admin", "provider", "student", "guest"];
 
@@ -102,7 +112,7 @@ function primaryRoleOf(roles: UserRole[]): UserRole | null {
   return null;
 }
 
-// ─── Provider ────────────────────────────────────────────────────────────────
+// ─── Provider ─────────────────────────────────────────────────────────────────
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [authStatus, setAuthStatus] = useState<AuthStatus>("initialising");
@@ -111,30 +121,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [providerRecord, setProviderRecord] = useState<ProviderRecord | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
 
-  // ── Load profile from /me ──────────────────────────────────────────────────
+  // Guard against concurrent loadProfile() calls (e.g. widget login event
+  // firing at the same time as our programmatic login).
+  const loadingRef = useRef(false);
+
+  // ── loadProfile ────────────────────────────────────────────────────────────
   const loadProfile = useCallback(async (user: NetlifyUser): Promise<UserRole[]> => {
+    // Deduplicate concurrent calls
+    if (loadingRef.current) return [];
+    loadingRef.current = true;
+
     setAuthStatus("loading_profile");
     setNetlifyUser(user);
+
     try {
       const { profile: p, provider } = await fetchMe();
       setProfile(p);
-      setProviderRecord(provider);
+      setProviderRecord(provider ?? null);
       setAuthStatus("authenticated");
+      loadingRef.current = false;
       return (p.roles as UserRole[]) ?? [];
     } catch (err) {
-      // Profile not yet created — happens when:
-      //   a) The user accepted an invite email but hasn't completed registration yet
-      //   b) The signup flow didn't reach /register (e.g. page was closed mid-flow)
+      loadingRef.current = false;
       const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes("404") || msg.includes("Profile not found")) {
-        // Signal the app that this Identity account still needs a profile.
+
+      if (msg.includes("404") || msg.toLowerCase().includes("profile not found")) {
+        // Valid GoTrue session but no DB profile.
         // RouteGuard will redirect to the registration screen.
         setAuthStatus("needs_registration");
-      } else {
-        console.error("[AuthContext] fetchMe error:", err);
-        setAuthError("Could not load your profile. Please try again.");
-        setAuthStatus("unauthenticated");
+        return [];
       }
+
+      // Any other error (network, 5xx) — surface it and sign out.
+      console.error("[AuthContext] loadProfile error:", msg);
+      setAuthError("Could not load your profile. Please try again.");
+      setAuthStatus("unauthenticated");
       return [];
     }
   }, []);
@@ -143,7 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     initIdentity();
 
-    // Check for an already-logged-in user (persisted in localStorage by widget)
+    // If the widget found a persisted session in localStorage, load the profile.
     const existing = currentUser();
     if (existing) {
       void loadProfile(existing);
@@ -151,19 +172,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAuthStatus("unauthenticated");
     }
 
-    // React to login events (e.g. from the Identity modal or other tabs)
-    identity.on("login", (user) => {
-      void loadProfile(user);
-    });
+    // The widget fires "login" for:
+    //   - invite-acceptance redirects
+    //   - confirmation-link redirects
+    //   - any other tab logging in
+    // We only respond if we're not already loading (deduplication).
+    const onLogin = (user: NetlifyUser) => {
+      if (!loadingRef.current) {
+        void loadProfile(user);
+      }
+    };
 
-    // Cross-tab logout: if the session is cleared in another tab, clear state here too.
-    // (Single-tab logouts are handled by the logout() function itself.)
-    identity.on("logout", () => {
+    const onLogout = () => {
       setNetlifyUser(null);
       setProfile(null);
       setProviderRecord(null);
       setAuthStatus("unauthenticated");
-    });
+    };
+
+    identity.on("login", onLogin);
+    identity.on("logout", onLogout);
 
     return () => {
       identity.off("login");
@@ -171,88 +199,116 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [loadProfile]);
 
-  // ── Login ─────────────────────────────────────────────────────────────────
-  const login = useCallback(async (email: string, password: string): Promise<UserRole[]> => {
-    setAuthError(null);
-    try {
-      const user = await loginWithEmail(email, password);
-      return await loadProfile(user);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Login failed. Please check your credentials.";
-      setAuthError(msg);
-      throw err;
-    }
-  }, [loadProfile]);
-
-  // ── Logout ────────────────────────────────────────────────────────────────
-  const logout = useCallback((): Promise<void> => {
-    setAuthError(null);
-    // Clear React state immediately so the UI responds at once —
-    // no waiting for the GoTrue event.
-    setNetlifyUser(null);
-    setProfile(null);
-    setProviderRecord(null);
-    setAuthStatus("unauthenticated");
-    // Fire the actual GoTrue logout in the background.
-    identityLogout();
-    return Promise.resolve();
-  }, []);
-
-  // ── Register + create profile ─────────────────────────────────────────────
-  const registerAndCreateProfile = useCallback(
-    async (
-      email: string,
-      password: string,
-      displayName: string,
-      payload: RegisterPayload
-    ) => {
+  // ── login ──────────────────────────────────────────────────────────────────
+  const login = useCallback(
+    async (email: string, password: string): Promise<UserRole[]> => {
       setAuthError(null);
-      try {
-        // 1. Create Netlify Identity account — skip if the user already has a
-        //    live Identity session (invite flow: they accepted the email invite
-        //    and the widget already set netlifyUser, we just need the profile).
-        let user = netlifyUser;
-        if (!user) {
-          user = await signupWithEmail(email, password, {
-            full_name: displayName,
-          });
-          setNetlifyUser(user);
-        }
-
-        // 2. Wait for a JWT to be available.
-        //    - Normal signup: may need email confirmation first.
-        //    - Invite flow: user already has a confirmed session, token is ready.
-        const token = await getToken().catch(() => null);
-        if (!token) {
-          // Email confirmation required — show "check your email" message.
-          setAuthStatus("unauthenticated");
-          setAuthError(
-            "CONFIRMATION_REQUIRED: Check your email and click the confirmation link before continuing."
-          );
-          return;
-        }
-
-        // 3. Create extended profile via Netlify Function
-        await registerProfile({ ...payload, display_name: displayName });
-
-        // 4. Reload profile
-        await loadProfile(user);
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : "Registration failed.";
+      const user = await loginWithEmail(email, password).catch((err: unknown) => {
+        const raw = err instanceof Error ? err.message : "Login failed.";
+        // Normalise: don't expose whether the email exists or not
+        const msg =
+          raw.toLowerCase().includes("invalid") ||
+          raw.toLowerCase().includes("email") ||
+          raw.toLowerCase().includes("password")
+            ? "Invalid email or password."
+            : "Login failed. Please try again.";
         setAuthError(msg);
-        throw err;
-      }
+        throw new Error(msg);
+      });
+      return loadProfile(user);
     },
     [loadProfile]
   );
 
-  // ── Refresh profile ───────────────────────────────────────────────────────
-  const refreshProfile = useCallback(async () => {
-    if (!netlifyUser) return;
-    await loadProfile(netlifyUser);
-  }, [netlifyUser, loadProfile]);
+  // ── logout ─────────────────────────────────────────────────────────────────
+  const logout = useCallback(async (): Promise<void> => {
+    setAuthError(null);
+    setNetlifyUser(null);
+    setProfile(null);
+    setProviderRecord(null);
+    setAuthStatus("unauthenticated");
+    // Fire GoTrue logout in the background — don't await so the UI is instant.
+    identityLogout();
+  }, []);
 
-  // ── Derived values ────────────────────────────────────────────────────────
+  // ── completeRegistration ───────────────────────────────────────────────────
+  /**
+   * Three-path registration:
+   *
+   * Path A — New signup (no existing session):
+   *   1. Create GoTrue account via signupWithEmail.
+   *   2. GoTrue sends a confirmation email.
+   *   3. Return with CONFIRMATION_REQUIRED — app shows "check your email".
+   *   4. User clicks confirmation link → browser returns → widget fires "login"
+   *      → loadProfile → 404 → needs_registration → Register screen again.
+   *   5. This function is called again (path B).
+   *
+   * Path B — Email confirmed, no DB profile (confirmation-link return):
+   *   1. currentUser() returns the confirmed user with a valid token.
+   *   2. Skip signupWithEmail.
+   *   3. POST /register with profile metadata.
+   *   4. loadProfile → authenticated.
+   *
+   * Path C — Admin invite accepted (same as Path B):
+   *   Netlify fires a "login" event on invite acceptance. By the time the
+   *   user reaches the Register form, currentUser() is set and the token
+   *   is valid. Identical to Path B.
+   */
+  const completeRegistration = useCallback(
+    async (
+      email: string,
+      password: string | null,
+      displayName: string,
+      payload: RegisterPayload
+    ): Promise<void> => {
+      setAuthError(null);
+
+      // Always read the live widget state — avoids stale React closure on netlifyUser.
+      const liveUser = currentUser();
+
+      if (liveUser) {
+        // Path B / C: already have a confirmed session — go straight to profile creation.
+        const token = await getToken().catch(() => null);
+        if (!token) {
+          // Session expired mid-flow — ask them to log in again.
+          setAuthStatus("unauthenticated");
+          setAuthError("Your session expired. Please log in again.");
+          return;
+        }
+
+        await registerProfile({ ...payload, display_name: displayName });
+        await loadProfile(liveUser);
+        return;
+      }
+
+      // Path A: no session — create the GoTrue account.
+      if (!password) {
+        setAuthError("Password is required for new registrations.");
+        throw new Error("Password required");
+      }
+
+      await signupWithEmail(email, password, { full_name: displayName }).catch((err: unknown) => {
+        const msg = err instanceof Error ? err.message : "Signup failed.";
+        setAuthError(msg);
+        throw err;
+      });
+
+      // At this point the user is NOT yet confirmed. getToken() will return null.
+      // Signal the UI to show "check your email".
+      setAuthStatus("unauthenticated");
+      setAuthError("CONFIRMATION_REQUIRED");
+    },
+    [loadProfile]
+  );
+
+  // ── refreshProfile ─────────────────────────────────────────────────────────
+  const refreshProfile = useCallback(async () => {
+    const user = currentUser();
+    if (!user) return;
+    await loadProfile(user);
+  }, [loadProfile]);
+
+  // ── Derived values ─────────────────────────────────────────────────────────
   const roles: UserRole[] = (profile?.roles as UserRole[]) ?? [];
   const primaryRole = primaryRoleOf(roles);
 
@@ -267,11 +323,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isStudent: roles.includes("student"),
     isProvider: roles.includes("provider"),
     isGuest: roles.includes("guest"),
-    providerPending:
-      providerRecord?.status === "pending_approval",
+    providerPending: providerRecord?.status === "pending_approval",
     login,
     logout,
-    registerAndCreateProfile,
+    completeRegistration,
     refreshProfile,
     authError,
     clearAuthError: () => setAuthError(null),
@@ -280,12 +335,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
+// ─── Hook ──────────────────────────────────────────────────────────────────────
 
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error("useAuth must be used inside <AuthProvider>");
-  }
+  if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
   return ctx;
 }
