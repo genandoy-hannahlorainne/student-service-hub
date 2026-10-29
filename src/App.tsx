@@ -192,8 +192,9 @@ function RouteGuard({
 
     // Invite-accepted / mid-flow signup: Identity account exists but no profile yet.
     // Send them to the registration screen to finish setting up their account.
+    // Only redirect if not already there — avoids an infinite loop.
     if (authStatus === "needs_registration") {
-      setScreen("register");
+      if (screen !== "register") setScreen("register");
       return;
     }
 
@@ -250,14 +251,16 @@ function RouteGuard({
   }, [screen, authStatus, isAdmin, isStudent, isProvider, isGuest, providerPending, setScreen]);
 
   // Show the matching skeleton while auth is resolving.
-  // Also show skeleton (then redirect) for needs_registration — the useEffect below handles routing.
   if (authStatus === "initialising" || authStatus === "loading_profile") {
     return <SkeletonFor screen={screen} />;
   }
 
-  // Invite-accepted user (or mid-flow signup) — redirect to complete registration
+  // needs_registration: Identity session exists but no DB profile yet.
+  // The useEffect above already called setScreen("register").
+  // We must render children (not a skeleton) so the Register form actually mounts.
+  // The register screen is a public screen — no auth required to view it.
   if (authStatus === "needs_registration") {
-    return <SkeletonFor screen={screen} />;
+    return <>{children}</>;
   }
 
   return <>{children}</>;
