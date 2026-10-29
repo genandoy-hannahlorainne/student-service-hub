@@ -707,6 +707,8 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
           displayName,
           { role: "student", display_name: displayName, student_number: studentNumber, phone: phone.trim() || undefined }
         );
+        // completeRegistration throws on any failure or CONFIRMATION_REQUIRED,
+        // so reaching here means the profile was created and loadProfile succeeded.
         navigate("student-dashboard");
       } else {
         await completeRegistration(
@@ -720,7 +722,7 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Registration failed.";
       if (msg === "CONFIRMATION_REQUIRED") {
-        setSuccessMsg("Check your email and click the confirmation link to activate your account.");
+        setSuccessMsg("✉️ Check your email and click the confirmation link to activate your account. Then come back here to complete your profile.");
       } else {
         setLocalError(msg);
       }
@@ -961,7 +963,7 @@ export function GuestRegister({ navigate }: { navigate: (s: string) => void }) {
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Registration failed.";
       if (msg === "CONFIRMATION_REQUIRED") {
-        setSuccessMsg("Check your email and click the confirmation link to activate your account.");
+        setSuccessMsg("✉️ Check your email and click the confirmation link to activate your account.");
       } else {
         setLocalError(msg);
       }

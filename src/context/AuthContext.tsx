@@ -276,6 +276,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
 
+        // Reset the concurrency guard before calling loadProfile again,
+        // since the initial loadProfile (which set needs_registration) already finished.
+        loadingRef.current = false;
+
         await registerProfile({ ...payload, display_name: displayName });
         await loadProfile(liveUser);
         return;
@@ -296,7 +300,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // At this point the user is NOT yet confirmed. getToken() will return null.
       // Signal the UI to show "check your email".
       setAuthStatus("unauthenticated");
-      setAuthError("CONFIRMATION_REQUIRED");
+      // Throw so the caller can show the right message.
+      throw new Error("CONFIRMATION_REQUIRED");
     },
     [loadProfile]
   );
