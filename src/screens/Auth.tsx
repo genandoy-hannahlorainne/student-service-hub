@@ -721,7 +721,12 @@ function formatStudentNumber(raw: string): string {
 // ─── 5. PUPTian / Provider Registration ───────────────────────────────────────
 
 export function Register({ navigate }: { navigate: (s: string) => void }) {
-  const { registerAndCreateProfile, authError, clearAuthError } = useAuth();
+  const { registerAndCreateProfile, authError, clearAuthError, netlifyUser, authStatus } = useAuth();
+
+  // Invite flow: the user accepted a Netlify Identity invite and already has a
+  // live session, but hasn't created their profile yet.
+  const isInviteCompletion = authStatus === "needs_registration" && netlifyUser != null;
+
   const [role, setRole] = useState<"puptian" | "provider">("puptian");
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState("");
@@ -729,8 +734,8 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // Shared fields
-  const [email, setEmail] = useState("");
+  // Shared fields — pre-fill email from Identity when completing an invite
+  const [email, setEmail] = useState(netlifyUser?.email ?? "");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -760,14 +765,16 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
     clearAuthError();
     setSuccessMsg("");
 
-    // ── Password validation ───────────────────────────────────────────────
-    if (!isPasswordValid(password)) {
-      setLocalError("Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a special character.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setLocalError("Passwords do not match.");
-      return;
+    // ── Password validation (skip for invite completion — password already set) ──
+    if (!isInviteCompletion) {
+      if (!isPasswordValid(password)) {
+        setLocalError("Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a special character.");
+        return;
+      }
+      if (password !== confirmPassword) {
+        setLocalError("Passwords do not match.");
+        return;
+      }
     }
     if (!agreedTerms) {
       setLocalError("You must agree to the Terms and Services.");
@@ -802,17 +809,17 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
     setLoading(true);
     try {
       if (role === "puptian") {
-        await registerAndCreateProfile(email.trim(), password, displayName, {
+        await registerAndCreateProfile(email.trim(), isInviteCompletion ? "__invite__" : password, displayName, {
           role: "student",
-          password,
+          password: isInviteCompletion ? "__invite__" : password,
           student_number: studentNumber,
           phone: phone.trim() || undefined,
         });
         navigate("student-dashboard");
       } else {
-        await registerAndCreateProfile(email.trim(), password, displayName, {
+        await registerAndCreateProfile(email.trim(), isInviteCompletion ? "__invite__" : password, displayName, {
           role: "provider",
-          password,
+          password: isInviteCompletion ? "__invite__" : password,
           business_name: businessName.trim(),
           contact_person: contactPerson.trim(),
           business_address: businessAddress.trim(),
@@ -847,6 +854,14 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
       formTitle="Create an Account"
       formSubtitle="Join University Organization Student Services Hub"
     >
+      {/* Invite completion banner */}
+      {isInviteCompletion && (
+        <div className="mb-5 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+          <strong>Almost there!</strong> You accepted your invitation — just fill in your profile details below to complete setup.
+          Your email is already confirmed.
+        </div>
+      )}
+
       {/* Role tabs */}
       <div className="mb-5 flex overflow-hidden rounded-2xl border border-[#4B3621]/20 bg-white p-1 shadow-sm">
         <button type="button" onClick={() => setRole("puptian")} className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${role === "puptian" ? "bg-[#4B3621] text-white" : "text-gray-600 hover:bg-[#E3C565]/30"}`}>
@@ -943,7 +958,20 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
                 <label htmlFor="reg-email" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
                   Email Address <span className="text-red-500">*</span>
                 </label>
-                <input id="reg-email" type="email" autoComplete="email" placeholder="Official PUP or personal email" value={email} onChange={(e) => setEmail(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#4B3621] w-full rounded-lg" required />
+                <input
+                  id="reg-email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="Official PUP or personal email"
+                  value={email}
+                  onChange={(e) => !isInviteCompletion && setEmail(e.target.value)}
+                  readOnly={isInviteCompletion}
+                  className={`border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#4B3621] w-full rounded-lg ${isInviteCompletion ? "bg-gray-100 cursor-not-allowed text-gray-500" : ""}`}
+                  required
+                />
+                {isInviteCompletion && (
+                  <p className="text-xs text-gray-400 mt-0.5">Email locked — set by your invitation.</p>
+                )}
               </div>
 
               {/* Contact number */}
@@ -954,7 +982,8 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
                 <input id="reg-phone" type="tel" autoComplete="tel" placeholder="09XXXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#4B3621] w-full rounded-lg" />
               </div>
 
-              {/* Password */}
+              {/* Password — hidden for invite completions (already set via invite link) */}
+              {!isInviteCompletion && (<>
               <div className="flex flex-col gap-1 md:col-span-2">
                 <label htmlFor="reg-password" className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
                   Password <span className="text-red-500">*</span>
@@ -1008,6 +1037,7 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
                   <p className="text-xs text-green-600 mt-0.5">✓ Passwords match</p>
                 )}
               </div>
+              </>)} {/* end !isInviteCompletion password block */}
 
               <div className="mt-1 md:col-span-2">
                 <label className="flex items-start gap-2 text-sm text-gray-700 cursor-pointer">

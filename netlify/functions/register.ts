@@ -93,18 +93,22 @@ export const handler: Handler = async (
   }
 
   // Server-side password strength validation
+  // Skip when no password is provided (invite-completion flow: password was already
+  // set when the user accepted the invite link).
   const pw = body.password ?? "";
-  const strongPassword =
-    pw.length >= 8 &&
-    /[A-Z]/.test(pw) &&
-    /[a-z]/.test(pw) &&
-    /[0-9]/.test(pw) &&
-    /[^A-Za-z0-9]/.test(pw);
-  if (!strongPassword) {
-    return errorResponse(
-      400,
-      "Password must be at least 8 characters and include an uppercase letter, lowercase letter, number, and special character."
-    );
+  if (pw && pw !== "__invite__") {
+    const strongPassword =
+      pw.length >= 8 &&
+      /[A-Z]/.test(pw) &&
+      /[a-z]/.test(pw) &&
+      /[0-9]/.test(pw) &&
+      /[^A-Za-z0-9]/.test(pw);
+    if (!strongPassword) {
+      return errorResponse(
+        400,
+        "Password must be at least 8 characters and include an uppercase letter, lowercase letter, number, and special character."
+      );
+    }
   }
 
   try {

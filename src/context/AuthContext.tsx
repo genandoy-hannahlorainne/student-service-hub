@@ -50,6 +50,7 @@ import {
 export type AuthStatus =
   | "initialising"
   | "loading_profile"
+  | "needs_registration"   // Identity account exists but /me profile hasn't been created yet
   | "authenticated"
   | "unauthenticated";
 
@@ -121,13 +122,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAuthStatus("authenticated");
       return (p.roles as UserRole[]) ?? [];
     } catch (err) {
-      // Profile not yet created (first login after signup) — registration
-      // Form will call registerAndCreateProfile to create it.
+      // Profile not yet created — happens when:
+      //   a) The user accepted an invite email but hasn't completed registration yet
+      //   b) The signup flow didn't reach /register (e.g. page was closed mid-flow)
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes("404") || msg.includes("Profile not found")) {
-        // User signed up via Netlify Identity but hasn't called /register yet.
-        // Stay in loading_profile so the app can redirect to finish registration.
-        setAuthStatus("loading_profile");
+        // Signal the app that this Identity account still needs a profile.
+        // RouteGuard will redirect to the registration screen.
+        setAuthStatus("needs_registration");
       } else {
         console.error("[AuthContext] fetchMe error:", err);
         setAuthError("Could not load your profile. Please try again.");
@@ -206,18 +208,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ) => {
       setAuthError(null);
       try {
-        // 1. Create Netlify Identity account
-        const user = await signupWithEmail(email, password, {
-          full_name: displayName,
-        });
-        setNetlifyUser(user);
+        // 1. Create Netlify Identity account — skip if the user already has a
+        //    live Identity session (invite flow: they accepted the email invite
+        //    and the widget already set netlifyUser, we just need the profile).
+        let user = netlifyUser;
+        if (!user) {
+          user = await signupWithEmail(email, password, {
+            full_name: displayName,
+          });
+          setNetlifyUser(user);
+        }
 
-        // 2. Wait for a JWT to be available (signup may need email confirmation
-        //    before a token is issued — in that case, the user must click the
-        //    confirmation link first).
+        // 2. Wait for a JWT to be available.
+        //    - Normal signup: may need email confirmation first.
+        //    - Invite flow: user already has a confirmed session, token is ready.
         const token = await getToken().catch(() => null);
         if (!token) {
-          // Email confirmation required — let the UI show a "check your email" message
+          // Email confirmation required — show "check your email" message.
           setAuthStatus("unauthenticated");
           setAuthError(
             "CONFIRMATION_REQUIRED: Check your email and click the confirmation link before continuing."

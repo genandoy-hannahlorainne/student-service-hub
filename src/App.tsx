@@ -190,6 +190,13 @@ function RouteGuard({
   useEffect(() => {
     if (authStatus === "initialising" || authStatus === "loading_profile") return;
 
+    // Invite-accepted / mid-flow signup: Identity account exists but no profile yet.
+    // Send them to the registration screen to finish setting up their account.
+    if (authStatus === "needs_registration") {
+      setScreen("register");
+      return;
+    }
+
     const isAuthenticated = authStatus === "authenticated";
 
     // 1. Authenticated users must not land on public login or registration screens.
@@ -242,8 +249,14 @@ function RouteGuard({
     }
   }, [screen, authStatus, isAdmin, isStudent, isProvider, isGuest, providerPending, setScreen]);
 
-  // Show the matching skeleton while auth is resolving
+  // Show the matching skeleton while auth is resolving.
+  // Also show skeleton (then redirect) for needs_registration — the useEffect below handles routing.
   if (authStatus === "initialising" || authStatus === "loading_profile") {
+    return <SkeletonFor screen={screen} />;
+  }
+
+  // Invite-accepted user (or mid-flow signup) — redirect to complete registration
+  if (authStatus === "needs_registration") {
     return <SkeletonFor screen={screen} />;
   }
 
