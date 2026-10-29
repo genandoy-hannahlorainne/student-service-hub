@@ -1,6 +1,5 @@
 /**
  * me.ts — GET /.netlify/functions/me
- * v5 — plain-object responses, no .then() wrappers
  */
 
 import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
@@ -17,7 +16,13 @@ export const handler: Handler = async (
     context as Parameters<typeof getIdentity>[0],
     (event.headers ?? {}) as Record<string, string | undefined>
   );
-  if (!identity) return errorResponse(401, "Unauthorized");
+
+  if (!identity) {
+    console.error("[me] No identity — missing or unparseable Bearer token");
+    return errorResponse(401, "Unauthorized");
+  }
+
+  console.log("[me] identity.sub =", identity.sub, "email =", identity.email);
 
   if (!process.env.DATABASE_URL) {
     console.error("[me] DATABASE_URL not set");
@@ -41,6 +46,8 @@ export const handler: Handler = async (
     `;
 
     if (profileResult.rows.length === 0) {
+      console.log("[me] No profile row for sub =", identity.sub, "— checking app_metadata for admin auto-seed");
+
       // Auto-seed admin if Netlify Identity app_metadata has the role
       const identityRoles: string[] = identity.app_metadata?.roles ?? [];
       if (identityRoles.includes("admin") || identityRoles.includes("co_admin")) {
@@ -101,7 +108,7 @@ export const handler: Handler = async (
 
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    console.error("[me] error:", msg);
+    console.error("[me] DB error:", msg);
     return errorResponse(500, `Server error: ${msg}`);
   }
 };

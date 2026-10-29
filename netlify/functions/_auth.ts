@@ -1,6 +1,5 @@
 /**
  * _auth.ts — Netlify Identity JWT verification helper.
- * Compatible with Netlify Functions v2 runtime (runtimeAPIVersion: 1).
  */
 
 export interface IdentityUser {
@@ -19,21 +18,34 @@ export function getIdentity(
   context: { clientContext?: { user?: IdentityUser } },
   headers: Record<string, string | undefined>
 ): IdentityUser | null {
+  // Netlify Functions v1: identity is injected into clientContext
   if (context.clientContext?.user) {
     return context.clientContext.user;
   }
 
+  // Fallback: decode the Bearer JWT manually (works in all runtimes)
   const authHeader = headers["authorization"] ?? headers["Authorization"];
   if (!authHeader?.startsWith("Bearer ")) return null;
 
   const token = authHeader.slice(7);
   try {
-    const payloadB64 = token.split(".")[1];
-    if (!payloadB64) return null;
-    const payload = JSON.parse(
-      Buffer.from(payloadB64, "base64url").toString("utf-8")
-    );
-    return payload as IdentityUser;
+    const parts = token.split(".");
+    if (parts.length < 2) return null;
+
+    // Pad base64 to a multiple of 4 — standard atob requirement
+    const b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = b64 + "=".repeat((4 - (b64.length % 4)) % 4);
+
+    // Use Buffer (Node) when available, otherwise fall back to atob (edge runtime)
+    let json: string;
+    if (typeof Buffer !== "undefined") {
+      json = Buffer.from(padded, "base64").toString("utf-8");
+    } else {
+      json = atob(padded);
+    }
+
+    const payload = JSON.parse(json) as IdentityUser;
+    return payload;
   } catch {
     return null;
   }
@@ -43,7 +55,6 @@ export function hasRole(user: IdentityUser, role: string): boolean {
   return user.app_metadata?.roles?.includes(role) ?? false;
 }
 
-/** Plain object response — compatible with both v1 and v2 Netlify Functions runtime. */
 export function errorResponse(status: number, message: string) {
   return {
     statusCode: status,
