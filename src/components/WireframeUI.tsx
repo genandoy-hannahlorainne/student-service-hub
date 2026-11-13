@@ -333,11 +333,14 @@ function HamburgerBtn({ onClick }: { onClick: () => void }) {
 }
 
 function AuthHeader({ role, onMenuToggle, navigate }: { role: string; onMenuToggle: () => void; navigate: (s: string) => void }) {
+  const { profile } = useAuth();
+  const isStudent = role === "Student";
+  const displayRole = isStudent ? profile?.display_name || "Student" : role;
   return (
-    <header className="bg-gray-800 text-white px-3 py-2.5 flex items-center justify-between border-b border-gray-600 h-14 shrink-0">
+    <header className={`${isStudent ? "bg-[#4B3621] border-[#4B3621]" : "bg-gray-800 border-gray-600"} text-white px-3 py-2.5 flex items-center justify-between border-b h-14 shrink-0`}>
       <div className="flex items-center gap-2 min-w-0">
         <HamburgerBtn onClick={onMenuToggle} />
-        <WirePlaceholder label="LOGO" className="w-7 h-7 shrink-0" />
+        <img src={organizationLogo} alt="University Organization logo" className="h-7 w-7 shrink-0 object-contain" />
         <span className="font-bold text-sm hidden sm:block truncate">University Organization Student Services Hub</span>
       </div>
       <div className="flex items-center gap-2 shrink-0">
@@ -350,7 +353,7 @@ function AuthHeader({ role, onMenuToggle, navigate }: { role: string; onMenuTogg
         </button>
         <button className="flex items-center gap-1 text-sm hover:text-gray-300">
           <i className="bi bi-person-circle text-lg" aria-hidden="true" />
-          <span className="hidden sm:block text-xs max-w-[100px] truncate">{role}</span>
+          <span className="hidden sm:block text-xs max-w-[140px] truncate">{displayRole}</span>
         </button>
       </div>
     </header>
@@ -451,7 +454,7 @@ function AppLayout({
           onClose={() => setSidebarOpen(false)}
           accentColor={accentColor}
         />
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-4 lg:p-5">
+        <main className={`flex-1 overflow-y-auto p-4 lg:p-5 ${role === "Student" ? "bg-[#f5f3f0]" : "bg-gray-50"}`}>
           {children}
         </main>
       </div>
@@ -472,7 +475,7 @@ export function StudentLayout({ children, active, navigate }: { children: ReactN
     { label: "Profile", screen: "student-dashboard", icon: "â—Ž" },
     { label: "Logout", screen: "landing", icon: "â—" },
   ];
-  return <AppLayout items={items} active={active} navigate={navigate} role="Juan dela Cruz" accentColor="border-gray-700">{children}</AppLayout>;
+  return <AppLayout items={items} active={active} navigate={navigate} role="Student" accentColor="border-[#4B3621]">{children}</AppLayout>;
 }
 
 export function ProviderLayout({ children, active, navigate }: { children: ReactNode; active: string; navigate: (s: string) => void }) {
