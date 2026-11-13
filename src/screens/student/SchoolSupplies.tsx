@@ -1,12 +1,6 @@
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
-import {
-  fetchSchoolSuppliesCatalog,
-  SupplyProduct,
-  SupplyShop,
-} from "../../lib/api";
-import {
-  StudentLayout, WireBadge, WireBtn, WireCard, WireInput, WireSectionTitle,
-} from "../../components/WireframeUI";
+import { fetchSchoolSuppliesCatalog, SupplyProduct, SupplyShop } from "../../lib/api";
+import { StudentLayout, WireBadge, WireBtn, WireCard, WireInput, WireSectionTitle } from "../../components/WireframeUI";
 import bondPaperImage from "../../assets/school-supplies/bond-paper.jpg";
 import indexCardImage from "../../assets/school-supplies/index-card.jpg";
 import yellowPadImage from "../../assets/school-supplies/yellow-pad.jpg";
@@ -18,7 +12,7 @@ import ballpenImage from "../../assets/school-supplies/ballpen.png";
 
 type PaymentMethod = "cash" | "gcash" | "maya";
 type CartItem = { product: SupplyProduct; option: string; quantity: number };
-const productImages: Record<string, string> = {
+const images: Record<string, string> = {
   "school-supplies/bond-paper.jpg": bondPaperImage,
   "school-supplies/index-card.jpg": indexCardImage,
   "school-supplies/yellow-pad.jpg": yellowPadImage,
@@ -29,40 +23,40 @@ const productImages: Record<string, string> = {
   "school-supplies/ballpen.png": ballpenImage,
 };
 
-function optionLabel(product: SupplyProduct): string {
-  if (product.category === "bond_paper") return "Size";
-  if (product.category === "index_card") return "Color";
-  return "Variant";
+function optionsFor(product: SupplyProduct): string[] {
+  if (product.category === "bond_paper") return product.options.sizes ?? [];
+  if (product.category === "index_card") return product.options.colors ?? [];
+  if (product.name.toLowerCase().includes("ballpen")) return product.options.colors ?? [];
+  return [];
 }
 
-function optionsFor(product: SupplyProduct): string[] {
-  return product.category === "bond_paper"
-    ? product.options.sizes ?? []
-    : product.category === "index_card"
-      ? product.options.colors ?? []
-      : [];
+function optionLabel(product: SupplyProduct): string {
+  if (product.category === "bond_paper") return "Size";
+  if (product.category === "index_card" || product.name.toLowerCase().includes("ballpen")) return "Color";
+  return "Variant";
 }
 
 export default function SchoolSupplies({ navigate }: { navigate: (s: string) => void }) {
   const [shops, setShops] = useState<SupplyShop[]>([]);
   const [products, setProducts] = useState<SupplyProduct[]>([]);
-  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
-  const [selectedShop, setSelectedShop] = useState("");
+  const [shopId, setShopId] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
-  const [referenceNumber, setReferenceNumber] = useState("");
+  const [options, setOptions] = useState<Record<string, string>>({});
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const [step, setStep] = useState(1);
+  const [payment, setPayment] = useState<PaymentMethod>("cash");
+  const [reference, setReference] = useState("");
   const [proof, setProof] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [step, setStep] = useState(1);
 
-  const loadCatalog = async () => {
+  const load = async () => {
     setLoading(true);
     try {
-      const catalog = await fetchSchoolSuppliesCatalog();
-      setShops(catalog.shops);
-      setProducts(catalog.products);
-      setSelectedShop((current) => current && catalog.shops.some((shop) => shop.id === current) ? current : catalog.shops[0]?.id ?? "");
+      const data = await fetchSchoolSuppliesCatalog();
+      setShops(data.shops);
+      setProducts(data.products);
+      setShopId((current) => data.shops.some((shop) => shop.id === current) ? current : data.shops[0]?.id ?? "");
       setError("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load the catalog.");
@@ -72,183 +66,111 @@ export default function SchoolSupplies({ navigate }: { navigate: (s: string) => 
   };
 
   useEffect(() => {
-    void loadCatalog();
-    const timer = window.setInterval(() => void loadCatalog(), 30_000);
+    void load();
+    const timer = window.setInterval(() => void load(), 30_000);
     return () => window.clearInterval(timer);
   }, []);
 
-  const selectedShopRecord = shops.find((shop) => shop.id === selectedShop);
-  const subtotal = useMemo(
-    () => cart.reduce((total, item) => total + item.product.unit_price * item.quantity, 0),
-    [cart]
-  );
+  const shop = shops.find((item) => item.id === shopId);
+  const subtotal = useMemo(() => cart.reduce((sum, item) => sum + item.product.unit_price * item.quantity, 0), [cart]);
 
-  const addToCart = (product: SupplyProduct, option: string) => {
+  const add = (product: SupplyProduct) => {
+    const option = options[product.id] ?? optionsFor(product)[0] ?? "Standard";
+    const amount = product.name.toLowerCase().includes("yellow pad") ? 1 : Math.max(1, quantities[product.id] ?? 1);
     setCart((current) => {
-      const existing = current.find((item) => item.product.id === product.id && item.option === option);
-      if (existing) {
-        return current.map((item) => item === existing
-          ? { ...item, quantity: Math.min(item.quantity + 1, product.stock_quantity) }
-          : item);
-      }
-      return [...current, { product, option, quantity: 1 }];
+      const found = current.find((item) => item.product.id === product.id && item.option === option);
+      if (found) return current.map((item) => item === found ? { ...item, quantity: Math.min(item.quantity + amount, product.stock_quantity) } : item);
+      return [...current, { product, option, quantity: Math.min(amount, product.stock_quantity) }];
     });
   };
 
-  const updateQuantity = (item: CartItem, quantity: number) => {
-    setCart((current) => current
-      .map((currentItem) => currentItem === item ? { ...currentItem, quantity } : currentItem)
-      .filter((currentItem) => currentItem.quantity > 0));
+  const updateCartQuantity = (item: CartItem, value: number) => {
+    setCart((current) => current.map((entry) => entry === item ? { ...entry, quantity: Math.max(1, Math.min(value, item.product.stock_quantity)) } : entry));
   };
 
-  const handleProof = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] ?? null;
-    setProof(file);
-  };
+  const onlinePayment = payment === "gcash" || payment === "maya";
+  const steps = ["Shop & supplies", "Review cart", "Payment"];
 
   return (
     <StudentLayout active="school-supplies" navigate={navigate}>
       <div className="mx-auto max-w-7xl space-y-5">
-        <div className="flex flex-wrap items-end justify-between gap-3">
+        <header className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#E3C565]">Student marketplace</p>
             <h1 className="mt-1 text-2xl font-bold text-[#4B3621]">School supplies</h1>
-            <p className="mt-1 text-sm text-gray-500">Choose an accredited partner shop before adding items.</p>
+            <p className="mt-1 text-sm text-gray-500">Complete each step before moving to the next.</p>
           </div>
-          <div className="flex items-center gap-3">
-            <WireBadge variant="active">{cart.length} cart item{cart.length === 1 ? "" : "s"}</WireBadge>
-            <span className="text-xs text-gray-500">Step {step} of 3</span>
-          </div>
-        </div>
+          <WireBadge variant="active">{cart.length} item{cart.length === 1 ? "" : "s"}</WireBadge>
+        </header>
+
         <div className="grid grid-cols-3 gap-2">
-          {["Choose shop & items", "Review cart", "Payment details"].map((label, index) => {
-            const current = index + 1;
-            return (
-              <button key={label} onClick={() => current <= step && setStep(current)} className={`rounded-lg px-3 py-2 text-left text-xs font-semibold ${step === current ? "bg-[#4B3621] text-white" : step > current ? "bg-[#E3C565]/50 text-[#4B3621]" : "bg-gray-100 text-gray-400"}`}>
-                <span className="mr-1">{current}.</span>{label}
-              </button>
-            );
+          {steps.map((label, index) => {
+            const number = index + 1;
+            return <button key={label} onClick={() => number < step && setStep(number)} className={`rounded-xl px-3 py-3 text-left text-xs font-bold ${step === number ? "bg-[#4B3621] text-white" : number < step ? "bg-[#E3C565]/60 text-[#4B3621]" : "bg-gray-100 text-gray-400"}`}><span className="mr-1">{number}.</span>{label}</button>;
           })}
         </div>
-
         {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
 
-        <section className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-[#4B3621]/10">
-          <WireSectionTitle>1. Select an accredited supply shop</WireSectionTitle>
-          {loading ? <p className="text-sm text-gray-500">Loading accredited shops…</p> : shops.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-gray-300 bg-[#faf9f7] p-5 text-sm text-gray-500">
-              No accredited school-supply shops are published yet. An administrator must approve a partner shop before students can order.
-            </div>
-          ) : (
-            <div className="grid gap-3 md:grid-cols-3">
-              {shops.map((shop) => (
-                <button key={shop.id} onClick={() => setSelectedShop(shop.id)} className={`rounded-xl border p-4 text-left transition ${selectedShop === shop.id ? "border-[#4B3621] bg-[#E3C565]/20" : "border-gray-200 hover:border-[#E3C565]"}`}>
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="font-bold text-[#4B3621]">{shop.business_name}</p>
-                    <div className="flex items-center gap-2">
-                      {shop.is_draft && <WireBadge variant="pending">Draft</WireBadge>}
-                      {selectedShop === shop.id && <i className="bi bi-check-circle-fill text-[#4B3621]" aria-hidden="true" />}
-                    </div>
-                  </div>
-                  <p className="mt-1 text-xs text-gray-500">{shop.location}</p>
-                  <p className="mt-3 text-xs text-gray-600">Transaction fee: <strong>₱{shop.transaction_fee.toFixed(2)}</strong></p>
-                  <p className="mt-1 text-xs text-gray-600">GCash: <strong>{shop.gcash_number || "Not published"}</strong></p>
-                </button>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section className="grid gap-5 lg:grid-cols-[1.4fr_0.6fr]">
-          <div className="space-y-4">
-            <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-[#4B3621]/10">
-              <WireSectionTitle>2. Add supplies</WireSectionTitle>
-              {products.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-gray-300 bg-[#faf9f7] p-5 text-sm text-gray-500">
-                  No products are available yet. Published products will appear here with their live stock and price.
+        {step === 1 && (
+          <div className="space-y-5">
+            <section className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-[#4B3621]/10">
+              <WireSectionTitle>Step 1A — Select an accredited shop</WireSectionTitle>
+              {loading ? <p className="text-sm text-gray-500">Loading shops…</p> : shops.length === 0 ? <p className="rounded-xl border border-dashed p-5 text-sm text-gray-500">No accredited shops are available yet.</p> : (
+                <div className="grid gap-3 md:grid-cols-2">
+                  {shops.map((item) => <button key={item.id} onClick={() => setShopId(item.id)} className={`rounded-xl border p-4 text-left ${shopId === item.id ? "border-[#4B3621] bg-[#E3C565]/20" : "border-gray-200"}`}>
+                    <div className="flex justify-between gap-2"><strong className="text-[#4B3621]">{item.business_name}</strong>{item.is_draft && <WireBadge variant="pending">Draft</WireBadge>}</div>
+                    <p className="mt-1 text-xs text-gray-500">{item.location}</p>
+                    <p className="mt-2 text-xs text-gray-600">Transaction fee: ₱{item.transaction_fee.toFixed(2)} · GCash: {item.gcash_number || "Not published"}</p>
+                  </button>)}
                 </div>
-              ) : (
-                <div className="grid gap-3 sm:grid-cols-2">
+              )}
+            </section>
+            <section className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-[#4B3621]/10">
+              <WireSectionTitle>Step 1B — Add supplies</WireSectionTitle>
+              {loading ? <p className="text-sm text-gray-500">Loading products…</p> : products.length === 0 ? <p className="rounded-xl border border-dashed p-5 text-sm text-gray-500">No products are available yet.</p> : (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {products.map((product) => {
-                    const options = optionsFor(product);
-                    return (
-                      <div key={product.id} className="rounded-xl border border-gray-200 p-4">
-                        {product.image_path && productImages[product.image_path] && <img src={productImages[product.image_path]} alt="" className="mb-3 h-28 w-full rounded-lg object-cover" />}
-                        <p className="font-semibold text-[#4B3621]">{product.name}</p>
-                        <p className="mt-1 text-sm text-gray-500">₱{product.unit_price.toFixed(2)} each · {product.stock_quantity} available</p>
-                        {options.length > 0 && (
-                          <select
-                            className="mt-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                            value={selectedOptions[product.id] ?? options[0]}
-                            onChange={(event) => setSelectedOptions((current) => ({ ...current, [product.id]: event.target.value }))}
-                          >
-                            {options.map((option) => <option key={option}>{option}</option>)}
-                          </select>
-                        )}
-                        <WireBtn className="mt-3 w-full" size="sm" disabled={!selectedShop} onClick={() => { addToCart(product, selectedOptions[product.id] ?? options[0] ?? "Standard"); setStep(2); }}>
-                          Add {product.category === "bond_paper" ? "sheet" : product.category === "index_card" ? "card" : "item"}
-                        </WireBtn>
-                        <p className="mt-2 text-[11px] text-gray-400">
-                          {product.category === "bond_paper" ? "Select Short, A4, or Long and enter sheets in your cart." : product.category === "index_card" ? "Select a color and enter the number of cards, not packs." : "Quantity is entered per item."}
-                        </p>
-                      </div>
-                    );
+                    const productOptions = optionsFor(product);
+                    const needsQuantity = !product.name.toLowerCase().includes("yellow pad");
+                    return <div key={product.id} className="rounded-xl border border-gray-200 p-3">
+                      {product.image_path && images[product.image_path] && <img src={images[product.image_path]} alt={product.name} className="h-28 w-full rounded-lg object-cover" />}
+                      <p className="mt-3 font-semibold text-[#4B3621]">{product.name}</p>
+                      <p className="mt-1 text-xs text-gray-500">₱{product.unit_price.toFixed(2)} each · {product.stock_quantity} available</p>
+                      {productOptions.length > 0 && <select className="mt-3 w-full rounded-lg border px-2 py-2 text-sm" value={options[product.id] ?? productOptions[0]} onChange={(event) => setOptions((current) => ({ ...current, [product.id]: event.target.value }))}>{productOptions.map((option) => <option key={option}>{option}</option>)}</select>}
+                      {needsQuantity && <WireInput label="Quantity" type="number" value={String(quantities[product.id] ?? 1)} onChange={(event) => setQuantities((current) => ({ ...current, [product.id]: Math.max(1, Math.min(product.stock_quantity, Number(event.target.value))) }))} className="mt-2" />}
+                      <WireBtn className="mt-3 w-full" size="sm" disabled={!shopId} onClick={() => add(product)}>Add to cart</WireBtn>
+                    </div>;
                   })}
                 </div>
               )}
-            </div>
-
-            <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-[#4B3621]/10">
-              <WireSectionTitle>3. Cart</WireSectionTitle>
-              {cart.length === 0 ? <p className="text-sm text-gray-500">Your cart is empty.</p> : cart.map((item) => (
-                <div key={`${item.product.id}-${item.option}`} className="flex flex-wrap items-center gap-3 border-b border-gray-100 py-3 last:border-0">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-[#4B3621]">{item.product.name}</p>
-                    <p className="text-xs text-gray-500">{optionLabel(item.product)}: {item.option} · ₱{item.product.unit_price.toFixed(2)} each</p>
-                  </div>
-                  <WireInput type="number" label="Quantity" className="w-24" value={String(item.quantity)} onChange={(event) => updateQuantity(item, Math.max(0, Math.min(item.product.stock_quantity, Number(event.target.value))))} />
-                  <p className="w-20 text-right text-sm font-bold">₱{(item.product.unit_price * item.quantity).toFixed(2)}</p>
-                </div>
-              ))}
-            </div>
+            </section>
+            <div className="flex justify-end"><WireBtn size="lg" disabled={!shopId || cart.length === 0} onClick={() => setStep(2)}>Continue to cart <i className="bi bi-arrow-right ml-2" aria-hidden="true" /></WireBtn></div>
           </div>
+        )}
 
-          <aside className="space-y-4">
-            <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-[#4B3621]/10">
-              <WireSectionTitle>4. Payment</WireSectionTitle>
-              <div className="grid gap-2">
-                {(["cash", "gcash", "maya"] as PaymentMethod[]).map((method) => (
-                  <button key={method} onClick={() => setPaymentMethod(method)} className={`rounded-lg border px-3 py-2 text-left text-sm capitalize ${paymentMethod === method ? "border-[#4B3621] bg-[#E3C565]/20 font-semibold" : "border-gray-200"}`}>
-                    {method === "cash" ? "Cash on pickup/delivery" : method}
-                  </button>
-                ))}
-              </div>
-              {paymentMethod === "gcash" && (
-                <div className="mt-4 space-y-3">
-                  <div className="rounded-lg bg-[#faf9f7] p-3 text-xs text-gray-600">Send payment to: <strong>{selectedShopRecord?.gcash_number || "Shop GCash number not published"}</strong></div>
-                  <WireInput label="Reference number" value={referenceNumber} onChange={(event) => setReferenceNumber(event.target.value)} placeholder="Enter your GCash reference number" />
-                  <label className="block text-xs font-semibold uppercase tracking-wide text-gray-600">Proof of online payment<input className="mt-1 block w-full rounded-lg border border-gray-300 p-2 text-sm" type="file" accept="image/*" onChange={handleProof} /></label>
-                  {proof && <p className="text-xs text-gray-500">Selected: {proof.name}</p>}
-                </div>
-              )}
-              {paymentMethod === "maya" && (
-                <div className="mt-4 space-y-3">
-                  <WireInput label="Reference number" value={referenceNumber} onChange={(event) => setReferenceNumber(event.target.value)} placeholder="Enter your Maya reference number" />
-                  <label className="block text-xs font-semibold uppercase tracking-wide text-gray-600">Proof of online payment<input className="mt-1 block w-full rounded-lg border border-gray-300 p-2 text-sm" type="file" accept="image/*" onChange={handleProof} /></label>
-                  {proof && <p className="text-xs text-gray-500">Selected: {proof.name}</p>}
-                </div>
-              )}
-              <div className="mt-5 space-y-2 border-t border-gray-200 pt-4 text-sm">
-                <div className="flex justify-between"><span>Subtotal</span><strong>₱{subtotal.toFixed(2)}</strong></div>
-                <div className="flex justify-between"><span>Shop transaction fee</span><strong>₱{(selectedShopRecord?.transaction_fee ?? 0).toFixed(2)}</strong></div>
-                <div className="flex justify-between border-t border-gray-200 pt-2 text-base font-bold text-[#4B3621]"><span>Total</span><span>₱{(subtotal + (selectedShopRecord?.transaction_fee ?? 0)).toFixed(2)}</span></div>
-              </div>
-              <WireBtn className="mt-4 w-full" size="lg" disabled={!selectedShopRecord || cart.length === 0 || ((paymentMethod === "gcash" || paymentMethod === "maya") && (!referenceNumber.trim() || !proof))} onClick={() => { setStep(3); navigate("order-tracking"); }}>
-                Review order
-              </WireBtn>
-            </div>
-          </aside>
-        </section>
+        {step === 2 && (
+          <section className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-[#4B3621]/10">
+            <WireSectionTitle>Step 2 — Review your cart</WireSectionTitle>
+            {cart.length === 0 ? <p className="text-sm text-gray-500">Your cart is empty.</p> : <div className="space-y-2">{cart.map((item) => <div key={`${item.product.id}-${item.option}`} className="flex flex-wrap items-center gap-3 border-b py-3">
+              <div className="min-w-0 flex-1"><p className="font-semibold text-[#4B3621]">{item.product.name}</p><p className="text-xs text-gray-500">{optionLabel(item.product)}: {item.option} · ₱{item.product.unit_price.toFixed(2)} each</p></div>
+              {item.product.name.toLowerCase().includes("yellow pad") ? <span className="text-xs text-gray-500">1 pad</span> : <WireInput label="Quantity" type="number" value={String(item.quantity)} onChange={(event) => updateCartQuantity(item, Number(event.target.value))} className="w-24" />}
+              <strong className="w-24 text-right">₱{(item.product.unit_price * item.quantity).toFixed(2)}</strong>
+              <button onClick={() => setCart((current) => current.filter((entry) => entry !== item))} className="text-xs text-gray-400">Remove</button>
+            </div>)}</div>}
+            <div className="mt-5 flex items-center justify-between border-t pt-4"><strong className="text-[#4B3621]">Subtotal: ₱{subtotal.toFixed(2)}</strong><WireBtn disabled={cart.length === 0} onClick={() => setStep(3)}>Continue to payment <i className="bi bi-arrow-right ml-2" aria-hidden="true" /></WireBtn></div>
+          </section>
+        )}
+
+        {step === 3 && (
+          <section className="grid gap-5 lg:grid-cols-[1fr_0.7fr]">
+            <WireCard className="rounded-2xl border-0 shadow-sm ring-1 ring-[#4B3621]/10">
+              <WireSectionTitle>Step 3 — Payment details</WireSectionTitle>
+              <div className="grid gap-2">{(["cash", "gcash", "maya"] as PaymentMethod[]).map((method) => <button key={method} onClick={() => setPayment(method)} className={`rounded-lg border px-3 py-3 text-left text-sm capitalize ${payment === method ? "border-[#4B3621] bg-[#E3C565]/20 font-semibold" : "border-gray-200"}`}>{method === "cash" ? "Cash on pickup/delivery" : method}</button>)}</div>
+              {onlinePayment && <div className="mt-4 space-y-3"><div className="rounded-lg bg-[#faf9f7] p-3 text-sm">Send to GCash: <strong>{shop?.gcash_number || "Not published"}</strong></div><WireInput label="Reference number" value={reference} onChange={(event) => setReference(event.target.value)} placeholder="Enter reference number" /><label className="block text-xs font-semibold uppercase tracking-wide text-gray-600">Proof of online payment<input className="mt-1 block w-full rounded-lg border p-2 text-sm" type="file" accept="image/*" onChange={(event: ChangeEvent<HTMLInputElement>) => setProof(event.target.files?.[0] ?? null)} /></label>{proof && <p className="text-xs text-gray-500">{proof.name}</p>}</div>}
+            </WireCard>
+            <WireCard className="rounded-2xl border-0 bg-[#4B3621] text-white shadow-sm"><p className="text-xs font-bold uppercase tracking-wider text-[#E3C565]">Order total</p><p className="mt-4 text-sm text-white/70">Items: ₱{subtotal.toFixed(2)}</p><p className="mt-1 text-sm text-white/70">Shop fee: ₱{(shop?.transaction_fee ?? 0).toFixed(2)}</p><p className="mt-5 border-t border-white/20 pt-4 text-2xl font-bold">₱{(subtotal + (shop?.transaction_fee ?? 0)).toFixed(2)}</p><WireBtn className="mt-6 w-full" disabled={onlinePayment && (!reference.trim() || !proof)} onClick={() => navigate("order-tracking")}>Submit order</WireBtn></WireCard>
+          </section>
+        )}
       </div>
     </StudentLayout>
   );

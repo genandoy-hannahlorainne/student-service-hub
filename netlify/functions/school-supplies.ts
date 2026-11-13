@@ -44,7 +44,12 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
       })),
     });
   } catch (error) {
-    console.error("[school-supplies] catalog error:", error instanceof Error ? error.message : String(error));
-    return errorResponse(500, "Could not load the school supplies catalog.");
+    const message = error instanceof Error ? error.message : String(error);
+    const databaseError = error as { code?: string };
+    console.error("[school-supplies] catalog error:", message);
+    if (databaseError.code === "42P01" || message.includes("does not exist")) {
+      return errorResponse(503, "School supplies catalog is not provisioned. Run migration 005_school_supplies_catalog_repair.sql in Neon.");
+    }
+    return errorResponse(500, "Could not load the school supplies catalog. Check the Netlify function logs.");
   }
 };

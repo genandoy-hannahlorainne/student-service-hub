@@ -33,4 +33,4 @@ VALUES
   ('Pencil', 'other', 8.00, 200, '{}', 'school-supplies/pencil.jpg'),
   ('Folder', 'other', 12.00, 100, '{}', 'school-supplies/folder.jpg'),
   ('Brown Envelope', 'other', 10.00, 100, '{}', 'school-supplies/brown-envelope.jpg'),
-  ('Blue Ballpen', 'other', 8.00, 200, '{}', 'school-supplies/ballpen.png');
+  ('Blue Ballpen', 'other', 8.00, 200, '{"colors":["Blue","Black","Red"]}', 'school-supplies/ballpen.png');
