@@ -1,4 +1,4 @@
-﻿import { ReactNode, useState, useCallback } from "react";
+import { ChangeEvent, ReactNode, useState, useCallback } from "react";
 import organizationLogo from "../assets/images/org_ssh_logo.png";
 import { useAuth } from "../context/AuthContext";
 
@@ -59,11 +59,15 @@ export function WireInput({
   type = "text",
   placeholder,
   className = "",
+  value,
+  onChange,
 }: {
   label?: string;
   type?: string;
   placeholder?: string;
   className?: string;
+  value?: string;
+  onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
@@ -71,6 +75,8 @@ export function WireInput({
       <input
         type={type}
         placeholder={placeholder}
+        value={value}
+        onChange={onChange}
         className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full"
       />
     </div>

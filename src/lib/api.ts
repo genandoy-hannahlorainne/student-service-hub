@@ -90,6 +90,33 @@ export async function fetchMe(): Promise<MeResponse> {
   return apiFetch<MeResponse>("/me");
 }
 
+export interface SupplyShop {
+  id: string;
+  business_name: string;
+  location: string;
+  gcash_number: string | null;
+  transaction_fee: number;
+}
+
+export interface SupplyProduct {
+  id: string;
+  name: string;
+  category: "bond_paper" | "index_card" | "other";
+  unit_price: number;
+  stock_quantity: number;
+  options: { sizes?: string[]; colors?: string[] };
+}
+
+export interface SchoolSuppliesCatalog {
+  shops: SupplyShop[];
+  products: SupplyProduct[];
+}
+
+/** Fetch currently accredited supply shops and their published catalog. */
+export async function fetchSchoolSuppliesCatalog(): Promise<SchoolSuppliesCatalog> {
+  return apiFetch<SchoolSuppliesCatalog>("/school-supplies");
+}
+
 /**
  * Register payload — passwords are intentionally absent.
  * GoTrue owns the credential; we only store the profile metadata.

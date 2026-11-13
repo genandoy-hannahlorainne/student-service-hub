@@ -1,217 +1,218 @@
-import { useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import {
-  StudentLayout, WireBtn, WireCard, WirePlaceholder, WireInput,
-  WireSelect, WireSectionTitle, WireTextarea, WireRadioGroup,
+  fetchSchoolSuppliesCatalog,
+  SupplyProduct,
+  SupplyShop,
+} from "../../lib/api";
+import {
+  StudentLayout, WireBadge, WireBtn, WireCard, WireInput, WireSectionTitle,
 } from "../../components/WireframeUI";
 
-const PRODUCTS = [
-  { name: "Bond Paper (Short)", price: "₱180.00", unit: "per ream (500 sheets)", qty: 48, category: "Bond Paper" },
-  { name: "Bond Paper (Long)", price: "₱200.00", unit: "per ream (500 sheets)", qty: 30, category: "Bond Paper" },
-  { name: "Yellow Pad Paper", price: "₱25.00", unit: "per pad", qty: 64, category: "Yellow Pad" },
-  { name: "Expandable Envelope (Long)", price: "₱18.00", unit: "each", qty: 90, category: "Envelopes" },
-  { name: "Plain Folder (Long)", price: "₱12.00", unit: "each", qty: 72, category: "Folders" },
-  { name: "Ballpen (Blue) — Stick", price: "₱8.00", unit: "each", qty: 200, category: "Pens" },
-  { name: "Index Cards (4×6, 100 pcs)", price: "₱35.00", unit: "per pack", qty: 40, category: "Index Cards" },
-  { name: "Highlighter Set (4 colors)", price: "₱55.00", unit: "per set", qty: 25, category: "Other" },
-];
+type PaymentMethod = "cash" | "gcash" | "maya";
+type CartItem = { product: SupplyProduct; option: string; quantity: number };
 
-type CartItem = { name: string; price: number; qty: number };
+function optionLabel(product: SupplyProduct): string {
+  if (product.category === "bond_paper") return "Size";
+  if (product.category === "index_card") return "Color";
+  return "Variant";
+}
+
+function optionsFor(product: SupplyProduct): string[] {
+  return product.category === "bond_paper"
+    ? product.options.sizes ?? []
+    : product.category === "index_card"
+      ? product.options.colors ?? []
+      : [];
+}
 
 export default function SchoolSupplies({ navigate }: { navigate: (s: string) => void }) {
-  const [category, setCategory] = useState("All");
+  const [shops, setShops] = useState<SupplyShop[]>([]);
+  const [products, setProducts] = useState<SupplyProduct[]>([]);
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+  const [selectedShop, setSelectedShop] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [view, setView] = useState<"browse" | "cart" | "review">("browse");
-  const [fulfillment, setFulfillment] = useState<"pickup" | "delivery">("pickup");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
+  const [referenceNumber, setReferenceNumber] = useState("");
+  const [proof, setProof] = useState<File | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const cats = ["All", "Bond Paper", "Yellow Pad", "Folders", "Envelopes", "Pens", "Index Cards", "Other"];
-  const filtered = category === "All" ? PRODUCTS : PRODUCTS.filter((p) => p.category === category);
+  const loadCatalog = async () => {
+    setLoading(true);
+    try {
+      const catalog = await fetchSchoolSuppliesCatalog();
+      setShops(catalog.shops);
+      setProducts(catalog.products);
+      setSelectedShop((current) => current && catalog.shops.some((shop) => shop.id === current) ? current : catalog.shops[0]?.id ?? "");
+      setError("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load the catalog.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const addToCart = (p: typeof PRODUCTS[0]) => {
-    setCart((prev) => {
-      const exists = prev.find((c) => c.name === p.name);
-      if (exists) return prev.map((c) => c.name === p.name ? { ...c, qty: c.qty + 1 } : c);
-      return [...prev, { name: p.name, price: parseFloat(p.price.replace("₱", "")), qty: 1 }];
+  useEffect(() => {
+    void loadCatalog();
+    const timer = window.setInterval(() => void loadCatalog(), 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const selectedShopRecord = shops.find((shop) => shop.id === selectedShop);
+  const subtotal = useMemo(
+    () => cart.reduce((total, item) => total + item.product.unit_price * item.quantity, 0),
+    [cart]
+  );
+
+  const addToCart = (product: SupplyProduct, option: string) => {
+    setCart((current) => {
+      const existing = current.find((item) => item.product.id === product.id && item.option === option);
+      if (existing) {
+        return current.map((item) => item === existing
+          ? { ...item, quantity: Math.min(item.quantity + 1, product.stock_quantity) }
+          : item);
+      }
+      return [...current, { product, option, quantity: 1 }];
     });
   };
 
-  const subtotal = cart.reduce((sum, c) => sum + c.price * c.qty, 0);
-  const deliveryFee = fulfillment === "delivery" ? 30 : 0;
+  const updateQuantity = (item: CartItem, quantity: number) => {
+    setCart((current) => current
+      .map((currentItem) => currentItem === item ? { ...currentItem, quantity } : currentItem)
+      .filter((currentItem) => currentItem.quantity > 0));
+  };
 
-  // ── Review view ──
-  if (view === "review") {
-    return (
-      <StudentLayout active="school-supplies" navigate={navigate}>
-        <div className="flex flex-col gap-5">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold text-gray-800">Order Review — School Supplies</h1>
-            <WireBtn variant="outline" size="sm" onClick={() => setView("cart")}>← Edit Cart</WireBtn>
+  const handleProof = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null;
+    setProof(file);
+  };
+
+  return (
+    <StudentLayout active="school-supplies" navigate={navigate}>
+      <div className="mx-auto max-w-7xl space-y-5">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#E3C565]">Student marketplace</p>
+            <h1 className="mt-1 text-2xl font-bold text-[#4B3621]">School supplies</h1>
+            <p className="mt-1 text-sm text-gray-500">Choose an accredited partner shop before adding items.</p>
           </div>
+          <WireBadge variant="active">{cart.length} cart item{cart.length === 1 ? "" : "s"}</WireBadge>
+        </div>
 
-          {/* ── Bento: summary (wide) + fulfillment/payment (narrow) ── */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-            <WireCard className="md:col-span-2">
-              <WireSectionTitle>Order Summary</WireSectionTitle>
-              {cart.map((c) => (
-                <div key={c.name} className="flex justify-between py-2 border-b border-gray-100 text-sm">
-                  <span className="text-gray-700">{c.name} × {c.qty}</span>
-                  <span className="font-medium">₱{(c.price * c.qty).toFixed(2)}</span>
+        {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
+
+        <section className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-[#4B3621]/10">
+          <WireSectionTitle>1. Select an accredited supply shop</WireSectionTitle>
+          {loading ? <p className="text-sm text-gray-500">Loading accredited shops…</p> : shops.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-gray-300 bg-[#faf9f7] p-5 text-sm text-gray-500">
+              No accredited school-supply shops are published yet. An administrator must approve a partner shop before students can order.
+            </div>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-3">
+              {shops.map((shop) => (
+                <button key={shop.id} onClick={() => setSelectedShop(shop.id)} className={`rounded-xl border p-4 text-left transition ${selectedShop === shop.id ? "border-[#4B3621] bg-[#E3C565]/20" : "border-gray-200 hover:border-[#E3C565]"}`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="font-bold text-[#4B3621]">{shop.business_name}</p>
+                    {selectedShop === shop.id && <i className="bi bi-check-circle-fill text-[#4B3621]" aria-hidden="true" />}
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">{shop.location}</p>
+                  <p className="mt-3 text-xs text-gray-600">Transaction fee: <strong>₱{shop.transaction_fee.toFixed(2)}</strong></p>
+                  <p className="mt-1 text-xs text-gray-600">GCash: <strong>{shop.gcash_number || "Not published"}</strong></p>
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="grid gap-5 lg:grid-cols-[1.4fr_0.6fr]">
+          <div className="space-y-4">
+            <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-[#4B3621]/10">
+              <WireSectionTitle>2. Add supplies</WireSectionTitle>
+              {products.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-gray-300 bg-[#faf9f7] p-5 text-sm text-gray-500">
+                  No products are available yet. Published products will appear here with their live stock and price.
+                </div>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {products.map((product) => {
+                    const options = optionsFor(product);
+                    return (
+                      <div key={product.id} className="rounded-xl border border-gray-200 p-4">
+                        <p className="font-semibold text-[#4B3621]">{product.name}</p>
+                        <p className="mt-1 text-sm text-gray-500">₱{product.unit_price.toFixed(2)} each · {product.stock_quantity} available</p>
+                        {options.length > 0 && (
+                          <select
+                            className="mt-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                            value={selectedOptions[product.id] ?? options[0]}
+                            onChange={(event) => setSelectedOptions((current) => ({ ...current, [product.id]: event.target.value }))}
+                          >
+                            {options.map((option) => <option key={option}>{option}</option>)}
+                          </select>
+                        )}
+                        <WireBtn className="mt-3 w-full" size="sm" disabled={!selectedShop} onClick={() => addToCart(product, selectedOptions[product.id] ?? options[0] ?? "Standard")}>
+                          Add {product.category === "bond_paper" ? "sheet" : product.category === "index_card" ? "card" : "item"}
+                        </WireBtn>
+                        <p className="mt-2 text-[11px] text-gray-400">
+                          {product.category === "bond_paper" ? "Select Short, A4, or Long and enter sheets in your cart." : product.category === "index_card" ? "Select a color and enter the number of cards, not packs." : "Quantity is entered per item."}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-[#4B3621]/10">
+              <WireSectionTitle>3. Cart</WireSectionTitle>
+              {cart.length === 0 ? <p className="text-sm text-gray-500">Your cart is empty.</p> : cart.map((item) => (
+                <div key={`${item.product.id}-${item.option}`} className="flex flex-wrap items-center gap-3 border-b border-gray-100 py-3 last:border-0">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-[#4B3621]">{item.product.name}</p>
+                    <p className="text-xs text-gray-500">{optionLabel(item.product)}: {item.option} · ₱{item.product.unit_price.toFixed(2)} each</p>
+                  </div>
+                  <WireInput type="number" label="Quantity" className="w-24" value={String(item.quantity)} onChange={(event) => updateQuantity(item, Math.max(0, Math.min(item.product.stock_quantity, Number(event.target.value))))} />
+                  <p className="w-20 text-right text-sm font-bold">₱{(item.product.unit_price * item.quantity).toFixed(2)}</p>
                 </div>
               ))}
-              <div className="mt-3 flex flex-col gap-1 text-sm">
-                <div className="flex justify-between"><span className="text-gray-500">Subtotal:</span><span>₱{subtotal.toFixed(2)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Delivery Fee:</span><span>₱{deliveryFee.toFixed(2)}</span></div>
-                <div className="flex justify-between font-bold text-gray-800 text-base border-t border-gray-200 pt-2 mt-1">
-                  <span>Total:</span><span>₱{(subtotal + deliveryFee).toFixed(2)}</span>
-                </div>
-              </div>
-            </WireCard>
-
-            <WireCard>
-              <WireSectionTitle>Fulfillment &amp; Payment</WireSectionTitle>
-              <div className="text-sm text-gray-700 flex flex-col gap-2">
-                <p><strong>Fulfillment:</strong>{" "}
-                  {fulfillment === "delivery"
-                    ? "🚚 Delivery — PUP Taguig Campus"
-                    : "📦 Pickup — University Organization Office"}
-                </p>
-                <p><strong>Payment:</strong> Cash on Pickup/Delivery</p>
-              </div>
-            </WireCard>
+            </div>
           </div>
 
-          <div className="border-2 border-dashed border-gray-400 p-3 text-center text-sm text-gray-600 bg-gray-50">
-            <strong>Confirm your order below.</strong> Orders cannot be modified once submitted.
-          </div>
-          <div className="flex justify-end">
-            <WireBtn size="lg" onClick={() => navigate("order-tracking")}>✓ CONFIRM &amp; SUBMIT ORDER</WireBtn>
-          </div>
-        </div>
-      </StudentLayout>
-    );
-  }
-
-  // ── Cart view ──
-  if (view === "cart") {
-    return (
-      <StudentLayout active="school-supplies" navigate={navigate}>
-        <div className="flex flex-col gap-5">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold text-gray-800">Cart ({cart.length} items)</h1>
-            <WireBtn variant="ghost" size="sm" onClick={() => setView("browse")}>← Continue Shopping</WireBtn>
-          </div>
-
-          {/* ── Bento: cart items (wide) + fulfillment/payment (narrow) ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
-            <WireCard className="lg:col-span-2">
-              <WireSectionTitle>Cart Items</WireSectionTitle>
-              {cart.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-8">Your cart is empty.</p>
-              ) : (
-                cart.map((c) => (
-                  <div key={c.name} className="flex items-center justify-between py-2 border-b border-gray-100 gap-3">
-                    <span className="text-sm text-gray-700 flex-1">{c.name}</span>
-                    <div className="flex items-center gap-2">
-                      <button
-                        className="w-6 h-6 border border-gray-300 text-gray-600 text-sm"
-                        onClick={() => setCart(p => p.map(i => i.name === c.name ? { ...i, qty: Math.max(1, i.qty - 1) } : i))}
-                      >−</button>
-                      <span className="w-6 text-center text-sm font-mono">{c.qty}</span>
-                      <button
-                        className="w-6 h-6 border border-gray-300 text-gray-600 text-sm"
-                        onClick={() => setCart(p => p.map(i => i.name === c.name ? { ...i, qty: i.qty + 1 } : i))}
-                      >+</button>
-                    </div>
-                    <span className="text-sm font-medium w-20 text-right">₱{(c.price * c.qty).toFixed(2)}</span>
-                    <button
-                      className="text-gray-400 hover:text-gray-700 text-xs"
-                      onClick={() => setCart(p => p.filter(i => i.name !== c.name))}
-                    >✕</button>
-                  </div>
-                ))
-              )}
-            </WireCard>
-
-            <WireCard>
-              <WireSectionTitle>Fulfillment &amp; Payment</WireSectionTitle>
-              <div className="flex gap-3 mb-4">
-                {(["pickup", "delivery"] as const).map((f) => (
-                  <button
-                    key={f}
-                    onClick={() => setFulfillment(f)}
-                    className={`flex-1 py-2.5 text-sm font-medium border capitalize transition-colors ${
-                      fulfillment === f ? "bg-gray-800 text-white border-gray-800" : "border-gray-300 text-gray-600"
-                    }`}
-                  >
-                    {f === "pickup" ? "📦 Pickup" : "🚚 Delivery"}
+          <aside className="space-y-4">
+            <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-[#4B3621]/10">
+              <WireSectionTitle>4. Payment</WireSectionTitle>
+              <div className="grid gap-2">
+                {(["cash", "gcash", "maya"] as PaymentMethod[]).map((method) => (
+                  <button key={method} onClick={() => setPaymentMethod(method)} className={`rounded-lg border px-3 py-2 text-left text-sm capitalize ${paymentMethod === method ? "border-[#4B3621] bg-[#E3C565]/20 font-semibold" : "border-gray-200"}`}>
+                    {method === "cash" ? "Cash on pickup/delivery" : method}
                   </button>
                 ))}
               </div>
-              {fulfillment === "delivery" && (
-                <WireInput label="Delivery Address" placeholder="Within PUP Taguig campus area" className="mb-3" />
-              )}
-              <WireRadioGroup name="pay" label="Payment Method" options={["Cash on Pickup/Delivery", "GCash", "Maya"]} />
-              <div className="mt-4 border border-gray-200 p-3 bg-gray-50 text-sm flex flex-col gap-1">
-                <div className="flex justify-between"><span className="text-gray-500">Subtotal:</span><span>₱{subtotal.toFixed(2)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Delivery:</span><span>₱{deliveryFee.toFixed(2)}</span></div>
-                <div className="flex justify-between font-bold border-t border-gray-200 pt-2 mt-1 text-gray-800">
-                  <span>Total:</span><span>₱{(subtotal + deliveryFee).toFixed(2)}</span>
+              {paymentMethod === "gcash" && (
+                <div className="mt-4 space-y-3">
+                  <div className="rounded-lg bg-[#faf9f7] p-3 text-xs text-gray-600">Send payment to: <strong>{selectedShopRecord?.gcash_number || "Shop GCash number not published"}</strong></div>
+                  <WireInput label="Reference number" value={referenceNumber} onChange={(event) => setReferenceNumber(event.target.value)} placeholder="Enter your GCash reference number" />
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-gray-600">Proof of online payment<input className="mt-1 block w-full rounded-lg border border-gray-300 p-2 text-sm" type="file" accept="image/*" onChange={handleProof} /></label>
+                  {proof && <p className="text-xs text-gray-500">Selected: {proof.name}</p>}
                 </div>
+              )}
+              {paymentMethod === "maya" && (
+                <div className="mt-4 space-y-3">
+                  <WireInput label="Reference number" value={referenceNumber} onChange={(event) => setReferenceNumber(event.target.value)} placeholder="Enter your Maya reference number" />
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-gray-600">Proof of online payment<input className="mt-1 block w-full rounded-lg border border-gray-300 p-2 text-sm" type="file" accept="image/*" onChange={handleProof} /></label>
+                  {proof && <p className="text-xs text-gray-500">Selected: {proof.name}</p>}
+                </div>
+              )}
+              <div className="mt-5 space-y-2 border-t border-gray-200 pt-4 text-sm">
+                <div className="flex justify-between"><span>Subtotal</span><strong>₱{subtotal.toFixed(2)}</strong></div>
+                <div className="flex justify-between"><span>Shop transaction fee</span><strong>₱{(selectedShopRecord?.transaction_fee ?? 0).toFixed(2)}</strong></div>
+                <div className="flex justify-between border-t border-gray-200 pt-2 text-base font-bold text-[#4B3621]"><span>Total</span><span>₱{(subtotal + (selectedShopRecord?.transaction_fee ?? 0)).toFixed(2)}</span></div>
               </div>
-              <div className="mt-4">
-                <WireBtn size="lg" className="w-full" onClick={() => setView("review")} disabled={cart.length === 0}>
-                  Review Order →
-                </WireBtn>
-              </div>
-            </WireCard>
-          </div>
-        </div>
-      </StudentLayout>
-    );
-  }
-
-  // ── Browse view ──
-  return (
-    <StudentLayout active="school-supplies" navigate={navigate}>
-      <div className="flex flex-col gap-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-gray-800">School Supplies</h1>
-            <p className="text-sm text-gray-500 mt-1">Academic materials available from University Organization</p>
-          </div>
-          <WireBtn onClick={() => setView("cart")}>🛒 Cart ({cart.length})</WireBtn>
-        </div>
-
-        {/* Search + category filter */}
-        <div className="flex flex-col gap-3">
-          <WireInput placeholder="Search supplies..." />
-          <div className="flex flex-wrap gap-2">
-            {cats.map((c) => (
-              <button
-                key={c}
-                onClick={() => setCategory(c)}
-                className={`px-3 py-1.5 text-xs border font-medium transition-colors ${
-                  category === c ? "bg-gray-800 text-white border-gray-800" : "border-gray-300 text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Bento product grid ── */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {filtered.map((p) => (
-            <WireCard key={p.name} className="flex flex-col gap-2">
-              <WirePlaceholder label="Product Image" className="h-24 w-full" />
-              <p className="text-sm font-semibold text-gray-800 leading-snug flex-1">{p.name}</p>
-              <p className="text-xs text-gray-500">{p.unit}</p>
-              <p className="text-base font-bold text-gray-900">{p.price}</p>
-              <p className="text-xs text-gray-400">Available: {p.qty}</p>
-              <WireBtn size="sm" variant="outline" onClick={() => addToCart(p)}>+ Add to Cart</WireBtn>
-            </WireCard>
-          ))}
-        </div>
+              <WireBtn className="mt-4 w-full" size="lg" disabled={!selectedShopRecord || cart.length === 0 || ((paymentMethod === "gcash" || paymentMethod === "maya") && (!referenceNumber.trim() || !proof))} onClick={() => navigate("order-tracking")}>
+                Review order
+              </WireBtn>
+            </div>
+          </aside>
+        </section>
       </div>
     </StudentLayout>
   );
