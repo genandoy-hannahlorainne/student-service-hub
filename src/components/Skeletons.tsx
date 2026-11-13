@@ -269,24 +269,24 @@ export function AdminLandingSkeleton() {
 
 export function StudentSkeleton() {
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-gray-50">
+    <div className="flex flex-col h-screen overflow-hidden bg-[#f5f3f0]">
       {/* Topbar */}
-      <div className="h-14 shrink-0 bg-gray-800 border-b border-gray-600 px-3 flex items-center justify-between gap-2">
+      <div className="h-16 shrink-0 bg-white border-b border-[#4B3621]/15 px-4 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <S className="w-9 h-9 rounded bg-gray-700" />
-          <S className="w-7 h-7 rounded bg-gray-700" />
-          <S className="w-52 h-4 rounded-full bg-gray-700 hidden sm:block" />
+          <S className="w-9 h-9 rounded bg-gray-200" />
+          <S className="w-7 h-7 rounded bg-gray-200" />
+          <S className="w-40 h-4 rounded-full bg-gray-200 hidden sm:block" />
         </div>
         <div className="flex items-center gap-2">
-          <S className="w-32 h-8 rounded bg-gray-700 hidden md:block" />
-          <S className="w-8 h-8 rounded bg-gray-700" />
-          <S className="w-8 h-8 rounded-full bg-gray-700" />
+          <S className="w-32 h-8 rounded bg-gray-100 hidden md:block" />
+          <S className="w-8 h-8 rounded bg-gray-100" />
+          <S className="w-8 h-8 rounded-full bg-[#E3C565]/50" />
         </div>
       </div>
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div className="hidden lg:flex w-48 shrink-0 bg-gray-100 border-r border-gray-300 flex-col py-3 gap-0.5">
+        <div className="hidden lg:flex w-48 shrink-0 bg-white border-r border-[#4B3621]/10 flex-col py-3 gap-0.5">
           {[70, 90, 60, 55, 60, 75, 70, 65, 55, 50].map((w, i) => (
             <div key={i} className="mx-3 my-0.5">
               <S className={`h-8 rounded`} style={{ width: `${w}%`, animationDelay: `${i * 40}ms` }} />
@@ -296,38 +296,33 @@ export function StudentSkeleton() {
 
         {/* Main content */}
         <main className="flex-1 overflow-y-auto p-4 lg:p-5 flex flex-col gap-5">
-          {/* Welcome row */}
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col gap-1.5">
-              <S className="w-48 h-6 rounded-full" />
-              <S className="w-56 h-3 rounded-full" />
-            </div>
-            <S className="w-32 h-9 rounded-xl" />
+          {/* Account overview */}
+          <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-[#4B3621]/10">
+            <S className="w-28 h-3 rounded-full" />
+            <S className="mt-3 w-64 h-8 rounded-full" />
+            <S className="mt-2 w-72 h-3 rounded-full" />
           </div>
 
-          {/* Quick access 3 cards */}
+          {/* Summary cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="bg-white rounded-2xl p-5 shadow-sm ring-1 ring-[#4B3621]/10">
+                <S className="w-24 h-3 rounded-full" />
+                <S className="mt-3 w-12 h-8 rounded-lg" />
+                <S className="mt-2 w-32 h-3 rounded-full" />
+              </div>
+            ))}
+          </div>
+
+          {/* Services */}
           <div>
             <S className="w-24 h-3 rounded-full mb-3" />
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[0, 1, 2].map((i) => (
-                <div key={i} className="bg-white rounded-xl border border-gray-100 p-4 flex flex-col gap-3" style={{ animationDelay: `${i * 60}ms` }}>
-                  <S className="h-16 w-full rounded-lg" />
-                  <S className="w-3/4 h-4 rounded-full" />
+                <div key={i} className="bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm" style={{ animationDelay: `${i * 60}ms` }}>
+                  <S className="h-7 w-7 rounded-lg" />
+                  <S className="mt-5 w-3/4 h-4 rounded-full" />
                   <S className="w-full h-3 rounded-full" />
-                  <S className="w-20 h-8 rounded-lg" />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Stats 4 cards */}
-          <div>
-            <S className="w-20 h-3 rounded-full mb-3" />
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="bg-white rounded-xl border border-gray-100 p-4 flex flex-col gap-2" style={{ animationDelay: `${i * 50}ms` }}>
-                  <S className="w-10 h-8 rounded-lg" />
-                  <S className="w-20 h-3 rounded-full" />
                 </div>
               ))}
             </div>

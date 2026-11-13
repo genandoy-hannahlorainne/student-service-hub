@@ -96,6 +96,7 @@ export interface SupplyShop {
   location: string;
   gcash_number: string | null;
   transaction_fee: number;
+  is_draft: boolean;
 }
 
 export interface SupplyProduct {
@@ -105,6 +106,7 @@ export interface SupplyProduct {
   unit_price: number;
   stock_quantity: number;
   options: { sizes?: string[]; colors?: string[] };
+  image_path?: string | null;
 }
 
 export interface SchoolSuppliesCatalog {

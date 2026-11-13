@@ -7,9 +7,27 @@ import {
 import {
   StudentLayout, WireBadge, WireBtn, WireCard, WireInput, WireSectionTitle,
 } from "../../components/WireframeUI";
+import bondPaperImage from "../../assets/school-supplies/bond-paper.jpg";
+import indexCardImage from "../../assets/school-supplies/index-card.jpg";
+import yellowPadImage from "../../assets/school-supplies/yellow-pad.jpg";
+import plasticEnvelopeImage from "../../assets/school-supplies/plastic-envelope.jpg";
+import pencilImage from "../../assets/school-supplies/pencil.jpg";
+import folderImage from "../../assets/school-supplies/folder.jpg";
+import brownEnvelopeImage from "../../assets/school-supplies/brown-envelope.jpg";
+import ballpenImage from "../../assets/school-supplies/ballpen.png";
 
 type PaymentMethod = "cash" | "gcash" | "maya";
 type CartItem = { product: SupplyProduct; option: string; quantity: number };
+const productImages: Record<string, string> = {
+  "school-supplies/bond-paper.jpg": bondPaperImage,
+  "school-supplies/index-card.jpg": indexCardImage,
+  "school-supplies/yellow-pad.jpg": yellowPadImage,
+  "school-supplies/plastic-envelope.jpg": plasticEnvelopeImage,
+  "school-supplies/pencil.jpg": pencilImage,
+  "school-supplies/folder.jpg": folderImage,
+  "school-supplies/brown-envelope.jpg": brownEnvelopeImage,
+  "school-supplies/ballpen.png": ballpenImage,
+};
 
 function optionLabel(product: SupplyProduct): string {
   if (product.category === "bond_paper") return "Size";
@@ -36,6 +54,7 @@ export default function SchoolSupplies({ navigate }: { navigate: (s: string) => 
   const [proof, setProof] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [step, setStep] = useState(1);
 
   const loadCatalog = async () => {
     setLoading(true);
@@ -96,7 +115,20 @@ export default function SchoolSupplies({ navigate }: { navigate: (s: string) => 
             <h1 className="mt-1 text-2xl font-bold text-[#4B3621]">School supplies</h1>
             <p className="mt-1 text-sm text-gray-500">Choose an accredited partner shop before adding items.</p>
           </div>
-          <WireBadge variant="active">{cart.length} cart item{cart.length === 1 ? "" : "s"}</WireBadge>
+          <div className="flex items-center gap-3">
+            <WireBadge variant="active">{cart.length} cart item{cart.length === 1 ? "" : "s"}</WireBadge>
+            <span className="text-xs text-gray-500">Step {step} of 3</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {["Choose shop & items", "Review cart", "Payment details"].map((label, index) => {
+            const current = index + 1;
+            return (
+              <button key={label} onClick={() => current <= step && setStep(current)} className={`rounded-lg px-3 py-2 text-left text-xs font-semibold ${step === current ? "bg-[#4B3621] text-white" : step > current ? "bg-[#E3C565]/50 text-[#4B3621]" : "bg-gray-100 text-gray-400"}`}>
+                <span className="mr-1">{current}.</span>{label}
+              </button>
+            );
+          })}
         </div>
 
         {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
@@ -113,7 +145,10 @@ export default function SchoolSupplies({ navigate }: { navigate: (s: string) => 
                 <button key={shop.id} onClick={() => setSelectedShop(shop.id)} className={`rounded-xl border p-4 text-left transition ${selectedShop === shop.id ? "border-[#4B3621] bg-[#E3C565]/20" : "border-gray-200 hover:border-[#E3C565]"}`}>
                   <div className="flex items-start justify-between gap-2">
                     <p className="font-bold text-[#4B3621]">{shop.business_name}</p>
-                    {selectedShop === shop.id && <i className="bi bi-check-circle-fill text-[#4B3621]" aria-hidden="true" />}
+                    <div className="flex items-center gap-2">
+                      {shop.is_draft && <WireBadge variant="pending">Draft</WireBadge>}
+                      {selectedShop === shop.id && <i className="bi bi-check-circle-fill text-[#4B3621]" aria-hidden="true" />}
+                    </div>
                   </div>
                   <p className="mt-1 text-xs text-gray-500">{shop.location}</p>
                   <p className="mt-3 text-xs text-gray-600">Transaction fee: <strong>₱{shop.transaction_fee.toFixed(2)}</strong></p>
@@ -138,6 +173,7 @@ export default function SchoolSupplies({ navigate }: { navigate: (s: string) => 
                     const options = optionsFor(product);
                     return (
                       <div key={product.id} className="rounded-xl border border-gray-200 p-4">
+                        {product.image_path && productImages[product.image_path] && <img src={productImages[product.image_path]} alt="" className="mb-3 h-28 w-full rounded-lg object-cover" />}
                         <p className="font-semibold text-[#4B3621]">{product.name}</p>
                         <p className="mt-1 text-sm text-gray-500">₱{product.unit_price.toFixed(2)} each · {product.stock_quantity} available</p>
                         {options.length > 0 && (
@@ -149,7 +185,7 @@ export default function SchoolSupplies({ navigate }: { navigate: (s: string) => 
                             {options.map((option) => <option key={option}>{option}</option>)}
                           </select>
                         )}
-                        <WireBtn className="mt-3 w-full" size="sm" disabled={!selectedShop} onClick={() => addToCart(product, selectedOptions[product.id] ?? options[0] ?? "Standard")}>
+                        <WireBtn className="mt-3 w-full" size="sm" disabled={!selectedShop} onClick={() => { addToCart(product, selectedOptions[product.id] ?? options[0] ?? "Standard"); setStep(2); }}>
                           Add {product.category === "bond_paper" ? "sheet" : product.category === "index_card" ? "card" : "item"}
                         </WireBtn>
                         <p className="mt-2 text-[11px] text-gray-400">
@@ -207,7 +243,7 @@ export default function SchoolSupplies({ navigate }: { navigate: (s: string) => 
                 <div className="flex justify-between"><span>Shop transaction fee</span><strong>₱{(selectedShopRecord?.transaction_fee ?? 0).toFixed(2)}</strong></div>
                 <div className="flex justify-between border-t border-gray-200 pt-2 text-base font-bold text-[#4B3621]"><span>Total</span><span>₱{(subtotal + (selectedShopRecord?.transaction_fee ?? 0)).toFixed(2)}</span></div>
               </div>
-              <WireBtn className="mt-4 w-full" size="lg" disabled={!selectedShopRecord || cart.length === 0 || ((paymentMethod === "gcash" || paymentMethod === "maya") && (!referenceNumber.trim() || !proof))} onClick={() => navigate("order-tracking")}>
+              <WireBtn className="mt-4 w-full" size="lg" disabled={!selectedShopRecord || cart.length === 0 || ((paymentMethod === "gcash" || paymentMethod === "maya") && (!referenceNumber.trim() || !proof))} onClick={() => { setStep(3); navigate("order-tracking"); }}>
                 Review order
               </WireBtn>
             </div>

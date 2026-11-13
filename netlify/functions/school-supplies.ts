@@ -20,13 +20,13 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
   try {
     const [shops, products] = await Promise.all([
       sql`
-        SELECT id, business_name, location, gcash_number, transaction_fee
+        SELECT id, business_name, location, gcash_number, transaction_fee, is_draft
         FROM supply_shops
         WHERE status = 'active' AND accredited = true
         ORDER BY business_name
       `,
       sql`
-        SELECT id, name, category, unit_price, stock_quantity, options
+        SELECT id, name, category, unit_price, stock_quantity, options, image_path
         FROM supply_products
         WHERE status = 'active' AND stock_quantity > 0
         ORDER BY category, name
