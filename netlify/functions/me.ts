@@ -30,6 +30,9 @@ export const handler: Handler = async (
   }
 
   try {
+    // Older deployments seeded the admin profile before the real Netlify
+    // Identity UUID was copied into the database. Match the verified Identity
+    // email as a compatibility fallback so those accounts can still sign in.
     const profileResult = await sql`
       SELECT
         up.id, up.display_name, up.email, up.phone,
@@ -41,7 +44,7 @@ export const handler: Handler = async (
         ) AS roles
       FROM user_profiles up
       LEFT JOIN user_roles ur ON ur.user_id = up.id
-      WHERE up.id = ${identity.sub}
+      WHERE up.id = ${identity.sub} OR up.email = ${identity.email}
       GROUP BY up.id
     `;
 

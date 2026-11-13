@@ -47,8 +47,9 @@ export const handler: Handler = async (
     // Also check DB roles (in case app_metadata is not yet synced)
     const roleCheck = await sql`
       SELECT role FROM user_roles
-      WHERE user_id = ${identity.sub}
-        AND role IN ('admin', 'co_admin')
+      JOIN user_profiles ON user_profiles.id = user_roles.user_id
+      WHERE (user_roles.user_id = ${identity.sub} OR user_profiles.email = ${identity.email})
+        AND user_roles.role IN ('admin', 'co_admin')
       LIMIT 1
     `;
     if (roleCheck.rows.length === 0) {
@@ -85,7 +86,15 @@ export const handler: Handler = async (
       return errorResponse(409, `Provider is already ${provider.status}`);
     }
 
-    const actorId = identity.sub;
+    // Use the profile ID when the legacy email fallback authenticated an
+    // account whose stored ID predates its current Netlify Identity UUID.
+    const actorResult = await sql`
+      SELECT id
+      FROM user_profiles
+      WHERE id = ${identity.sub} OR email = ${identity.email}
+      LIMIT 1
+    `;
+    const actorId = (actorResult.rows[0]?.id as string | undefined) ?? identity.sub;
     const targetUserId = provider.user_id as string;
 
     if (action === "approve") {

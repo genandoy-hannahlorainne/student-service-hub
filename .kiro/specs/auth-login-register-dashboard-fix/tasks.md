@@ -14,7 +14,7 @@
 }
 ```
 
-- [ ] 1. Write bug condition exploration test
+- [~] 1. Write bug condition exploration test
   - **Property 1: Bug Condition** - Concurrency Race / Error Surfacing / Admin Self-Registration
   - **CRITICAL**: This test MUST FAIL on unfixed code - failure confirms the bug exists
   - **DO NOT attempt to fix the test or the code when it fails**
@@ -31,7 +31,7 @@
   - Mark task complete when tests are written, run, and failures are documented
   - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
-- [ ] 2. Write preservation property tests (BEFORE implementing fix)
+- [-] 2. Write preservation property tests (BEFORE implementing fix)
   - **Property 2: Preservation** - Single-Call Profile Loading / Non-Admin Registration
   - **IMPORTANT**: Follow observation-first methodology
   - Observe: a single `loadProfile` call (no overlap) transitions `authStatus` to `"authenticated"` on unfixed code
