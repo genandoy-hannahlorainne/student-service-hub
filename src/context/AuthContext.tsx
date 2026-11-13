@@ -48,6 +48,7 @@ import {
   UserProfile,
   UserRole,
   ProviderRecord,
+  ApiError,
 } from "../lib/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -155,7 +156,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return [];
       }
 
-      if (msg.includes("404") || msg.toLowerCase().includes("profile not found")) {
+      if (
+        err instanceof ApiError &&
+        err.status === 404 &&
+        msg.toLowerCase().includes("profile not found")
+      ) {
         // Valid GoTrue session but no DB profile.
         // RouteGuard will redirect to the registration screen.
         setAuthStatus("needs_registration");
@@ -164,9 +169,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Any other error (network, 5xx) — surface it and sign out.
       console.error("[AuthContext] loadProfile error:", msg);
-      setAuthError("Could not load your profile. Please try again.");
+      const userMessage =
+        err instanceof ApiError && err.status === 404
+          ? "The authentication service is unavailable. Please redeploy the Netlify Functions and try again."
+          : "Could not load your profile. Please try again.";
+      setAuthError(userMessage);
       setAuthStatus("unauthenticated");
-      return [];
+      throw new Error(userMessage);
     }
   }, []);
 
@@ -177,7 +186,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // If the widget found a persisted session in localStorage, load the profile.
     const existing = currentUser();
     if (existing) {
-      void loadProfile(existing);
+      void loadProfile(existing).catch(() => undefined);
     } else {
       setAuthStatus("unauthenticated");
     }
@@ -188,7 +197,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     //   - any other tab logging in
     // The session counter ensures only the most recent call's result is applied.
     const onLogin = (user: NetlifyUser) => {
-      void loadProfile(user);
+      void loadProfile(user).catch(() => undefined);
     };
 
     const onLogout = () => {

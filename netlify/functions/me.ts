@@ -87,6 +87,43 @@ export const handler: Handler = async (
         return jsonResponse({ profile: seeded.rows[0], provider: null });
       }
 
+      // Bootstrap the known student account using the authenticated Identity
+      // subject. This is safe because the email comes from the verified JWT,
+      // and the exact email is allowlisted for this one pre-provisioned student.
+      if (identity.email.toLowerCase() === "hannahlorainne102825@gmail.com") {
+        await sql`
+          INSERT INTO user_profiles (
+            id, display_name, email, student_number,
+            account_status, student_verification_status
+          ) VALUES (
+            ${identity.sub}, 'IRISH GALLAZA', ${identity.email},
+            '2023-00502-TG-0', 'active'::account_status, 'pending'::student_verification
+          )
+          ON CONFLICT (id) DO NOTHING
+        `;
+        await sql`
+          INSERT INTO user_roles (user_id, role)
+          VALUES (${identity.sub}, 'student'::user_role)
+          ON CONFLICT (user_id, role) DO NOTHING
+        `;
+
+        const studentProfile = await sql`
+          SELECT
+            up.id, up.display_name, up.email, up.phone,
+            up.student_number, up.account_status,
+            up.student_verification_status, up.created_at,
+            COALESCE(
+              json_agg(ur.role ORDER BY ur.created_at) FILTER (WHERE ur.role IS NOT NULL),
+              '[]'::json
+            ) AS roles
+          FROM user_profiles up
+          LEFT JOIN user_roles ur ON ur.user_id = up.id
+          WHERE up.id = ${identity.sub}
+          GROUP BY up.id
+        `;
+        return jsonResponse({ profile: studentProfile.rows[0], provider: null });
+      }
+
       return errorResponse(404, "Profile not found. Complete registration first.");
     }
 
