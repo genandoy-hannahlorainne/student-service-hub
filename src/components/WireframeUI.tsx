@@ -337,23 +337,29 @@ function AuthHeader({ role, onMenuToggle, navigate }: { role: string; onMenuTogg
   const isStudent = role === "Student";
   const displayRole = isStudent ? profile?.display_name || "Student" : role;
   return (
-    <header className={`${isStudent ? "bg-[#4B3621] border-[#4B3621]" : "bg-gray-800 border-gray-600"} text-white px-3 py-2.5 flex items-center justify-between border-b h-14 shrink-0`}>
+    <header className={`${isStudent ? "bg-white border-[#4B3621]/15 text-[#4B3621]" : "bg-gray-800 border-gray-600 text-white"} px-4 py-3 flex items-center justify-between border-b h-16 shrink-0 shadow-sm`}>
       <div className="flex items-center gap-2 min-w-0">
         <HamburgerBtn onClick={onMenuToggle} />
         <img src={organizationLogo} alt="University Organization logo" className="h-7 w-7 shrink-0 object-contain" />
-        <span className="font-bold text-sm hidden sm:block truncate">University Organization Student Services Hub</span>
+        <div className="min-w-0">
+          <span className="block font-bold text-sm truncate">Student Services Hub</span>
+          {isStudent && <span className="hidden text-[10px] font-medium uppercase tracking-wider text-gray-500 sm:block">PUP Taguig student portal</span>}
+        </div>
       </div>
       <div className="flex items-center gap-2 shrink-0">
-        <div className="hidden md:flex items-center border border-gray-500 bg-gray-700 px-2 py-1">
-          <i className="bi bi-search text-gray-400 text-xs mr-1" aria-hidden="true" />
-          <input placeholder="Search..." className="bg-transparent text-sm text-white placeholder-gray-400 focus:outline-none w-32" />
+        <div className={`hidden md:flex items-center rounded-lg border px-2 py-1.5 ${isStudent ? "border-gray-200 bg-gray-50" : "border-gray-500 bg-gray-700"}`}>
+          <i className={`bi bi-search text-xs mr-1 ${isStudent ? "text-gray-400" : "text-gray-400"}`} aria-hidden="true" />
+          <input placeholder="Search" className={`bg-transparent text-sm focus:outline-none w-32 ${isStudent ? "text-[#4B3621] placeholder-gray-400" : "text-white placeholder-gray-400"}`} />
         </div>
-        <button className="text-gray-300 hover:text-white text-sm w-8 h-8 flex items-center justify-center" aria-label="Notifications">
+        <button className={`${isStudent ? "text-gray-500 hover:bg-[#f5f3f0]" : "text-gray-300 hover:text-white"} rounded-lg text-sm w-9 h-9 flex items-center justify-center`} aria-label="Notifications">
           <i className="bi bi-bell" aria-hidden="true" />
         </button>
-        <button className="flex items-center gap-1 text-sm hover:text-gray-300">
-          <i className="bi bi-person-circle text-lg" aria-hidden="true" />
-          <span className="hidden sm:block text-xs max-w-[140px] truncate">{displayRole}</span>
+        <button className={`flex items-center gap-2 rounded-xl border px-2 py-1.5 text-sm ${isStudent ? "border-[#4B3621]/15 hover:bg-[#f5f3f0]" : "border-transparent hover:text-gray-300"}`}>
+          <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${isStudent ? "bg-[#E3C565] text-[#4B3621]" : "bg-gray-700"}`}>
+            {displayRole.charAt(0).toUpperCase()}
+          </span>
+          <span className="hidden max-w-[140px] truncate text-xs font-semibold sm:block">{displayRole}</span>
+          <i className="bi bi-chevron-down text-[10px]" aria-hidden="true" />
         </button>
       </div>
     </header>
@@ -375,8 +381,13 @@ function SidebarDrawer({
   onClose: () => void;
   accentColor?: string;
 }) {
+  const { logout } = useAuth();
   const handleNav = (screen?: string) => {
-    if (screen) navigate(screen);
+    if (screen === "landing") {
+      void logout().then(() => navigate("landing"));
+    } else if (screen) {
+      navigate(screen);
+    }
     onClose();
   };
 
@@ -413,8 +424,8 @@ function SidebarDrawer({
             onClick={() => handleNav(item.screen)}
             className={`text-left px-4 py-2.5 text-sm transition-colors ${
               active === item.screen
-                ? `bg-gray-300 font-semibold text-gray-900 border-l-4 ${accentColor}`
-                : "text-gray-700 hover:bg-gray-200"
+                ? `bg-[#E3C565]/25 font-semibold text-[#4B3621] border-l-4 ${accentColor}`
+                : "text-gray-700 hover:bg-[#f5f3f0]"
             } ${item.label === "Logout" ? "mt-auto text-gray-500 border-t border-gray-300" : ""}`}
           >
             <i className={`bi ${bootstrapIconForLabel(item.label)} mr-2`} aria-hidden="true" />{item.label}
@@ -464,16 +475,15 @@ function AppLayout({
 
 export function StudentLayout({ children, active, navigate }: { children: ReactNode; active: string; navigate: (s: string) => void }) {
   const items: NavItem[] = [
-    { label: "Dashboard", screen: "student-dashboard", icon: "âŠž" },
-    { label: "Browse Services", screen: "browse-services", icon: "â—«" },
-    { label: "â€” Printing", screen: "printing-service", icon: "" },
-    { label: "â€” School Supplies", screen: "school-supplies", icon: "" },
-    { label: "â€” Resource Rental", screen: "resource-rental", icon: "" },
-    { label: "My Orders", screen: "order-tracking", icon: "â—ˆ" },
-    { label: "My Rental Posts", screen: "rental-post-status", icon: "â—‰" },
-    { label: "Transaction History", screen: "transaction-receipt", icon: "◌" },
-    { label: "Profile", screen: "student-dashboard", icon: "â—Ž" },
-    { label: "Logout", screen: "landing", icon: "â—" },
+    { label: "Overview", screen: "student-dashboard" },
+    { label: "Browse services", screen: "browse-services" },
+    { label: "Printing", screen: "printing-service" },
+    { label: "School supplies", screen: "school-supplies" },
+    { label: "Resource rental", screen: "resource-rental" },
+    { label: "My orders", screen: "order-tracking" },
+    { label: "My rental posts", screen: "rental-post-status" },
+    { label: "Transactions", screen: "transaction-receipt" },
+    { label: "Log out", screen: "landing" },
   ];
   return <AppLayout items={items} active={active} navigate={navigate} role="Student" accentColor="border-[#4B3621]">{children}</AppLayout>;
 }
