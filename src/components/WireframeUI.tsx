@@ -328,12 +328,12 @@ function HamburgerBtn({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="lg:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5 border border-gray-500 hover:bg-gray-700 mr-2 shrink-0"
-      aria-label="Toggle sidebar"
+      className="w-9 h-9 flex flex-col items-center justify-center gap-1.5 border border-gray-400 hover:bg-gray-100 mr-2 shrink-0"
+      aria-label="Expand or collapse navigation"
     >
-      <span className="block w-5 h-0.5 bg-white" />
-      <span className="block w-5 h-0.5 bg-white" />
-      <span className="block w-5 h-0.5 bg-white" />
+      <span className="block w-5 h-0.5 bg-gray-700" />
+      <span className="block w-5 h-0.5 bg-gray-700" />
+      <span className="block w-5 h-0.5 bg-gray-700" />
     </button>
   );
 }
@@ -378,6 +378,7 @@ function SidebarDrawer({
   navigate,
   open,
   onClose,
+  collapsed,
   accentColor = "border-gray-700",
 }: {
   items: NavItem[];
@@ -385,6 +386,7 @@ function SidebarDrawer({
   navigate: (s: string) => void;
   open: boolean;
   onClose: () => void;
+  collapsed: boolean;
   accentColor?: string;
 }) {
   const { logout } = useAuth();
@@ -411,7 +413,7 @@ function SidebarDrawer({
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-40
-          w-56 lg:w-48 shrink-0
+          ${collapsed ? "lg:w-16" : "lg:w-48"} w-56 shrink-0
           bg-gray-100 border-r border-gray-300
           flex flex-col py-3 overflow-y-auto
           transition-transform duration-200
@@ -428,13 +430,14 @@ function SidebarDrawer({
           <button
             key={item.label}
             onClick={() => handleNav(item.screen)}
-            className={`text-left px-4 py-2.5 text-sm transition-colors ${
+            className={`text-left px-4 py-2.5 text-sm transition-colors ${collapsed ? "lg:px-0 lg:justify-center lg:text-center" : ""} ${
               active === item.screen
                 ? `bg-[#E3C565]/25 font-semibold text-[#4B3621] border-l-4 ${accentColor}`
                 : "text-gray-700 hover:bg-[#f5f3f0]"
             } ${item.label === "Logout" ? "mt-auto text-gray-500 border-t border-gray-300" : ""}`}
           >
-            <i className={`bi ${bootstrapIconForLabel(item.label)} mr-2`} aria-hidden="true" />{item.label}
+            <i className={`bi ${bootstrapIconForLabel(item.label)} ${collapsed ? "lg:mr-0" : "mr-2"}`} aria-hidden="true" />
+            <span className={collapsed ? "lg:hidden" : ""}>{item.label}</span>
           </button>
         ))}
       </aside>
@@ -459,9 +462,13 @@ function AppLayout({
   accentColor?: string;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   return (
     <div className="flex flex-col h-screen overflow-hidden">
-      <AuthHeader role={role} onMenuToggle={() => setSidebarOpen((v: boolean) => !v)} navigate={navigate} />
+      <AuthHeader role={role} onMenuToggle={() => {
+        if (window.innerWidth >= 1024) setSidebarCollapsed((v) => !v);
+        else setSidebarOpen((v) => !v);
+      }} navigate={navigate} />
       <div className="flex flex-1 overflow-hidden relative">
         <SidebarDrawer
           items={items}
@@ -469,6 +476,7 @@ function AppLayout({
           navigate={navigate}
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
+          collapsed={sidebarCollapsed}
           accentColor={accentColor}
         />
         <main className={`flex-1 overflow-y-auto p-4 lg:p-5 ${role === "Student" ? "bg-[#f5f3f0]" : "bg-gray-50"}`}>

@@ -167,3 +167,37 @@ export async function approveProvider(
     body: JSON.stringify(payload),
   });
 }
+
+export interface RentalPost {
+  id: string;
+  title: string;
+  description: string;
+  type: "Available for Rent" | "Looking For";
+  category: string;
+  location: string;
+  rental_rate: string;
+  availability: string;
+  status: "draft" | "pending" | "approved" | "rejected";
+  rejection_reason: string | null;
+  created_at: string;
+  user: string;
+  date: string;
+}
+
+export async function fetchRentalPosts(): Promise<{ posts: RentalPost[] }> {
+  return apiFetch<{ posts: RentalPost[] }>("/rentals");
+}
+
+export interface ServiceTransaction {
+  id: string;
+  service_type: string;
+  reference_code: string;
+  status: string;
+  amount: number;
+  payment_method: string | null;
+  created_at: string;
+}
+
+export async function fetchTransactions(): Promise<{ transactions: ServiceTransaction[] }> {
+  return apiFetch<{ transactions: ServiceTransaction[] }>("/transactions");
+}

@@ -1,59 +1,31 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   StudentLayout, WireBtn, WireCard, WireBadge, WireSectionTitle, WirePlaceholder,
 } from "../../components/WireframeUI";
+import { fetchRentalPosts, RentalPost } from "../../lib/api";
 
-const POSTS = [
-  {
-    id: "POST-2025-014",
-    title: "Typewriter for Rent — Good Condition",
-    type: "Available for Rent",
-    category: "Typewriter",
-    date: "Dec 8, 2025",
-    status: "Pending Admin Review",
-    reason: null,
-  },
-  {
-    id: "POST-2025-009",
-    title: "Scientific Calculator for Rent — Casio FX-991",
-    type: "Available for Rent",
-    category: "Calculator",
-    date: "Nov 20, 2025",
-    status: "Approved",
-    reason: null,
-  },
-  {
-    id: "POST-2025-006",
-    title: "Need laptop for research project",
-    type: "Looking For",
-    category: "Laptop",
-    date: "Nov 10, 2025",
-    status: "Rejected",
-    reason: "Post description is too vague. Please specify the exact dates you need the laptop, the purpose, and your contact preference. Resubmit with complete details.",
-  },
-  {
-    id: "POST-2025-003",
-    title: "T-square and drafting tools available",
-    type: "Available for Rent",
-    category: "School Equipment",
-    date: "Oct 25, 2025",
-    status: "Draft",
-    reason: null,
-  },
-];
-
-const statusVariants: Record<string, "default" | "success" | "pending" | "rejected" | "active"> = {
-  "Draft": "default",
-  "Pending Admin Review": "pending",
-  "Approved": "success",
-  "Rejected": "rejected",
+const statusVariants: Record<RentalPost["status"], "default" | "success" | "pending" | "rejected" | "active"> = {
+  draft: "default",
+  pending: "pending",
+  approved: "success",
+  rejected: "rejected",
 };
 
-const tabs = ["All", "Draft", "Pending Admin Review", "Approved", "Rejected"];
+const tabs: Array<"All" | RentalPost["status"]> = ["All", "draft", "pending", "approved", "rejected"];
 
 export default function RentalPostStatus({ navigate }: { navigate: (s: string) => void }) {
   const [tab, setTab] = useState("All");
-  const filtered = tab === "All" ? POSTS : POSTS.filter((p) => p.status === tab);
+  const [posts, setPosts] = useState<RentalPost[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  useEffect(() => {
+    void fetchRentalPosts()
+      .then(({ posts: loadedPosts }) => setPosts(loadedPosts))
+      .catch((error: unknown) => {
+        console.error("[RentalPostStatus] failed to load posts:", error);
+        setLoadError("Your rental posts are temporarily unavailable.");
+      });
+  }, []);
+  const filtered = tab === "All" ? posts : posts.filter((p) => p.status === tab);
 
   return (
     <StudentLayout active="rental-post-status" navigate={navigate}>
@@ -77,8 +49,8 @@ export default function RentalPostStatus({ navigate }: { navigate: (s: string) =
             { label: "Approved", variant: "success" as const },
             { label: "Rejected", variant: "rejected" as const },
           ].map(({ label, variant }) => {
-            const key = label === "Pending" ? "Pending Admin Review" : label;
-            const count = POSTS.filter((p) => p.status === key).length;
+            const key = label === "Pending" ? "pending" : label.toLowerCase() as RentalPost["status"];
+            const count = posts.filter((p) => p.status === key).length;
             return (
               <WireCard key={label} className="flex flex-col gap-1 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => setTab(key)}>
                 <span className="text-2xl font-bold text-gray-800">{count}</span>
@@ -109,7 +81,7 @@ export default function RentalPostStatus({ navigate }: { navigate: (s: string) =
             >
               {t}
               <span className="ml-1.5 text-xs text-gray-400">
-                ({t === "All" ? POSTS.length : POSTS.filter((p) => p.status === t).length})
+                ({t === "All" ? posts.length : posts.filter((p) => p.status === t).length})
               </span>
             </button>
           ))}
@@ -117,15 +89,23 @@ export default function RentalPostStatus({ navigate }: { navigate: (s: string) =
 
         {/* ── Bento post cards grid ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filtered.map((post) => (
+          {loadError ? (
+            <WireCard className="md:col-span-2 text-center py-10"><p className="text-sm text-gray-600">{loadError}</p></WireCard>
+          ) : filtered.length === 0 ? (
+            <WireCard className="md:col-span-2 text-center py-10">
+              <p className="font-semibold text-gray-800">No rental posts yet</p>
+              <p className="mt-1 text-sm text-gray-500">Posts you create will appear here with their review status.</p>
+              <WireBtn className="mt-4" onClick={() => navigate("create-rental-post")}>Create a post</WireBtn>
+            </WireCard>
+          ) : filtered.map((post) => (
             <WireCard
               key={post.id}
-              className={`flex flex-col gap-3 ${post.status === "Rejected" ? "border-gray-500" : ""}`}
+              className={`flex flex-col gap-3 ${post.status === "rejected" ? "border-gray-500" : ""}`}
             >
               <div className="flex gap-3">
                 <WirePlaceholder label="IMG" className="w-16 h-16 shrink-0" />
                 <div className="flex flex-col gap-1 flex-1 min-w-0">
-                  <span className="text-xs font-mono text-gray-400">{post.id}</span>
+                  <span className="text-xs font-mono text-gray-400">{post.id.slice(0, 8).toUpperCase()}</span>
                   <h3 className="font-semibold text-gray-800 text-sm leading-snug">{post.title}</h3>
                   <div className="flex flex-wrap gap-1.5">
                     <WireBadge variant="default">{post.type}</WireBadge>
@@ -138,17 +118,17 @@ export default function RentalPostStatus({ navigate }: { navigate: (s: string) =
               <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-3">
                 <WireBadge variant={statusVariants[post.status]}>{post.status}</WireBadge>
                 <div className="flex gap-2">
-                  {post.status === "Draft" && (
+                  {post.status === "draft" && (
                     <WireBtn size="sm" variant="outline" onClick={() => navigate("create-rental-post")}>
                       Edit &amp; Submit
                     </WireBtn>
                   )}
-                  {post.status === "Approved" && (
+                  {post.status === "approved" && (
                     <WireBtn size="sm" variant="ghost" onClick={() => navigate("resource-rental")}>
                       View in Hub →
                     </WireBtn>
                   )}
-                  {post.status === "Rejected" && (
+                  {post.status === "rejected" && (
                     <WireBtn size="sm" variant="outline" onClick={() => navigate("create-rental-post")}>
                       Edit &amp; Resubmit
                     </WireBtn>
@@ -156,11 +136,11 @@ export default function RentalPostStatus({ navigate }: { navigate: (s: string) =
                 </div>
               </div>
 
-              {post.status === "Rejected" && post.reason && (
+              {post.status === "rejected" && post.rejection_reason && (
                 <div className="border-t border-gray-200 pt-3">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Rejection Reason:</p>
                   <div className="bg-gray-100 border border-gray-300 p-3 text-sm text-gray-700 italic">
-                    &ldquo;{post.reason}&rdquo;
+                  &ldquo;{post.rejection_reason}&rdquo;
                   </div>
                 </div>
               )}

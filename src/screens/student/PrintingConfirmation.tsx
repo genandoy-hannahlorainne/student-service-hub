@@ -1,5 +1,6 @@
 import {
   StudentLayout, WireBtn, WireCard, WirePlaceholder, WireSectionTitle, WireBadge,
+  WireProgressTracker,
 } from "../../components/WireframeUI";
 
 export default function PrintingConfirmation({ navigate }: { navigate: (s: string) => void }) {
@@ -12,6 +13,9 @@ export default function PrintingConfirmation({ navigate }: { navigate: (s: strin
             Please verify all details before confirming. This cannot be undone once submitted.
           </p>
         </div>
+        <WireCard className="rounded-2xl border-0 shadow-sm ring-1 ring-[#4B3621]/10">
+          <WireProgressTracker steps={["File", "Details", "Shop", "Fulfillment", "Payment"]} current={4} />
+        </WireCard>
 
         {/* ── Bento top row: file preview (narrow) + shop + specs (wide) ── */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">

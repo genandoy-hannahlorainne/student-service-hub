@@ -3,6 +3,7 @@ import {
   StudentLayout, WireBtn, WireCard, WirePlaceholder,
   WireInput, WireSelect, WireTextarea, WireRadioGroup,
   WireSectionTitle, WireBadge,
+  WireProgressTracker,
 } from "../../components/WireframeUI";
 
 export default function PrintingService({ navigate }: { navigate: (s: string) => void }) {
@@ -22,6 +23,9 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
           <h1 className="text-xl font-bold text-gray-800">Printing Services</h1>
           <p className="text-sm text-gray-500 mt-1">Fill in your printing details and select a collaborating shop</p>
         </div>
+        <WireCard className="rounded-2xl border-0 shadow-sm ring-1 ring-[#4B3621]/10">
+          <WireProgressTracker steps={["File", "Details", "Shop", "Fulfillment", "Payment"]} current={0} />
+        </WireCard>
 
         {/* ── Bento: top 2-col layout — file upload (wide) + printing details (narrow) ── */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
