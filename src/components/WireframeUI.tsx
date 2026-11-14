@@ -58,6 +58,7 @@ export function WireInput({
   label,
   type = "text",
   placeholder,
+  min,
   className = "",
   value,
   onChange,
@@ -65,6 +66,7 @@ export function WireInput({
   label?: string;
   type?: string;
   placeholder?: string;
+  min?: string | number;
   className?: string;
   value?: string;
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -75,6 +77,7 @@ export function WireInput({
       <input
         type={type}
         placeholder={placeholder}
+        min={min}
         value={value}
         onChange={onChange}
         className="border border-[#4B3621] px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#4B3621] w-full"
@@ -94,11 +97,11 @@ export function WireSelect({ label, options, className = "" }: { label?: string;
   );
 }
 
-export function WireTextarea({ label, placeholder, rows = 3, className = "" }: { label?: string; placeholder?: string; rows?: number; className?: string }) {
+export function WireTextarea({ label, placeholder, rows = 3, className = "", value, onChange }: { label?: string; placeholder?: string; rows?: number; className?: string; value?: string; onChange?: (event: ChangeEvent<HTMLTextAreaElement>) => void }) {
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
       {label && <label className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">{label}</label>}
-      <textarea rows={rows} placeholder={placeholder} className="border border-[#4B3621] px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#4B3621] w-full resize-none" />
+      <textarea rows={rows} placeholder={placeholder} value={value} onChange={onChange} className="border border-[#4B3621] px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#4B3621] w-full resize-none" />
     </div>
   );
 }
@@ -184,14 +187,14 @@ export function WireCheckbox({ label }: { label: string }) {
   );
 }
 
-export function WireRadioGroup({ label, options, name }: { label?: string; options: string[]; name: string }) {
+export function WireRadioGroup({ label, options, name, value, onChange }: { label?: string; options: string[]; name: string; value?: string; onChange?: (value: string) => void }) {
   return (
     <div className="flex flex-col gap-1">
       {label && <WireLabel>{label}</WireLabel>}
       <div className="flex flex-wrap gap-3 mt-1">
         {options.map((o) => (
           <label key={o} className="flex items-center gap-1.5 text-sm text-[#4B3621] cursor-pointer">
-            <input type="radio" name={name} className="w-4 h-4" />{o}
+            <input type="radio" name={name} value={o} checked={value === o} onChange={() => onChange?.(o)} className="w-4 h-4" />{o}
           </label>
         ))}
       </div>

@@ -7,16 +7,43 @@ import {
 } from "../../components/WireframeUI";
 
 export default function PrintingService({ navigate }: { navigate: (s: string) => void }) {
+  const [files, setFiles] = useState<Array<{ id: number; name: string; size: number }>>([]);
+  const [copies, setCopies] = useState<Record<number, number>>({});
+  const [notes, setNotes] = useState("");
   const [fulfillment, setFulfillment] = useState<"pickup" | "delivery">("pickup");
   const [selectedShop, setSelectedShop] = useState<number | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState("Cash on Pickup/Delivery");
+  const [paymentProof, setPaymentProof] = useState("");
+  const [paymentReference, setPaymentReference] = useState("");
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const [step, setStep] = useState(1);
-  const steps = ["File", "Details", "Shop", "Notes", "Fulfillment", "Payment"];
+  const steps = ["File", "Details", "Shop", "Fulfillment", "Payment"];
 
   const shops = [
     { name: "Speedy Print Shop", location: "Near PUP Taguig Main Gate", services: "Color, B&W, Binding", fee: "₱30", available: true },
     { name: "Taguig Print Center", location: "45 Central Bicutan, Taguig", services: "B&W, Lamination, Spiral", fee: "₱35", available: true },
     { name: "Campus Copy Express", location: "Western Bicutan, Taguig", services: "Color, B&W, Scanning", fee: "₱25", available: false },
   ];
+
+  const addFiles = (selectedFiles: FileList | null) => {
+    if (!selectedFiles) return;
+    const additions = Array.from(selectedFiles).map((file, index) => ({
+      id: Date.now() + index,
+      name: file.name,
+      size: file.size,
+    }));
+    setFiles((current) => [...current, ...additions]);
+    setCopies((current) => additions.reduce((next, file) => ({ ...next, [file.id]: 1 }), current));
+  };
+
+  const removeFile = (id: number) => {
+    setFiles((current) => current.filter((file) => file.id !== id));
+    setCopies((current) => {
+      const next = { ...current };
+      delete next[id];
+      return next;
+    });
+  };
 
   return (
     <StudentLayout active="printing-service" navigate={navigate}>
@@ -30,19 +57,31 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
         </WireCard>
 
         {step === 1 && (
-          <WireCard className="lg:col-span-3">
+          <WireCard>
             <WireSectionTitle>1. Upload File</WireSectionTitle>
             <div className="flex flex-col gap-3">
               <div className="border-2 border-dashed border-[#4B3621] p-6 text-center bg-[#E3C565]">
-                <WirePlaceholder label="Click or drag file to upload (PDF, DOCX, JPEG)" className="h-20 w-full mb-3" />
-                <WireBtn variant="outline">🔎 Choose File</WireBtn>
+                <WirePlaceholder label="PDF, DOCX, JPEG, or PNG" className="h-20 w-full mb-3" />
+                <label className="inline-flex cursor-pointer items-center justify-center border border-[#4B3621] bg-white px-4 py-2 text-sm font-medium text-[#4B3621] hover:bg-[#E3C565]">
+                  + Add file{files.length > 0 ? "s" : ""}
+                  <input type="file" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" className="hidden" onChange={(event) => addFiles(event.target.files)} />
+                </label>
                 <p className="text-xs text-[#4B3621] mt-2">Max file size: 20MB · Supported: PDF, DOCX, JPG, PNG</p>
               </div>
-              <div className="grid sm:grid-cols-2 gap-3">
-                <WireInput label="File Name" placeholder="document_name.pdf" />
-                <WireInput label="File Type" placeholder="PDF / DOCX / JPG" />
-              </div>
-              <WirePlaceholder label="File Preview — Page 1 of document" className="h-40 w-full" />
+              {files.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  {files.map((file) => (
+                    <div key={file.id} className="flex items-center justify-between gap-3 border border-[#4B3621] bg-white p-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-[#4B3621]">{file.name}</p>
+                        <p className="text-xs text-[#4B3621]">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                      </div>
+                      <WireBtn size="sm" variant="outline" onClick={() => removeFile(file.id)}>Remove</WireBtn>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <WireTextarea label="Notes for the printing shop" value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Add instructions for the printing shop, such as stapling or page orientation." rows={4} />
             </div>
           </WireCard>
         )}
@@ -51,7 +90,15 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
           <WireCard>
             <WireSectionTitle>2. Printing Details</WireSectionTitle>
             <div className="flex flex-col gap-4">
-              <WireInput label="Number of Copies" type="number" placeholder="e.g. 2" />
+              <div className="border border-dashed border-[#4B3621] bg-[#E3C565] p-3 text-xs text-[#4B3621]">
+                Set the number of copies for each uploaded file. Each file starts at 1 copy.
+              </div>
+              {files.map((file) => (
+                <div key={file.id} className="flex items-center justify-between gap-3 border border-[#4B3621] p-3">
+                  <span className="min-w-0 truncate text-sm font-medium text-[#4B3621]">{file.name}</span>
+                  <WireInput label="Copies" type="number" min="1" value={copies[file.id] ?? 1} onChange={(event) => setCopies((current) => ({ ...current, [file.id]: Math.max(1, Number(event.target.value) || 1) }))} />
+                </div>
+              ))}
               <WireSelect label="Print Color" options={["Black & White", "Full Color"]} />
               <WireSelect label="Paper Size" options={["Short (8.5×11)", "Long (8.5×13)", "A4 (8.27×11.69)"]} />
               <WireSelect label="Sides" options={["Single-Sided", "Double-Sided"]} />
@@ -106,15 +153,7 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
         </WireCard>}
 
         {step === 4 && <WireCard>
-            <WireSectionTitle>4. Notes / Special Instructions</WireSectionTitle>
-            <WireTextarea
-              placeholder="Example: Please staple each copy separately. Print portrait orientation only."
-              rows={5}
-            />
-          </WireCard>}
-
-        {step === 5 && <WireCard>
-            <WireSectionTitle>5. Fulfillment Method</WireSectionTitle>
+            <WireSectionTitle>4. Fulfillment Method</WireSectionTitle>
             <div className="flex gap-3 mb-4">
               {(["pickup", "delivery"] as const).map((f) => (
                 <button
@@ -153,10 +192,24 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
             )}
           </WireCard>}
 
-        {step === 6 && <WireCard>
-          <WireSectionTitle>6. Payment Method</WireSectionTitle>
+        {step === 5 && <WireCard>
+          <WireSectionTitle>5. Payment Method</WireSectionTitle>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
-            <WireRadioGroup name="payment" options={["Cash on Pickup/Delivery", "GCash", "Maya"]} />
+            <div>
+              <WireRadioGroup name="payment" options={["Cash on Pickup/Delivery", "GCash", "Maya"]} value={paymentMethod} onChange={setPaymentMethod} />
+              {paymentMethod === "GCash" && (
+                <div className="mt-4 flex flex-col gap-3 border border-[#4B3621] bg-[#E3C565] p-3">
+                  <p className="text-sm font-semibold text-[#4B3621]">GCash payment details</p>
+                  <p className="text-xs text-[#4B3621]">Printing shop GCash number (draft): 09XX XXX XXXX</p>
+                  <WireInput label="Payment reference number" value={paymentReference} onChange={(event) => setPaymentReference(event.target.value)} placeholder="Enter GCash reference number" />
+                  <label className="text-xs font-semibold text-[#4B3621]">
+                    Upload proof of payment
+                    <input type="file" accept="image/*,.pdf" className="mt-1 block w-full border border-[#4B3621] bg-white p-2 text-sm font-normal" onChange={(event) => setPaymentProof(event.target.files?.[0]?.name ?? "")} />
+                  </label>
+                  {paymentProof && <p className="text-xs text-[#4B3621]">Selected: {paymentProof}</p>}
+                </div>
+              )}
+            </div>
             <div className="border border-[#4B3621] p-3 bg-[#E3C565] flex flex-col gap-1.5 text-sm">
               <div className="flex justify-between">
                 <span className="text-[#4B3621]">Printing Fee (2 copies × B&W Short):</span>
@@ -179,16 +232,40 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
             ← Back
           </WireBtn>
           {step < steps.length ? (
-            <WireBtn size="lg" onClick={() => setStep((current) => Math.min(steps.length, current + 1))}>
+            <WireBtn disabled={step === 1 && files.length === 0} size="lg" onClick={() => setStep((current) => Math.min(steps.length, current + 1))}>
               Next: {steps[step]} →
             </WireBtn>
           ) : (
-            <WireBtn size="lg" onClick={() => navigate("printing-confirmation")}>
-              Review Order →
+            <WireBtn disabled={paymentMethod === "GCash" && (!paymentProof || !paymentReference)} size="lg" onClick={() => setShowConfirmation(true)}>
+              Confirm Order →
             </WireBtn>
           )}
         </div>
       </div>
+      {showConfirmation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#000000]/70 p-4" role="dialog" aria-modal="true">
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto border-2 border-[#4B3621] bg-white p-6">
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-[#4B3621]">Confirm printing order</h2>
+                <p className="mt-1 text-sm text-[#4B3621]">Review the details before submitting.</p>
+              </div>
+              <button type="button" className="text-xl text-[#4B3621]" onClick={() => setShowConfirmation(false)} aria-label="Close confirmation">×</button>
+            </div>
+            <div className="flex flex-col gap-2 border border-[#4B3621] p-4 text-sm text-[#4B3621]">
+              <p><strong>Files:</strong> {files.length}</p>
+              <p><strong>Shop:</strong> {selectedShop === null ? "Not selected" : shops[selectedShop].name}</p>
+              <p><strong>Payment:</strong> {paymentMethod}</p>
+              {paymentMethod === "GCash" && <p><strong>Reference:</strong> {paymentReference || "Not provided"}</p>}
+              {notes && <p><strong>Notes:</strong> {notes}</p>}
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <WireBtn variant="outline" onClick={() => setShowConfirmation(false)}>Back to payment</WireBtn>
+              <WireBtn onClick={() => navigate("order-tracking")}>Submit Order</WireBtn>
+            </div>
+          </div>
+        </div>
+      )}
     </StudentLayout>
   );
 }
