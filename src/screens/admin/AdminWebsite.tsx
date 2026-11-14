@@ -41,7 +41,7 @@ export default function AdminWebsite({ navigate }: { navigate: (s: string) => vo
             <button
               key={n.key}
               onClick={() => setActive(n.key)}
-              className={`rounded-[18px] p-4 flex flex-col gap-2 text-left transition hover:-translate-y-0.5 ${active === n.key ? "bg-[#4B3621] text-white shadow-lg" : "bg-white ring-1 ring-[#4B3621]/10 text-[#4B3621] hover:bg-[#fdf8f0]"}`}
+              className={`rounded-[18px] p-4 flex flex-col gap-2 text-left transition hover:-translate-y-0.5 ${active === n.key ? "bg-[#4B3621] text-white shadow-lg" : "bg-[#E3C565] ring-1 ring-[#4B3621]/10 text-[#4B3621] hover:bg-[#E3C565]"}`}
             >
               <i className={`bi ${n.icon} text-xl`} />
               <span className="text-xs font-semibold leading-tight">{n.label}</span>
@@ -50,7 +50,7 @@ export default function AdminWebsite({ navigate }: { navigate: (s: string) => vo
         </div>
 
         {/* ── Editor panel ────────────────────────────────────────────── */}
-        <div className="rounded-[24px] bg-white ring-1 ring-[#4B3621]/10 p-6 flex flex-col gap-5">
+        <div className="rounded-[24px] bg-[#E3C565] ring-1 ring-[#4B3621]/10 p-6 flex flex-col gap-5">
 
           <div className="flex items-center gap-2 border-b border-[#4B3621]/10 pb-4">
             <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#E3C565] text-[#4B3621] text-sm shrink-0">
@@ -74,7 +74,7 @@ export default function AdminWebsite({ navigate }: { navigate: (s: string) => vo
           {active === "services" && (
             <div className="flex flex-col gap-5">
               {["Printing Services", "School Supplies", "Resource Rental Hub"].map((svc) => (
-                <div key={svc} className="rounded-2xl bg-[#fdf8f0] p-4 flex flex-col gap-3">
+                <div key={svc} className="rounded-2xl bg-[#E3C565] p-4 flex flex-col gap-3">
                   <p className="text-xs font-bold uppercase tracking-widest text-[#4B3621]/50">{svc}</p>
                   <WireInput label="Service Title" placeholder={svc} />
                   <WireTextarea label="Description" rows={3} placeholder="Describe the service…" />
@@ -94,15 +94,15 @@ export default function AdminWebsite({ navigate }: { navigate: (s: string) => vo
               </div>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {ANNOUNCEMENTS.map((a) => (
-                  <div key={a.title} className={`rounded-2xl p-4 flex flex-col gap-3 ${a.status === "draft" ? "bg-gray-50 ring-1 ring-gray-200" : "bg-[#fdf8f0]"}`}>
+                  <div key={a.title} className={`rounded-2xl p-4 flex flex-col gap-3 ${a.status === "draft" ? "bg-[#E3C565] ring-1 ring-gray-200" : "bg-[#E3C565]"}`}>
                     <div className="flex items-center justify-between">
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${a.status === "published" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-500"}`}>{a.status}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${a.status === "published" ? "bg-[#E3C565] text-[#4B3621]" : "bg-[#E3C565] text-[#4B3621]"}`}>{a.status}</span>
                       <span className="text-[10px] text-[#4B3621]/40">{a.date}</span>
                     </div>
                     <p className="text-sm font-semibold text-[#4B3621] leading-snug">{a.title}</p>
                     <div className="flex gap-2 mt-auto">
-                      <button className="flex-1 rounded-lg border border-[#4B3621]/15 py-1.5 text-xs font-medium text-[#4B3621] hover:bg-white transition">Edit</button>
-                      <button className="flex-1 rounded-lg border border-red-200 py-1.5 text-xs font-medium text-red-500 hover:bg-red-50 transition">Delete</button>
+                      <button className="flex-1 rounded-lg border border-[#4B3621]/15 py-1.5 text-xs font-medium text-[#4B3621] hover:bg-[#E3C565] transition">Edit</button>
+                      <button className="flex-1 rounded-lg border border-[#4B3621] py-1.5 text-xs font-medium text-[#4B3621] hover:bg-[#E3C565] transition">Delete</button>
                     </div>
                   </div>
                 ))}
@@ -133,13 +133,13 @@ export default function AdminWebsite({ navigate }: { navigate: (s: string) => vo
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="rounded-2xl bg-[#fdf8f0] p-4 flex items-center gap-3">
+                  <div key={i} className="rounded-2xl bg-[#E3C565] p-4 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-[#4B3621]/10 flex items-center justify-center text-sm font-bold text-[#4B3621] shrink-0">{i}</div>
                     <div className="flex flex-col gap-1.5 flex-1">
                       <WireInput placeholder="Full Name" />
                       <WireInput placeholder="Role / Year Level" />
                     </div>
-                    <button className="rounded-lg border border-red-200 px-2 py-1.5 text-xs text-red-500 hover:bg-red-50 transition shrink-0">Remove</button>
+                    <button className="rounded-lg border border-[#4B3621] px-2 py-1.5 text-xs text-[#4B3621] hover:bg-[#E3C565] transition shrink-0">Remove</button>
                   </div>
                 ))}
               </div>
@@ -148,11 +148,11 @@ export default function AdminWebsite({ navigate }: { navigate: (s: string) => vo
 
           {/* Save bar */}
           <div className="flex gap-2 pt-4 border-t border-[#4B3621]/10">
-            <button onClick={save} className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition ${saved ? "bg-green-600 text-white" : "bg-[#4B3621] text-white hover:bg-[#3a2918]"}`}>
+            <button onClick={save} className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition ${saved ? "bg-[#4B3621] text-white" : "bg-[#4B3621] text-white hover:bg-[#3a2918]"}`}>
               {saved ? "✓ Saved" : "Save Changes"}
             </button>
-            <button className="rounded-xl border border-[#4B3621]/20 px-5 py-2.5 text-sm font-semibold text-[#4B3621] hover:bg-[#fdf8f0] transition">Preview</button>
-            <button className="rounded-xl border border-[#4B3621]/20 px-5 py-2.5 text-sm font-semibold text-[#4B3621] hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition">Reset</button>
+            <button className="rounded-xl border border-[#4B3621]/20 px-5 py-2.5 text-sm font-semibold text-[#4B3621] hover:bg-[#E3C565] transition">Preview</button>
+            <button className="rounded-xl border border-[#4B3621]/20 px-5 py-2.5 text-sm font-semibold text-[#4B3621] hover:bg-[#E3C565] hover:border-[#4B3621] hover:text-[#4B3621] transition">Reset</button>
           </div>
         </div>
 

@@ -26,7 +26,7 @@ const services = [
     title: "Resource rental hub",
     description: "Find or offer typewriters, calculators, books, and other school-ready resources.",
     screen: "resource-rental",
-    tone: "bg-white text-[#4B3621] ring-1 ring-[#4B3621]/20",
+    tone: "bg-[#E3C565] text-[#4B3621] ring-1 ring-[#4B3621]/20",
   },
 ];
 
@@ -47,7 +47,7 @@ const roles = [
     description: "Browse services and approved resource posts before creating an account.",
     action: "Continue as Guest",
     screen: "login-guest",
-    actionClass: "bg-white text-[#4B3621] border border-[#4B3621] hover:bg-[#E3C565]",
+    actionClass: "bg-[#E3C565] text-[#4B3621] border border-[#4B3621] hover:bg-[#E3C565]",
   },
   {
     icon: "bi-shop",
@@ -56,7 +56,7 @@ const roles = [
     description: "Manage approved services, receive orders, and keep students updated.",
     action: "Provider login",
     screen: "login-provider",
-    actionClass: "bg-white text-[#4B3621] border border-[#4B3621] hover:bg-[#E3C565]",
+    actionClass: "bg-[#E3C565] text-[#4B3621] border border-[#4B3621] hover:bg-[#E3C565]",
   },
 ];
 
@@ -69,7 +69,7 @@ const process = [
 
 export default function Landing({ navigate }: LandingProps) {
   return (
-    <div className="min-h-screen overflow-hidden bg-white text-[#000000]">
+    <div className="min-h-screen overflow-hidden bg-[#E3C565] text-[#000000]">
       <WirePublicNav navigate={navigate} />
 
       <main>
@@ -90,7 +90,7 @@ export default function Landing({ navigate }: LandingProps) {
                 </div>
 
                 <div className="max-w-2xl py-16">
-                  <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-[#E3C565]">
+                  <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-[#E3C565]/10 px-3 py-1.5 text-xs font-medium text-[#E3C565]">
                     <i className="bi bi-circle-fill text-[8px]" aria-hidden="true" />
                     One hub for campus essentials
                   </div>
@@ -104,7 +104,7 @@ export default function Landing({ navigate }: LandingProps) {
                     <WireBtn size="lg" onClick={() => navigate("register")} className="rounded-xl border-[#E3C565] bg-[#E3C565] px-6 font-semibold text-[#000000] hover:bg-[#E3C565]">
                       Get started <i className="bi bi-arrow-up-right ml-2" aria-hidden="true" />
                     </WireBtn>
-                    <button onClick={() => navigate("public-services")} className="rounded-xl border border-white/30 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
+                    <button onClick={() => navigate("public-services")} className="rounded-xl border border-white/30 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#E3C565]/10">
                       Explore services
                     </button>
                   </div>
@@ -127,7 +127,7 @@ export default function Landing({ navigate }: LandingProps) {
                 <h2 className="mt-12 text-2xl font-bold tracking-tight">Everything you need, closer.</h2>
                 <p className="mt-3 text-sm leading-6 text-[#4B3621]">Skip the scattered searching. Start with one organized place for your next academic requirement.</p>
               </div>
-              <div className="rounded-[28px] bg-white p-7 ring-1 ring-[#4B3621]">
+              <div className="rounded-[28px] bg-[#E3C565] p-7 ring-1 ring-[#4B3621]">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#4B3621]">Quick access</p>
                   <i className="bi bi-lightning-charge-fill text-[#E3C565]" aria-hidden="true" />
@@ -175,7 +175,7 @@ export default function Landing({ navigate }: LandingProps) {
           </div>
         </section>
 
-        <section className="bg-white px-4 py-16 sm:px-6 lg:px-8">
+        <section className="bg-[#E3C565] px-4 py-16 sm:px-6 lg:px-8">
           <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-[0.7fr_1.3fr]">
             <div className="rounded-[26px] bg-[#E3C565] p-7 sm:p-9">
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#E3C565]">Choose your path</p>
@@ -208,7 +208,7 @@ export default function Landing({ navigate }: LandingProps) {
             </div>
             <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {process.map(([number, icon, title, description]) => (
-                <div key={number} className="rounded-2xl bg-white p-5 ring-1 ring-[#4B3621]/10">
+                <div key={number} className="rounded-2xl bg-[#E3C565] p-5 ring-1 ring-[#4B3621]/10">
                   <div className="flex items-center justify-between">
                     <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4B3621] text-lg text-[#E3C565]">
                       <i className={`bi ${icon}`} aria-hidden="true" />
@@ -232,7 +232,7 @@ export default function Landing({ navigate }: LandingProps) {
               <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#4B3621]">University Organization brings everyday student services and academic resources into one organized platform.</p>
             </div>
             <div className="grid gap-8 md:grid-cols-2">
-              <div className="rounded-[24px] border border-[#4B3621]/20 bg-white p-7">
+              <div className="rounded-[24px] border border-[#4B3621]/20 bg-[#E3C565] p-7">
                 <h3 className="text-base font-bold text-[#4B3621] border-b border-[#4B3621]/10 pb-2 mb-4">What University Organization solves</h3>
                 <p className="text-sm leading-7 text-[#4B3621]">
                   Students often need printing, school supplies, and academic resources at the same time.
@@ -256,7 +256,7 @@ export default function Landing({ navigate }: LandingProps) {
                 ["bi-people", "Community-based", "Connects students, guests, and local service providers."],
                 ["bi-shield-check", "Managed", "Admin review helps keep providers and rental posts reliable."],
               ].map(([icon, title, description]) => (
-                <div key={title} className="rounded-[22px] border border-[#4B3621]/10 bg-white p-6">
+                <div key={title} className="rounded-[22px] border border-[#4B3621]/10 bg-[#E3C565] p-6">
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4B3621] text-lg text-[#E3C565]">
                     <i className={`bi ${icon}`} aria-hidden="true" />
                   </span>
@@ -283,7 +283,7 @@ export default function Landing({ navigate }: LandingProps) {
                 ["03", "bi-send", "Submit a request", "Provide the details needed to process your request."],
                 ["04", "bi-graph-up-arrow", "Track updates", "See order status and next steps in your portal."],
               ].map(([number, icon, title, description]) => (
-                <div key={number} className="rounded-[22px] bg-white/10 p-6 ring-1 ring-white/10">
+                <div key={number} className="rounded-[22px] bg-[#E3C565]/10 p-6 ring-1 ring-white/10">
                   <div className="flex items-center justify-between">
                     <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E3C565] text-lg text-[#4B3621]">
                       <i className={`bi ${icon}`} aria-hidden="true" />
@@ -295,7 +295,7 @@ export default function Landing({ navigate }: LandingProps) {
                 </div>
               ))}
             </div>
-            <div className="mt-8 rounded-[18px] border border-white/10 bg-white/5 p-5 text-sm text-[#E3C565]">
+            <div className="mt-8 rounded-[18px] border border-white/10 bg-[#E3C565]/5 p-5 text-sm text-[#E3C565]">
               <strong className="text-white">Note for guests:</strong> Guest accounts can browse services
               and submit public requests, while ordering and purchasing are reserved for PUPTian accounts.
             </div>
@@ -310,7 +310,7 @@ export default function Landing({ navigate }: LandingProps) {
         {/* ── CTA / Community ──────────────────────────────────────────── */}
         <section className="px-4 pb-16 pt-16 sm:px-6 lg:px-8">
           <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-[1.2fr_0.8fr]">
-            <div className="rounded-[26px] border border-[#4B3621] bg-white p-7 sm:p-9">
+            <div className="rounded-[26px] border border-[#4B3621] bg-[#E3C565] p-7 sm:p-9">
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#E3C565]">A trusted campus network</p>
               <h2 className="mt-3 text-2xl font-bold text-[#4B3621]">Designed for the PUP Taguig community.</h2>
               <p className="mt-4 max-w-2xl text-sm leading-6 text-[#4B3621]">The University Organization hub connects students with participating providers and keeps academic resource sharing focused, visible, and moderated.</p>

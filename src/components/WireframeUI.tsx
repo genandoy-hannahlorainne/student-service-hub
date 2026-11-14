@@ -5,12 +5,12 @@ import { useAuth } from "../context/AuthContext";
 // â”€â”€â”€ Primitives â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function WireBox({ className = "", children }: { className?: string; children?: ReactNode }) {
-  return <div className={`border border-gray-300 ${className}`}>{children}</div>;
+  return <div className={`border border-[#4B3621] ${className}`}>{children}</div>;
 }
 
 export function WirePlaceholder({ label, className = "" }: { label: string; className?: string }) {
   return (
-    <div className={`bg-gray-200 flex items-center justify-center text-gray-500 text-xs border border-dashed border-gray-400 ${className}`}>
+    <div className={`bg-[#E3C565] flex items-center justify-center text-[#4B3621] text-xs border border-dashed border-[#4B3621] ${className}`}>
       [ {label} ]
     </div>
   );
@@ -36,11 +36,11 @@ export function WireBtn({
   const base = "inline-flex items-center justify-center font-medium cursor-pointer transition-colors";
   const sizes = { sm: "px-3 py-1 text-xs", md: "px-4 py-2 text-sm", lg: "px-5 py-2.5 text-sm" };
   const variants = {
-    primary: "bg-[#1d1b20] text-white hover:bg-[#ff765e] border border-[#1d1b20]",
-    secondary: "bg-[#ff765e] text-white hover:bg-[#e85b46] border border-[#ff765e]",
-    danger: "bg-[#e85b46] text-white hover:bg-[#c94735] border border-[#e85b46]",
-    ghost: "bg-transparent text-[#68636d] hover:bg-[#f1eff3] border border-transparent",
-    outline: "bg-white text-[#1d1b20] hover:bg-[#f1eff3] border border-[#e7e3e9]",
+    primary: "bg-[#4B3621] text-white hover:bg-[#4B3621] border border-[#4B3621]",
+    secondary: "bg-[#4B3621] text-white hover:bg-[#000000] border border-[#4B3621]",
+    danger: "bg-[#000000] text-white hover:bg-[#c94735] border border-[#000000]",
+    ghost: "bg-transparent text-[#4B3621] hover:bg-[#E3C565] border border-transparent",
+    outline: "bg-[#E3C565] text-[#4B3621] hover:bg-[#E3C565] border border-[#4B3621]",
   };
   return (
     <button
@@ -71,13 +71,13 @@ export function WireInput({
 }) {
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
-      {label && <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">{label}</label>}
+      {label && <label className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">{label}</label>}
       <input
         type={type}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full"
+        className="border border-[#4B3621] px-3 py-2 text-sm bg-[#E3C565] focus:outline-none focus:border-gray-500 w-full"
       />
     </div>
   );
@@ -86,8 +86,8 @@ export function WireInput({
 export function WireSelect({ label, options, className = "" }: { label?: string; options: string[]; className?: string }) {
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
-      {label && <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">{label}</label>}
-      <select className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full">
+      {label && <label className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">{label}</label>}
+      <select className="border border-[#4B3621] px-3 py-2 text-sm bg-[#E3C565] focus:outline-none focus:border-gray-500 w-full">
         {options.map((o) => <option key={o}>{o}</option>)}
       </select>
     </div>
@@ -97,33 +97,33 @@ export function WireSelect({ label, options, className = "" }: { label?: string;
 export function WireTextarea({ label, placeholder, rows = 3, className = "" }: { label?: string; placeholder?: string; rows?: number; className?: string }) {
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
-      {label && <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">{label}</label>}
-      <textarea rows={rows} placeholder={placeholder} className="border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-gray-500 w-full resize-none" />
+      {label && <label className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">{label}</label>}
+      <textarea rows={rows} placeholder={placeholder} className="border border-[#4B3621] px-3 py-2 text-sm bg-[#E3C565] focus:outline-none focus:border-gray-500 w-full resize-none" />
     </div>
   );
 }
 
 export function WireBadge({ children, variant = "default" }: { children: ReactNode; variant?: "default" | "success" | "pending" | "rejected" | "active" }) {
   const variants = {
-    default: "border-gray-400 text-gray-600 bg-gray-100",
-    success: "border-gray-600 text-gray-800 bg-gray-200 font-semibold",
-    pending: "border-gray-500 text-gray-700 bg-gray-100 italic",
-    rejected: "border-gray-700 text-gray-800 bg-gray-300",
-    active: "border-gray-800 text-gray-900 bg-gray-200 font-bold",
+    default: "border-[#4B3621] text-[#4B3621] bg-[#E3C565]",
+    success: "border-gray-600 text-[#4B3621] bg-[#E3C565] font-semibold",
+    pending: "border-gray-500 text-[#4B3621] bg-[#E3C565] italic",
+    rejected: "border-gray-700 text-[#4B3621] bg-gray-300",
+    active: "border-gray-800 text-[#000000] bg-[#E3C565] font-bold",
   };
   return <span className={`border px-2 py-0.5 text-xs ${variants[variant]}`}>{children}</span>;
 }
 
 export function WireCard({ children, className = "", onClick }: { children: ReactNode; className?: string; onClick?: () => void }) {
-  return <div className={`bg-white border border-[#e7e3e9] rounded-2xl p-4 shadow-[0_8px_24px_rgba(29,27,32,0.04)] ${className}`} onClick={onClick}>{children}</div>;
+  return <div className={`bg-[#E3C565] border-2 border-[#4B3621] p-4 ${className}`} onClick={onClick}>{children}</div>;
 }
 
 export function WireSectionTitle({ children }: { children: ReactNode }) {
-  return <h2 className="text-base font-bold text-gray-800 mb-3 border-b border-gray-200 pb-2">{children}</h2>;
+  return <h2 className="text-base font-bold text-[#4B3621] mb-3 border-b border-[#4B3621] pb-2">{children}</h2>;
 }
 
 export function WireLabel({ children }: { children: ReactNode }) {
-  return <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{children}</span>;
+  return <span className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">{children}</span>;
 }
 
 export function WireTable({ headers, rows }: { headers: string[]; rows: (string | ReactNode)[][] }) {
@@ -131,17 +131,17 @@ export function WireTable({ headers, rows }: { headers: string[]; rows: (string 
     <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
       <table className="w-full text-sm border-collapse min-w-[540px]">
         <thead>
-          <tr className="bg-gray-100 border-b-2 border-gray-300">
+          <tr className="bg-[#E3C565] border-b-2 border-[#4B3621]">
             {headers.map((h) => (
-              <th key={h} className="text-left px-3 py-2 font-semibold text-gray-700 text-xs uppercase tracking-wide whitespace-nowrap">{h}</th>
+              <th key={h} className="text-left px-3 py-2 font-semibold text-[#4B3621] text-xs uppercase tracking-wide whitespace-nowrap">{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {rows.map((row, i) => (
-            <tr key={i} className="border-b border-gray-200 hover:bg-gray-50">
+            <tr key={i} className="border-b border-[#4B3621] hover:bg-[#E3C565]">
               {row.map((cell, j) => (
-                <td key={j} className="px-3 py-2 text-gray-700 whitespace-nowrap">{cell}</td>
+                <td key={j} className="px-3 py-2 text-[#4B3621] whitespace-nowrap">{cell}</td>
               ))}
             </tr>
           ))}
@@ -154,10 +154,10 @@ export function WireTable({ headers, rows }: { headers: string[]; rows: (string 
 export function WireModal({ title, children, onClose }: { title: string; children: ReactNode; onClose: () => void }) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-      <div className="bg-white border border-gray-400 w-full sm:max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-4 py-3 bg-gray-100 border-b border-gray-300 sticky top-0">
-          <span className="font-semibold text-gray-800 text-sm">{title}</span>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-xl leading-none w-8 h-8 flex items-center justify-center">&times;</button>
+      <div className="bg-[#E3C565] border border-[#4B3621] w-full sm:max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between px-4 py-3 bg-[#E3C565] border-b border-[#4B3621] sticky top-0">
+          <span className="font-semibold text-[#4B3621] text-sm">{title}</span>
+          <button onClick={onClose} className="text-[#4B3621] hover:text-[#4B3621] text-xl leading-none w-8 h-8 flex items-center justify-center">&times;</button>
         </div>
         <div className="p-4">{children}</div>
       </div>
@@ -169,15 +169,15 @@ export function WireStatCard({ label, value }: { label: string; value: string | 
   return (
     <WireCard className="flex flex-col gap-1">
       <WireLabel>{label}</WireLabel>
-      <span className="text-2xl font-bold text-gray-800 mono">{value}</span>
+      <span className="text-2xl font-bold text-[#4B3621] mono">{value}</span>
     </WireCard>
   );
 }
 
 export function WireCheckbox({ label }: { label: string }) {
   return (
-    <label className="flex items-start gap-2 text-sm text-gray-700 cursor-pointer">
-      <input type="checkbox" className="w-4 h-4 border border-gray-400 mt-0.5 shrink-0" />
+    <label className="flex items-start gap-2 text-sm text-[#4B3621] cursor-pointer">
+      <input type="checkbox" className="w-4 h-4 border border-[#4B3621] mt-0.5 shrink-0" />
       <span>{label}</span>
     </label>
   );
@@ -189,7 +189,7 @@ export function WireRadioGroup({ label, options, name }: { label?: string; optio
       {label && <WireLabel>{label}</WireLabel>}
       <div className="flex flex-wrap gap-3 mt-1">
         {options.map((o) => (
-          <label key={o} className="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
+          <label key={o} className="flex items-center gap-1.5 text-sm text-[#4B3621] cursor-pointer">
             <input type="radio" name={name} className="w-4 h-4" />{o}
           </label>
         ))}
@@ -208,12 +208,12 @@ export function WireProgressTracker({ steps, current }: { steps: string[]; curre
         {steps.map((step, i) => (
           <div key={step} className="flex flex-col items-center flex-1 relative">
             {i < steps.length - 1 && (
-              <div className={`absolute top-4 left-1/2 w-full h-0.5 ${i < current ? "bg-gray-700" : "bg-gray-300"}`} />
+              <div className={`absolute top-4 left-1/2 w-full h-0.5 ${i < current ? "bg-[#4B3621]" : "bg-gray-300"}`} />
             )}
-            <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold z-10 ${i < current ? "bg-gray-700 border-gray-700 text-white" : i === current ? "bg-gray-300 border-gray-700 text-gray-800" : "bg-white border-gray-300 text-gray-400"}`}>
+            <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold z-10 ${i < current ? "bg-[#4B3621] border-gray-700 text-white" : i === current ? "bg-gray-300 border-gray-700 text-[#4B3621]" : "bg-[#E3C565] border-[#4B3621] text-[#4B3621]"}`}>
               {i < current ? "âœ“" : i + 1}
             </div>
-            <span className={`text-xs mt-1 text-center leading-tight ${i <= current ? "text-gray-800 font-medium" : "text-gray-400"}`}>{step}</span>
+            <span className={`text-xs mt-1 text-center leading-tight ${i <= current ? "text-[#4B3621] font-medium" : "text-[#4B3621]"}`}>{step}</span>
           </div>
         ))}
       </div>
@@ -222,12 +222,12 @@ export function WireProgressTracker({ steps, current }: { steps: string[]; curre
         {steps.map((step, i) => (
           <div key={step} className="flex items-start gap-3">
             <div className="flex flex-col items-center">
-              <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs font-bold shrink-0 ${i < current ? "bg-gray-700 border-gray-700 text-white" : i === current ? "bg-gray-300 border-gray-700 text-gray-800" : "bg-white border-gray-300 text-gray-400"}`}>
+              <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs font-bold shrink-0 ${i < current ? "bg-[#4B3621] border-gray-700 text-white" : i === current ? "bg-gray-300 border-gray-700 text-[#4B3621]" : "bg-[#E3C565] border-[#4B3621] text-[#4B3621]"}`}>
                 {i < current ? "âœ“" : i + 1}
               </div>
-              {i < steps.length - 1 && <div className={`w-0.5 h-6 ${i < current ? "bg-gray-700" : "bg-gray-300"}`} />}
+              {i < steps.length - 1 && <div className={`w-0.5 h-6 ${i < current ? "bg-[#4B3621]" : "bg-gray-300"}`} />}
             </div>
-            <span className={`text-sm pt-1 ${i <= current ? "text-gray-800 font-medium" : "text-gray-400"}`}>{step}</span>
+            <span className={`text-sm pt-1 ${i <= current ? "text-[#4B3621] font-medium" : "text-[#4B3621]"}`}>{step}</span>
           </div>
         ))}
       </div>
@@ -248,7 +248,7 @@ export function WirePublicNav({ navigate }: { navigate: (s: string) => void }) {
   return (
     <>
     <div className="h-[70px]" aria-hidden="true" />
-    <nav className="fixed inset-x-0 top-0 z-40 border-b border-[#4B3621]/20 bg-white text-[#4B3621] shadow-sm">
+    <nav className="fixed inset-x-0 top-0 z-40 border-b border-[#4B3621]/20 bg-[#E3C565] text-[#4B3621] shadow-sm">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center">
@@ -287,7 +287,7 @@ export function WirePublicNav({ navigate }: { navigate: (s: string) => void }) {
 
       {/* Mobile dropdown menu */}
       {mobileOpen && (
-        <div className="flex flex-col gap-1 border-t border-[#4B3621] bg-white px-4 py-3 md:hidden">
+        <div className="flex flex-col gap-1 border-t border-[#4B3621] bg-[#E3C565] px-4 py-3 md:hidden">
           {navLinks.map((item) => (
             <button key={item.screen} onClick={() => { navigate(item.screen); setMobileOpen(false); }} className="border-b border-[#4B3621] py-2 text-left text-sm text-[#4B3621] last:border-0 hover:text-[#E3C565]">
               {item.label}
@@ -328,12 +328,12 @@ function HamburgerBtn({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="w-9 h-9 flex flex-col items-center justify-center gap-1.5 border border-gray-400 hover:bg-gray-100 mr-2 shrink-0"
+      className="w-9 h-9 flex flex-col items-center justify-center gap-1.5 border border-[#4B3621] hover:bg-[#E3C565] mr-2 shrink-0"
       aria-label="Expand or collapse navigation"
     >
-      <span className="block w-5 h-0.5 bg-gray-700" />
-      <span className="block w-5 h-0.5 bg-gray-700" />
-      <span className="block w-5 h-0.5 bg-gray-700" />
+      <span className="block w-5 h-0.5 bg-[#4B3621]" />
+      <span className="block w-5 h-0.5 bg-[#4B3621]" />
+      <span className="block w-5 h-0.5 bg-[#4B3621]" />
     </button>
   );
 }
@@ -343,25 +343,25 @@ function AuthHeader({ role, onMenuToggle, navigate }: { role: string; onMenuTogg
   const isStudent = role === "Student";
   const displayRole = isStudent ? profile?.display_name || "Student" : role;
   return (
-    <header className={`${isStudent ? "bg-white border-[#e7e3e9] text-[#1d1b20]" : "bg-[#1d1b20] border-[#1d1b20] text-white"} px-4 py-3 flex items-center justify-between border-b h-16 shrink-0`}>
+    <header className={`${isStudent ? "bg-[#E3C565] border-[#4B3621] text-[#4B3621]" : "bg-[#4B3621] border-[#4B3621] text-white"} px-4 py-3 flex items-center justify-between border-b h-16 shrink-0`}>
       <div className="flex items-center gap-2 min-w-0">
         <HamburgerBtn onClick={onMenuToggle} />
         <img src={organizationLogo} alt="University Organization logo" className="h-7 w-7 shrink-0 object-contain" />
         <div className="min-w-0">
           <span className="block font-bold text-sm truncate">Student Services Hub</span>
-          {isStudent && <span className="hidden text-[10px] font-medium uppercase tracking-wider text-gray-500 sm:block">PUP Taguig student portal</span>}
+          {isStudent && <span className="hidden text-[10px] font-medium uppercase tracking-wider text-[#4B3621] sm:block">PUP Taguig student portal</span>}
         </div>
       </div>
       <div className="flex items-center gap-2 shrink-0">
-        <div className={`hidden md:flex items-center rounded-xl border px-2 py-1.5 ${isStudent ? "border-[#e7e3e9] bg-[#f6f5f7]" : "border-gray-500 bg-gray-700"}`}>
-          <i className={`bi bi-search text-xs mr-1 ${isStudent ? "text-gray-400" : "text-gray-400"}`} aria-hidden="true" />
+        <div className={`hidden md:flex items-center rounded-xl border px-2 py-1.5 ${isStudent ? "border-[#4B3621] bg-[#E3C565]" : "border-gray-500 bg-[#4B3621]"}`}>
+          <i className={`bi bi-search text-xs mr-1 ${isStudent ? "text-[#4B3621]" : "text-[#4B3621]"}`} aria-hidden="true" />
           <input placeholder="Search" className={`bg-transparent text-sm focus:outline-none w-32 ${isStudent ? "text-[#4B3621] placeholder-gray-400" : "text-white placeholder-gray-400"}`} />
         </div>
-        <button className={`${isStudent ? "text-[#68636d] hover:bg-[#f1eff3]" : "text-gray-300 hover:text-white"} rounded-xl text-sm w-9 h-9 flex items-center justify-center`} aria-label="Notifications">
+        <button className={`${isStudent ? "text-[#4B3621] hover:bg-[#E3C565]" : "text-gray-300 hover:text-white"} rounded-xl text-sm w-9 h-9 flex items-center justify-center`} aria-label="Notifications">
           <i className="bi bi-bell" aria-hidden="true" />
         </button>
-        <button className={`flex items-center gap-2 rounded-xl border px-2 py-1.5 text-sm ${isStudent ? "border-[#e7e3e9] hover:bg-[#f1eff3]" : "border-transparent hover:text-gray-300"}`}>
-          <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${isStudent ? "bg-[#ff765e] text-white" : "bg-gray-700"}`}>
+        <button className={`flex items-center gap-2 rounded-xl border px-2 py-1.5 text-sm ${isStudent ? "border-[#4B3621] hover:bg-[#E3C565]" : "border-transparent hover:text-gray-300"}`}>
+          <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${isStudent ? "bg-[#4B3621] text-white" : "bg-[#4B3621]"}`}>
             {displayRole.charAt(0).toUpperCase()}
           </span>
           <span className="hidden max-w-[140px] truncate text-xs font-semibold sm:block">{displayRole}</span>
@@ -414,16 +414,16 @@ function SidebarDrawer({
         className={`
           fixed lg:static inset-y-0 left-0 z-40
           ${collapsed ? "lg:w-16" : "lg:w-48"} w-56 shrink-0
-          bg-white border-r border-[#e7e3e9]
+          bg-[#E3C565] border-r border-[#4B3621]
           flex flex-col py-3 overflow-y-auto
           transition-transform duration-200
           ${open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
         {/* Mobile close button */}
-        <div className="lg:hidden flex items-center justify-between px-4 pb-3 mb-1 border-b border-gray-200">
-          <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">Navigation</span>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-xl leading-none">&times;</button>
+        <div className="lg:hidden flex items-center justify-between px-4 pb-3 mb-1 border-b border-[#4B3621]">
+          <span className="text-xs font-bold text-[#4B3621] uppercase tracking-wide">Navigation</span>
+          <button onClick={onClose} className="text-[#4B3621] hover:text-[#4B3621] text-xl leading-none">&times;</button>
         </div>
 
         {items.map((item) => (
@@ -432,9 +432,9 @@ function SidebarDrawer({
             onClick={() => handleNav(item.screen)}
             className={`text-left px-4 py-2.5 text-sm transition-colors ${collapsed ? "lg:px-0 lg:justify-center lg:text-center" : ""} ${
               active === item.screen
-                ? `bg-[#fff0ed] font-semibold text-[#1d1b20] border-l-4 border-[#ff765e]`
-                : "text-[#68636d] hover:bg-[#f6f5f7]"
-            } ${item.label === "Logout" ? "mt-auto text-gray-500 border-t border-gray-300" : ""}`}
+                ? `bg-[#E3C565] font-semibold text-[#4B3621] border-l-4 border-[#4B3621]`
+                : "text-[#4B3621] hover:bg-[#E3C565]"
+            } ${item.label === "Logout" ? "mt-auto text-[#4B3621] border-t border-[#4B3621]" : ""}`}
           >
             <i className={`bi ${bootstrapIconForLabel(item.label)} ${collapsed ? "lg:mr-0" : "mr-2"}`} aria-hidden="true" />
             <span className={collapsed ? "lg:hidden" : ""}>{item.label}</span>
@@ -479,7 +479,7 @@ function AppLayout({
           collapsed={sidebarCollapsed}
           accentColor={accentColor}
         />
-        <main className={`flex-1 overflow-y-auto p-4 lg:p-6 ${role === "Student" ? "bg-[#f6f5f7]" : "bg-gray-50"}`}>
+        <main className={`flex-1 overflow-y-auto p-4 lg:p-6 ${role === "Student" ? "bg-[#E3C565]" : "bg-[#E3C565]"}`}>
           {children}
         </main>
       </div>
@@ -593,7 +593,7 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
                 onClick={() => { navigate(item.screen); setMobileOpen(false); }}
                 title={collapsed ? item.label : undefined}
                 className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-left transition
-                  ${isActive ? "bg-[#E3C565] text-[#4B3621]" : "text-white/70 hover:text-white hover:bg-white/10"}
+                  ${isActive ? "bg-[#E3C565] text-[#4B3621]" : "text-white/70 hover:text-white hover:bg-[#E3C565]/10"}
                   ${collapsed ? "justify-center" : ""}
                 `}
               >
@@ -607,7 +607,7 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
         {/* Bottom: admin badge + logout */}
         <div className={`p-3 border-t border-white/10 flex flex-col gap-2 ${collapsed ? "items-center" : ""}`}>
           {!collapsed && (
-            <div className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2">
+            <div className="flex items-center gap-2 rounded-xl bg-[#E3C565]/10 px-3 py-2">
               <img src={organizationLogo} alt="" className="h-5 w-5 object-contain shrink-0" />
               <span className="text-xs font-semibold truncate">Admin</span>
             </div>
@@ -615,7 +615,7 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
           <button
             onClick={handleLogoutRequest}
             title="Logout"
-            className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-white/60 hover:text-white hover:bg-white/10 transition ${collapsed ? "justify-center w-full" : "w-full"}`}
+            className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-white/60 hover:text-white hover:bg-[#E3C565]/10 transition ${collapsed ? "justify-center w-full" : "w-full"}`}
           >
             <i className="bi bi-box-arrow-right text-base shrink-0" aria-hidden="true" />
             {!collapsed && "Logout"}
@@ -627,7 +627,7 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
 
         {/* Topbar */}
-        <header className="h-14 shrink-0 bg-white border-b border-[#4B3621]/10 px-4 flex items-center justify-between gap-3">
+        <header className="h-14 shrink-0 bg-[#E3C565] border-b border-[#4B3621]/10 px-4 flex items-center justify-between gap-3">
           {/* Mobile hamburger */}
           <button
             onClick={() => setMobileOpen((v: boolean) => !v)}
@@ -646,10 +646,10 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
 
           {/* Right actions */}
           <div className="flex items-center gap-2 ml-auto shrink-0">
-            <button className="flex h-8 w-8 items-center justify-center rounded-xl text-[#4B3621]/50 hover:text-[#4B3621] hover:bg-[#fdf8f0] transition" aria-label="Notifications">
+            <button className="flex h-8 w-8 items-center justify-center rounded-xl text-[#4B3621]/50 hover:text-[#4B3621] hover:bg-[#E3C565] transition" aria-label="Notifications">
               <i className="bi bi-bell text-sm" aria-hidden="true" />
             </button>
-            <div className="flex items-center gap-2 rounded-xl bg-[#fdf8f0] border border-[#4B3621]/10 px-2.5 py-1.5">
+            <div className="flex items-center gap-2 rounded-xl bg-[#E3C565] border border-[#4B3621]/10 px-2.5 py-1.5">
               <img src={organizationLogo} alt="" className="h-5 w-5 object-contain shrink-0" />
               <span className="text-xs font-semibold text-[#4B3621] hidden sm:block">Admin</span>
             </div>
@@ -678,18 +678,18 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
           />
 
           {/* Panel */}
-          <div className="relative w-full max-w-sm rounded-2xl bg-white shadow-2xl p-6 flex flex-col gap-4">
+          <div className="relative w-full max-w-sm rounded-2xl bg-[#E3C565] shadow-2xl p-6 flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50">
-                <i className="bi bi-box-arrow-right text-lg text-red-600" aria-hidden="true" />
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E3C565]">
+                <i className="bi bi-box-arrow-right text-lg text-[#4B3621]" aria-hidden="true" />
               </span>
               <div>
                 <h2 id="logout-dialog-title" className="text-base font-bold text-[#4B3621]">Sign out of Admin Panel?</h2>
-                <p className="text-xs text-gray-500 mt-0.5">Make sure you have saved any unsaved changes.</p>
+                <p className="text-xs text-[#4B3621] mt-0.5">Make sure you have saved any unsaved changes.</p>
               </div>
             </div>
 
-            <p className="text-sm text-gray-600 leading-relaxed">
+            <p className="text-sm text-[#4B3621] leading-relaxed">
               You will be returned to the main landing page and your admin session will be terminated.
               Any unsaved work will be lost.
             </p>
@@ -697,13 +697,13 @@ export function AdminLayout({ children, active, navigate }: { children: ReactNod
             <div className="flex gap-2 mt-1">
               <button
                 onClick={handleLogoutCancel}
-                className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition"
+                className="flex-1 rounded-xl border border-[#4B3621] bg-[#E3C565] px-4 py-2.5 text-sm font-semibold text-[#4B3621] hover:bg-[#E3C565] transition"
               >
                 Cancel
               </button>
               <button
                 onClick={handleLogoutConfirm}
-                className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition flex items-center justify-center gap-1.5"
+                className="flex-1 rounded-xl bg-[#000000] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#4B3621] transition flex items-center justify-center gap-1.5"
               >
                 <i className="bi bi-box-arrow-right" aria-hidden="true" />
                 Sign Out

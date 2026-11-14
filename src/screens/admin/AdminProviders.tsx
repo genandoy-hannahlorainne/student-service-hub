@@ -21,8 +21,8 @@ const FLOW_STEPS = [
 ];
 
 const statusStyle: Record<string, string> = {
-  active:   "bg-green-100 text-green-700",
-  inactive: "bg-gray-100 text-gray-500",
+  active:   "bg-[#E3C565] text-[#4B3621]",
+  inactive: "bg-[#E3C565] text-[#4B3621]",
   pending:  "bg-[#E3C565]/40 text-[#4B3621]",
 };
 
@@ -47,7 +47,7 @@ export default function AdminProviders({ navigate }: { navigate: (s: string) => 
               <p className="mt-1 text-sm text-[#E3C565]/70">Manage collaborating printing shops and supply providers.</p>
             </div>
             <div className="flex gap-2 mt-4">
-              <button onClick={() => setViewFlow(true)} className="rounded-xl border border-white/30 px-4 py-2 text-xs font-semibold text-white hover:bg-white/10 transition">
+              <button onClick={() => setViewFlow(true)} className="rounded-xl border border-white/30 px-4 py-2 text-xs font-semibold text-white hover:bg-[#E3C565]/10 transition">
                 <i className="bi bi-diagram-3 mr-1.5" />Approval Flow
               </button>
               <button className="rounded-xl bg-[#E3C565] px-4 py-2 text-xs font-semibold text-[#4B3621] hover:bg-[#d4b555] transition">
@@ -66,7 +66,7 @@ export default function AdminProviders({ navigate }: { navigate: (s: string) => 
                 <p className="text-xs font-medium text-[#4B3621]/70">Active Providers</p>
               </div>
             </div>
-            <div className="rounded-[20px] bg-white ring-1 ring-[#4B3621]/10 p-4 flex items-center gap-4">
+            <div className="rounded-[20px] bg-[#E3C565] ring-1 ring-[#4B3621]/10 p-4 flex items-center gap-4">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4B3621]/10 text-[#4B3621] text-lg shrink-0">
                 <i className="bi bi-hourglass-split" />
               </span>
@@ -86,7 +86,7 @@ export default function AdminProviders({ navigate }: { navigate: (s: string) => 
 
         {/* ── Pending approvals ───────────────────────────────────────── */}
         {pending > 0 && (
-          <div className="rounded-[24px] bg-white ring-1 ring-[#4B3621]/10 p-5 flex flex-col gap-3">
+          <div className="rounded-[24px] bg-[#E3C565] ring-1 ring-[#4B3621]/10 p-5 flex flex-col gap-3">
             <div className="flex items-center gap-2">
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#E3C565] text-[#4B3621] text-sm">
                 <i className="bi bi-hourglass-split" />
@@ -96,7 +96,7 @@ export default function AdminProviders({ navigate }: { navigate: (s: string) => 
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               {PROVIDERS.filter(p => p.status === "pending").map((p) => (
-                <div key={p.name} className="rounded-2xl bg-[#fdf8f0] p-4 flex flex-col gap-3">
+                <div key={p.name} className="rounded-2xl bg-[#E3C565] p-4 flex flex-col gap-3">
                   <div>
                     <p className="font-semibold text-[#4B3621]">{p.name}</p>
                     <p className="text-xs text-[#4B3621]/60">{p.type} · {p.location}</p>
@@ -104,7 +104,7 @@ export default function AdminProviders({ navigate }: { navigate: (s: string) => 
                   </div>
                   <div className="flex gap-2 mt-auto">
                     <button className="flex-1 rounded-lg bg-[#4B3621] px-3 py-2 text-xs font-semibold text-white hover:bg-[#3a2918] transition">Approve</button>
-                    <button onClick={() => setRejectModal(p.name)} className="flex-1 rounded-lg border border-[#4B3621]/20 px-3 py-2 text-xs font-semibold text-[#4B3621] hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition">Reject</button>
+                    <button onClick={() => setRejectModal(p.name)} className="flex-1 rounded-lg border border-[#4B3621]/20 px-3 py-2 text-xs font-semibold text-[#4B3621] hover:bg-[#E3C565] hover:border-[#4B3621] hover:text-[#4B3621] transition">Reject</button>
                   </div>
                 </div>
               ))}
@@ -113,7 +113,7 @@ export default function AdminProviders({ navigate }: { navigate: (s: string) => 
         )}
 
         {/* ── All providers grid ──────────────────────────────────────── */}
-        <div className="rounded-[24px] bg-white ring-1 ring-[#4B3621]/10 p-5 flex flex-col gap-4">
+        <div className="rounded-[24px] bg-[#E3C565] ring-1 ring-[#4B3621]/10 p-5 flex flex-col gap-4">
           <h2 className="font-bold text-[#4B3621]">All Providers <span className="text-[#4B3621]/40 font-normal text-sm">({PROVIDERS.length})</span></h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {PROVIDERS.map((p) => (
@@ -132,8 +132,8 @@ export default function AdminProviders({ navigate }: { navigate: (s: string) => 
                     <p className="text-sm font-bold text-[#4B3621]">{p.fee}</p>
                   </div>
                   <div className="flex gap-1.5">
-                    <button className="rounded-lg border border-[#4B3621]/15 px-3 py-1.5 text-xs font-medium text-[#4B3621] hover:bg-[#fdf8f0] transition">Edit</button>
-                    <button className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${p.status === "active" ? "bg-gray-100 text-gray-500 hover:bg-red-50 hover:text-red-600" : "bg-[#4B3621] text-white hover:bg-[#3a2918]"}`}>
+                    <button className="rounded-lg border border-[#4B3621]/15 px-3 py-1.5 text-xs font-medium text-[#4B3621] hover:bg-[#E3C565] transition">Edit</button>
+                    <button className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${p.status === "active" ? "bg-[#E3C565] text-[#4B3621] hover:bg-[#E3C565] hover:text-[#4B3621]" : "bg-[#4B3621] text-white hover:bg-[#3a2918]"}`}>
                       {p.status === "active" ? "Deactivate" : p.status === "inactive" ? "Activate" : "Review"}
                     </button>
                   </div>
@@ -148,14 +148,14 @@ export default function AdminProviders({ navigate }: { navigate: (s: string) => 
       {/* Approval Flow Modal */}
       {viewFlow && (
         <WireModal title="Provider Approval Flow" onClose={() => setViewFlow(false)}>
-          <p className="text-xs text-gray-500 mb-4">Standard process for onboarding a new provider to UniServe.</p>
+          <p className="text-xs text-[#4B3621] mb-4">Standard process for onboarding a new provider to UniServe.</p>
           <div className="flex flex-col gap-2">
             {FLOW_STEPS.map(([icon, step], i) => (
               <div key={i} className="flex items-center gap-3">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#4B3621] text-[#E3C565] text-sm">
                   <i className={`bi ${icon}`} />
                 </span>
-                <span className="text-sm text-gray-700">{step}</span>
+                <span className="text-sm text-[#4B3621]">{step}</span>
               </div>
             ))}
           </div>
@@ -166,10 +166,10 @@ export default function AdminProviders({ navigate }: { navigate: (s: string) => 
       {/* Reject Modal */}
       {rejectModal && (
         <WireModal title={`Reject — ${rejectModal}`} onClose={() => setRejectModal(null)}>
-          <p className="text-sm text-gray-600 mb-3">Provide a reason for rejecting this provider application:</p>
+          <p className="text-sm text-[#4B3621] mb-3">Provide a reason for rejecting this provider application:</p>
           <WireTextarea placeholder="e.g. Incomplete requirements. Missing business permit." rows={3} />
           <div className="flex gap-2 mt-4">
-            <button onClick={() => setRejectModal(null)} className="flex-1 rounded-xl border border-[#4B3621]/20 py-2.5 text-sm font-semibold text-[#4B3621] hover:bg-gray-50 transition">Cancel</button>
+            <button onClick={() => setRejectModal(null)} className="flex-1 rounded-xl border border-[#4B3621]/20 py-2.5 text-sm font-semibold text-[#4B3621] hover:bg-[#E3C565] transition">Cancel</button>
             <button onClick={() => setRejectModal(null)} className="flex-1 rounded-xl bg-[#4B3621] py-2.5 text-sm font-semibold text-white hover:bg-[#3a2918] transition">Confirm Reject</button>
           </div>
         </WireModal>

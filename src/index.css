@@ -4,14 +4,17 @@
 @source "./";
 
 :root {
-  --uniserve-navy: #1d1b20;
-  --uniserve-ink: #1d1b20;
-  --uniserve-teal: #ff765e;
-  --uniserve-mango: #ffb84d;
-  --uniserve-mist: #ffffff;
-  --uniserve-pale-teal: #f1eff3;
-  --uniserve-slate: #68636d;
-  --uniserve-border: #e7e3e9;
+  --uniserve-biscotti: #E3C565;
+  --uniserve-cafe-noir: #4B3621;
+  --uniserve-black: #000000;
+  --uniserve-navy: #4B3621;
+  --uniserve-ink: #000000;
+  --uniserve-teal: #E3C565;
+  --uniserve-mango: #E3C565;
+  --uniserve-mist: #E3C565;
+  --uniserve-pale-teal: #E3C565;
+  --uniserve-slate: #4B3621;
+  --uniserve-border: #4B3621;
 }
 
 * {
@@ -29,15 +32,29 @@ html, body, #root {
 }
 
 body {
-  background: #f6f5f7;
-  color: var(--uniserve-ink);
+  background: #E3C565 !important;
+  color: #000000 !important;
 }
 
 button, input, select, textarea {
   font: inherit;
 }
 
+/* PASOA brutalist contract: square geometry, hard borders, no soft UI. */
+*, *::before, *::after {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+button, a, input, select, textarea {
+  border-radius: 0 !important;
+}
+
+button:hover, a:hover {
+  transform: none !important;
+}
+
 @keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position:  200% 0; }
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }

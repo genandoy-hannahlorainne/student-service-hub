@@ -20,8 +20,8 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
     <StudentLayout active="printing-service" navigate={navigate}>
       <div className="flex flex-col gap-5">
         <div>
-          <h1 className="text-xl font-bold text-gray-800">Printing Services</h1>
-          <p className="text-sm text-gray-500 mt-1">Fill in your printing details and select a collaborating shop</p>
+          <h1 className="text-xl font-bold text-[#4B3621]">Printing Services</h1>
+          <p className="text-sm text-[#4B3621] mt-1">Fill in your printing details and select a collaborating shop</p>
         </div>
         <WireCard className="rounded-2xl border-0 shadow-sm ring-1 ring-[#4B3621]/10">
           <WireProgressTracker steps={["File", "Details", "Shop", "Fulfillment", "Payment"]} current={0} />
@@ -34,10 +34,10 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
           <WireCard className="lg:col-span-3">
             <WireSectionTitle>1. Upload File</WireSectionTitle>
             <div className="flex flex-col gap-3">
-              <div className="border-2 border-dashed border-gray-400 p-6 text-center bg-gray-50">
+              <div className="border-2 border-dashed border-[#4B3621] p-6 text-center bg-[#E3C565]">
                 <WirePlaceholder label="Click or drag file to upload (PDF, DOCX, JPEG)" className="h-20 w-full mb-3" />
                 <WireBtn variant="outline">🔎 Choose File</WireBtn>
-                <p className="text-xs text-gray-400 mt-2">Max file size: 20MB · Supported: PDF, DOCX, JPG, PNG</p>
+                <p className="text-xs text-[#4B3621] mt-2">Max file size: 20MB · Supported: PDF, DOCX, JPG, PNG</p>
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
                 <WireInput label="File Name" placeholder="document_name.pdf" />
@@ -63,7 +63,7 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
         {/* ── Bento: shop selector full width ── */}
         <WireCard>
           <WireSectionTitle>3. Select Printing Shop</WireSectionTitle>
-          <p className="text-xs text-gray-500 mb-4 border border-dashed border-gray-300 p-2 bg-gray-50">
+          <p className="text-xs text-[#4B3621] mb-4 border border-dashed border-[#4B3621] p-2 bg-[#E3C565]">
             Only University Organization-approved collaborating printing shops are listed below. Shops must have an
             official agreement with University Organization to appear here.
           </p>
@@ -74,18 +74,18 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
                 onClick={() => shop.available && setSelectedShop(i)}
                 className={`border p-3 flex flex-col gap-3 transition-colors ${
                   !shop.available
-                    ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-200"
+                    ? "opacity-50 cursor-not-allowed bg-[#E3C565] border-[#4B3621]"
                     : selectedShop === i
-                    ? "border-gray-700 bg-gray-50 cursor-pointer"
-                    : "border-gray-300 hover:border-gray-500 cursor-pointer"
+                    ? "border-gray-700 bg-[#E3C565] cursor-pointer"
+                    : "border-[#4B3621] hover:border-gray-500 cursor-pointer"
                 }`}
               >
                 <WirePlaceholder label="🪟" className="w-full h-16" />
                 <div className="flex flex-col gap-1 flex-1">
-                  <p className="font-semibold text-gray-800 text-sm">{shop.name}</p>
-                  <p className="text-xs text-gray-500">📍 {shop.location}</p>
-                  <p className="text-xs text-gray-500">🖨 {shop.services}</p>
-                  <p className="text-xs text-gray-600">Delivery fee: <strong>{shop.fee}</strong></p>
+                  <p className="font-semibold text-[#4B3621] text-sm">{shop.name}</p>
+                  <p className="text-xs text-[#4B3621]">📍 {shop.location}</p>
+                  <p className="text-xs text-[#4B3621]">🖨 {shop.services}</p>
+                  <p className="text-xs text-[#4B3621]">Delivery fee: <strong>{shop.fee}</strong></p>
                 </div>
                 <div className="flex items-center justify-between gap-2">
                   <WireBadge variant={shop.available ? "success" : "rejected"}>
@@ -127,8 +127,8 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
                   onClick={() => setFulfillment(f)}
                   className={`flex-1 py-3 text-sm font-medium border capitalize transition-colors ${
                     fulfillment === f
-                      ? "bg-gray-800 text-white border-gray-800"
-                      : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                      ? "bg-[#4B3621] text-white border-gray-800"
+                      : "border-[#4B3621] text-[#4B3621] hover:bg-[#E3C565]"
                   }`}
                 >
                   {f === "pickup" ? "📦 Pickup" : "🚚 Delivery"}
@@ -141,19 +141,19 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
                   label="Delivery Location / Address"
                   placeholder="Room or building within PUP Taguig campus or nearby area"
                 />
-                <div className="border border-gray-200 p-3 bg-gray-50 text-sm">
-                  <span className="text-gray-500">Agreed Delivery Fee: </span>
-                  <strong className="text-gray-800">₱30.00</strong>
-                  <p className="text-xs text-gray-400 mt-0.5">Based on shop selection above</p>
+                <div className="border border-[#4B3621] p-3 bg-[#E3C565] text-sm">
+                  <span className="text-[#4B3621]">Agreed Delivery Fee: </span>
+                  <strong className="text-[#4B3621]">₱30.00</strong>
+                  <p className="text-xs text-[#4B3621] mt-0.5">Based on shop selection above</p>
                 </div>
               </div>
             ) : (
-              <div className="border border-gray-200 p-3 bg-gray-50 text-sm">
-                <p className="text-gray-600">
+              <div className="border border-[#4B3621] p-3 bg-[#E3C565] text-sm">
+                <p className="text-[#4B3621]">
                   📍 Pickup Location:{" "}
                   <strong>Speedy Print Shop — Near PUP Taguig Main Gate</strong>
                 </p>
-                <p className="text-xs text-gray-400 mt-0.5">No delivery fee for pickup orders.</p>
+                <p className="text-xs text-[#4B3621] mt-0.5">No delivery fee for pickup orders.</p>
               </div>
             )}
           </WireCard>
@@ -164,16 +164,16 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
           <WireSectionTitle>6. Payment Method</WireSectionTitle>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
             <WireRadioGroup name="payment" options={["Cash on Pickup/Delivery", "GCash", "Maya"]} />
-            <div className="border border-gray-200 p-3 bg-gray-50 flex flex-col gap-1.5 text-sm">
+            <div className="border border-[#4B3621] p-3 bg-[#E3C565] flex flex-col gap-1.5 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">Printing Fee (2 copies × B&W Short):</span>
+                <span className="text-[#4B3621]">Printing Fee (2 copies × B&W Short):</span>
                 <span className="font-medium">₱40.00</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Delivery Fee:</span>
+                <span className="text-[#4B3621]">Delivery Fee:</span>
                 <span className="font-medium">{fulfillment === "delivery" ? "₱30.00" : "₱0.00"}</span>
               </div>
-              <div className="border-t border-gray-300 pt-2 flex justify-between font-bold text-gray-800">
+              <div className="border-t border-[#4B3621] pt-2 flex justify-between font-bold text-[#4B3621]">
                 <span>Total Amount:</span>
                 <span>{fulfillment === "delivery" ? "₱70.00" : "₱40.00"}</span>
               </div>

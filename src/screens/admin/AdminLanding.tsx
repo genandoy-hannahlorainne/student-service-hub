@@ -26,7 +26,7 @@ export default function AdminLanding({ navigate }: { navigate: (s: string) => vo
           <span className="text-xs font-semibold text-white/70">Internal Administration</span>
         </div>
         {/* Restricted badge */}
-        <span className="ml-auto flex items-center gap-1.5 rounded-full border border-red-500/40 bg-red-500/10 px-3 py-1 text-[10px] font-semibold text-red-400">
+        <span className="ml-auto flex items-center gap-1.5 rounded-full border border-[#000000] bg-[#E3C565] px-3 py-1 text-[10px] font-semibold text-[#4B3621]">
           <i className="bi bi-shield-exclamation" aria-hidden="true" />
           RESTRICTED
         </span>

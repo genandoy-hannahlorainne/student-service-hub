@@ -33,7 +33,7 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
             {[
               { label: "Pending Approvals", value: "3", icon: "bi-hourglass-split", color: "bg-[#E3C565] text-[#4B3621]" },
               { label: "Active Orders",      value: "14", icon: "bi-bag-check",        color: "bg-[#4B3621] text-white" },
-              { label: "Active Providers",   value: "5",  icon: "bi-shop",             color: "bg-white text-[#4B3621] ring-1 ring-[#4B3621]/15" },
+              { label: "Active Providers",   value: "5",  icon: "bi-shop",             color: "bg-[#E3C565] text-[#4B3621] ring-1 ring-[#4B3621]/15" },
             ].map((kpi) => (
               <div key={kpi.label} className={`rounded-[20px] p-4 flex items-center gap-4 ${kpi.color}`}>
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black/10 text-xl">
@@ -51,9 +51,9 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
         {/* ── Row 2: Platform stats ──────────────────────────────────── */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { label: "Total Users",            value: "347", icon: "bi-people",            bg: "bg-white ring-1 ring-[#4B3621]/10" },
-            { label: "PUPTians",               value: "312", icon: "bi-mortarboard",        bg: "bg-white ring-1 ring-[#4B3621]/10" },
-            { label: "Pending Rental Posts",   value: "8",   icon: "bi-box-seam",           bg: "bg-white ring-1 ring-[#4B3621]/10" },
+            { label: "Total Users",            value: "347", icon: "bi-people",            bg: "bg-[#E3C565] ring-1 ring-[#4B3621]/10" },
+            { label: "PUPTians",               value: "312", icon: "bi-mortarboard",        bg: "bg-[#E3C565] ring-1 ring-[#4B3621]/10" },
+            { label: "Pending Rental Posts",   value: "8",   icon: "bi-box-seam",           bg: "bg-[#E3C565] ring-1 ring-[#4B3621]/10" },
             { label: "Completed Transactions", value: "892", icon: "bi-receipt-cutoff",     bg: "bg-[#E3C565]" },
           ].map((s) => (
             <div key={s.label} className={`rounded-[20px] p-5 flex flex-col gap-3 ${s.bg}`}>
@@ -68,7 +68,7 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
         <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
 
           {/* Pending provider approvals */}
-          <div className="rounded-[24px] bg-white ring-1 ring-[#4B3621]/10 p-5 flex flex-col gap-4">
+          <div className="rounded-[24px] bg-[#E3C565] ring-1 ring-[#4B3621]/10 p-5 flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#4B3621] text-[#E3C565] text-sm">
@@ -85,7 +85,7 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
                 { name: "Quick Copy Solutions", type: "Printing",       date: "Oct 28, 2026" },
                 { name: "Campus Supplies Co.",  type: "School Supplies", date: "Oct 27, 2026" },
               ].map((p) => (
-                <div key={p.name} className="flex items-center justify-between rounded-2xl bg-[#fdf8f0] px-4 py-3 gap-3">
+                <div key={p.name} className="flex items-center justify-between rounded-2xl bg-[#E3C565] px-4 py-3 gap-3">
                   <div>
                     <p className="text-sm font-semibold text-[#4B3621]">{p.name}</p>
                     <p className="text-xs text-[#4B3621]/60">{p.type} · {p.date}</p>
@@ -94,7 +94,7 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
                     <button className="rounded-lg bg-[#4B3621] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#3a2918] transition">
                       Approve
                     </button>
-                    <button className="rounded-lg bg-white border border-[#4B3621]/20 px-3 py-1.5 text-xs font-semibold text-[#4B3621] hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition">
+                    <button className="rounded-lg bg-[#E3C565] border border-[#4B3621]/20 px-3 py-1.5 text-xs font-semibold text-[#4B3621] hover:bg-[#E3C565] hover:border-[#4B3621] hover:text-[#4B3621] transition">
                       Reject
                     </button>
                   </div>
@@ -106,7 +106,7 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
           </div>
 
           {/* Recent orders */}
-          <div className="rounded-[24px] bg-white ring-1 ring-[#4B3621]/10 p-5 flex flex-col gap-4">
+          <div className="rounded-[24px] bg-[#E3C565] ring-1 ring-[#4B3621]/10 p-5 flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#E3C565] text-[#4B3621] text-sm">
@@ -120,11 +120,11 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
             </div>
             <div className="flex flex-col gap-2">
               {[
-                { id: "ORD-004", student: "Pedro Santos",  amount: "₱55.00",  status: "Processing",       statusColor: "bg-yellow-100 text-yellow-700" },
-                { id: "ORD-003", student: "Ana Reyes",     amount: "₱95.00",  status: "Accepted",         statusColor: "bg-blue-100 text-blue-700" },
-                { id: "ORD-002", student: "Maria Cruz",    amount: "₱240.00", status: "Ready for Pickup", statusColor: "bg-green-100 text-green-700" },
+                { id: "ORD-004", student: "Pedro Santos",  amount: "₱55.00",  status: "Processing",       statusColor: "bg-[#E3C565] text-[#4B3621]" },
+                { id: "ORD-003", student: "Ana Reyes",     amount: "₱95.00",  status: "Accepted",         statusColor: "bg-[#E3C565] text-[#4B3621]" },
+                { id: "ORD-002", student: "Maria Cruz",    amount: "₱240.00", status: "Ready for Pickup", statusColor: "bg-[#E3C565] text-[#4B3621]" },
               ].map((o) => (
-                <div key={o.id} className="flex items-center justify-between rounded-2xl bg-[#fdf8f0] px-4 py-3">
+                <div key={o.id} className="flex items-center justify-between rounded-2xl bg-[#E3C565] px-4 py-3">
                   <div>
                     <p className="text-xs font-mono text-[#4B3621]/50">{o.id}</p>
                     <p className="text-sm font-semibold text-[#4B3621]">{o.student}</p>
@@ -158,7 +158,7 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
               { user: "Ana Reyes",      title: "Need a Laptop for thesis — Dec 18",    cat: "Laptop" },
               { user: "Pedro Santos",   title: "Scientific Calculator available",       cat: "Calculator" },
             ].map((post) => (
-              <div key={post.title} className="rounded-2xl bg-white/10 p-4 flex flex-col gap-3">
+              <div key={post.title} className="rounded-2xl bg-[#E3C565]/10 p-4 flex flex-col gap-3">
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-widest text-[#E3C565]/70">{post.cat}</span>
                   <p className="text-sm font-semibold mt-1 leading-snug">{post.title}</p>
@@ -168,7 +168,7 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
                   <button className="flex-1 rounded-lg bg-[#E3C565] px-2 py-1.5 text-xs font-semibold text-[#4B3621] hover:bg-[#d4b555] transition">
                     Approve
                   </button>
-                  <button className="flex-1 rounded-lg bg-white/10 border border-white/20 px-2 py-1.5 text-xs font-semibold text-white hover:bg-white/20 transition">
+                  <button className="flex-1 rounded-lg bg-[#E3C565]/10 border border-white/20 px-2 py-1.5 text-xs font-semibold text-white hover:bg-[#E3C565]/20 transition">
                     Reject
                   </button>
                 </div>
@@ -181,7 +181,7 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
             { label: "Manage Providers",  icon: "bi-shop",            screen: "admin-providers",       bg: "bg-[#E3C565] text-[#4B3621]" },
-            { label: "Rental Approvals",  icon: "bi-box-seam",        screen: "admin-rental-approval", bg: "bg-white ring-1 ring-[#4B3621]/10 text-[#4B3621]" },
+            { label: "Rental Approvals",  icon: "bi-box-seam",        screen: "admin-rental-approval", bg: "bg-[#E3C565] ring-1 ring-[#4B3621]/10 text-[#4B3621]" },
             { label: "All Orders",        icon: "bi-bag",             screen: "admin-orders",          bg: "bg-[#4B3621] text-white" },
           ].map((tile) => (
             <button

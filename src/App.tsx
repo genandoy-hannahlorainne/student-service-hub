@@ -146,13 +146,13 @@ const GROUPS: { label: string; screens: Screen[] }[] = [
 ];
 
 const GROUP_COLORS: Record<string, string> = {
-  "Public": "bg-gray-700",
-  "Login Portals": "bg-gray-600",
-  "Registration": "bg-gray-500",
-  "PUPTian (Student)": "bg-gray-800",
-  "Guest (Limited Access)": "bg-gray-500",
-  "Service Provider": "bg-gray-600",
-  "Administrator (Internal)": "bg-gray-900",
+  "Public": "bg-[#4B3621]",
+  "Login Portals": "bg-[#4B3621]",
+  "Registration": "bg-[#E3C565]0",
+  "PUPTian (Student)": "bg-[#4B3621]",
+  "Guest (Limited Access)": "bg-[#E3C565]0",
+  "Service Provider": "bg-[#4B3621]",
+  "Administrator (Internal)": "bg-[#000000]",
 };
 
 // ─── Route guard component ────────────────────────────────────────────────────
@@ -496,28 +496,28 @@ function AppInner() {
       <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
         <button
           onClick={() => setOpen((v) => !v)}
-          className="bg-gray-900 text-white text-xs font-semibold px-3 py-2 shadow-lg hover:bg-gray-700 border border-gray-600 flex items-center gap-1.5"
+          className="bg-[#000000] text-white text-xs font-semibold px-3 py-2 shadow-lg hover:bg-[#4B3621] border border-gray-600 flex items-center gap-1.5"
         >
           ◉ {open ? "Close Navigator" : "Screen Navigator"}
         </button>
 
         {open && (
-          <div className="bg-white border border-gray-400 shadow-xl w-72 max-h-[80vh] overflow-y-auto">
-            <div className="bg-gray-900 text-white text-xs font-semibold px-3 py-2 flex items-center justify-between">
+          <div className="bg-[#E3C565] border border-[#4B3621] shadow-xl w-72 max-h-[80vh] overflow-y-auto">
+            <div className="bg-[#000000] text-white text-xs font-semibold px-3 py-2 flex items-center justify-between">
               <span>University Organization Wireframe — Screens</span>
-              <span className="text-gray-400">{Object.keys(SCREEN_LABELS).length} screens</span>
+              <span className="text-[#4B3621]">{Object.keys(SCREEN_LABELS).length} screens</span>
             </div>
             <div className="flex flex-col">
               {GROUPS.map((group) => (
                 <div key={group.label}>
-                  <div className={`px-3 py-1.5 text-xs font-bold text-white border-b border-gray-600 ${GROUP_COLORS[group.label] ?? "bg-gray-600"}`}>
+                  <div className={`px-3 py-1.5 text-xs font-bold text-white border-b border-gray-600 ${GROUP_COLORS[group.label] ?? "bg-[#4B3621]"}`}>
                     {group.label}
                   </div>
                   {group.screens.map((s) => (
                     <button
                       key={s}
                       onClick={() => { navigate(s); setOpen(false); }}
-                      className={`w-full text-left px-3 py-2 text-xs border-b border-gray-100 hover:bg-gray-50 transition-colors ${screen === s ? "bg-gray-200 font-semibold text-gray-900" : "text-gray-700"}`}
+                      className={`w-full text-left px-3 py-2 text-xs border-b border-[#4B3621] hover:bg-[#E3C565] transition-colors ${screen === s ? "bg-[#E3C565] font-semibold text-[#000000]" : "text-[#4B3621]"}`}
                     >
                       {screen === s && "▶ "}
                       {SCREEN_LABELS[s]}

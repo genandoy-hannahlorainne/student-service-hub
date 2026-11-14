@@ -8,11 +8,11 @@ export default function CreateRentalPost({ navigate }: { navigate: (s: string) =
     <StudentLayout active="resource-rental" navigate={navigate}>
       <div className="flex flex-col gap-5">
         <div>
-          <h1 className="text-xl font-bold text-gray-800">Create Rental Post</h1>
-          <p className="text-sm text-gray-500 mt-1">Share a resource for rent or post what you need</p>
+          <h1 className="text-xl font-bold text-[#4B3621]">Create Rental Post</h1>
+          <p className="text-sm text-[#4B3621] mt-1">Share a resource for rent or post what you need</p>
         </div>
 
-        <div className="border border-dashed border-gray-400 p-3 bg-gray-50 text-sm text-gray-600">
+        <div className="border border-dashed border-[#4B3621] p-3 bg-[#E3C565] text-sm text-[#4B3621]">
           <strong>Note:</strong> Your post will be reviewed by an Administrator before becoming publicly visible
           in the Student Resource Hub. This usually takes 1–2 business days.
         </div>
@@ -30,10 +30,10 @@ export default function CreateRentalPost({ navigate }: { navigate: (s: string) =
                 {["Looking For", "Available for Rent"].map((type) => (
                   <label
                     key={type}
-                    className="flex items-center gap-2 cursor-pointer border border-gray-300 px-4 py-3 hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-2 cursor-pointer border border-[#4B3621] px-4 py-3 hover:bg-[#E3C565] transition-colors"
                   >
                     <input type="radio" name="postType" className="w-4 h-4" defaultChecked={type === "Available for Rent"} />
-                    <span className="text-sm text-gray-700">{type}</span>
+                    <span className="text-sm text-[#4B3621]">{type}</span>
                   </label>
                 ))}
               </div>
@@ -53,10 +53,10 @@ export default function CreateRentalPost({ navigate }: { navigate: (s: string) =
             {/* Image upload */}
             <WireCard>
               <WireSectionTitle>Upload Image (Optional)</WireSectionTitle>
-              <div className="border-2 border-dashed border-gray-300 p-5 text-center bg-gray-50">
+              <div className="border-2 border-dashed border-[#4B3621] p-5 text-center bg-[#E3C565]">
                 <WirePlaceholder label="Click or drag image file here (JPG, PNG)" className="h-24 w-full mb-2" />
                 <WireBtn variant="outline" size="sm">📷 Upload Image</WireBtn>
-                <p className="text-xs text-gray-400 mt-2">Max 5MB · JPG or PNG</p>
+                <p className="text-xs text-[#4B3621] mt-2">Max 5MB · JPG or PNG</p>
               </div>
             </WireCard>
           </div>

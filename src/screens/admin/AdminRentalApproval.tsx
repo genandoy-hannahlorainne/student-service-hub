@@ -17,8 +17,8 @@ const catIcon: Record<string, string> = {
   Books: "bi-book", Projector: "bi-projector", default: "bi-box-seam",
 };
 const typeColor: Record<string, string> = {
-  "Available for Rent": "bg-green-100 text-green-700",
-  "Looking For":        "bg-blue-100 text-blue-700",
+  "Available for Rent": "bg-[#E3C565] text-[#4B3621]",
+  "Looking For":        "bg-[#E3C565] text-[#4B3621]",
 };
 
 export default function AdminRentalApproval({ navigate }: { navigate: (s: string) => void }) {
@@ -48,7 +48,7 @@ export default function AdminRentalApproval({ navigate }: { navigate: (s: string
           </div>
           <div className="grid grid-rows-3 gap-4">
             {(["pending", "approved", "rejected"] as Tab[]).map((t) => {
-              const styles = { pending: "bg-[#E3C565] text-[#4B3621]", approved: "bg-[#4B3621] text-white", rejected: "bg-white ring-1 ring-[#4B3621]/10 text-[#4B3621]" };
+              const styles = { pending: "bg-[#E3C565] text-[#4B3621]", approved: "bg-[#4B3621] text-white", rejected: "bg-[#E3C565] ring-1 ring-[#4B3621]/10 text-[#4B3621]" };
               const icons  = { pending: "bi-hourglass-split", approved: "bi-check2-circle", rejected: "bi-x-circle" };
               return (
                 <button key={t} onClick={() => setTab(t)} className={`rounded-[18px] p-3 flex items-center gap-3 text-left transition hover:-translate-y-0.5 ${styles[t]} ${tab === t ? "ring-2 ring-offset-1 ring-[#4B3621]" : ""}`}>
@@ -64,7 +64,7 @@ export default function AdminRentalApproval({ navigate }: { navigate: (s: string
         </div>
 
         {/* ── Post cards ─────────────────────────────────────────────── */}
-        <div className="rounded-[24px] bg-white ring-1 ring-[#4B3621]/10 p-5 flex flex-col gap-4">
+        <div className="rounded-[24px] bg-[#E3C565] ring-1 ring-[#4B3621]/10 p-5 flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#4B3621] text-[#E3C565] text-sm">
               <i className="bi bi-box-seam" />
@@ -80,7 +80,7 @@ export default function AdminRentalApproval({ navigate }: { navigate: (s: string
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((post) => (
-                <div key={post.id} className={`rounded-2xl p-4 flex flex-col gap-3 ${post.status === "rejected" ? "bg-red-50 ring-1 ring-red-200" : "bg-[#fdf8f0]"}`}>
+                <div key={post.id} className={`rounded-2xl p-4 flex flex-col gap-3 ${post.status === "rejected" ? "bg-[#E3C565] ring-1 ring-red-200" : "bg-[#E3C565]"}`}>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#4B3621] text-[#E3C565] text-sm">
@@ -98,7 +98,7 @@ export default function AdminRentalApproval({ navigate }: { navigate: (s: string
                   </div>
 
                   {post.status === "rejected" && post.reason && (
-                    <div className="rounded-xl bg-red-100 px-3 py-2 text-xs text-red-700 italic">
+                    <div className="rounded-xl bg-[#E3C565] px-3 py-2 text-xs text-[#4B3621] italic">
                       "{post.reason}"
                     </div>
                   )}
@@ -106,7 +106,7 @@ export default function AdminRentalApproval({ navigate }: { navigate: (s: string
                   {post.status === "pending" && (
                     <div className="flex gap-2 mt-auto">
                       <button onClick={() => approve(post.id)} className="flex-1 rounded-lg bg-[#4B3621] px-2 py-2 text-xs font-semibold text-white hover:bg-[#3a2918] transition">Approve</button>
-                      <button onClick={() => setRejectTarget(post)} className="flex-1 rounded-lg border border-[#4B3621]/15 px-2 py-2 text-xs font-semibold text-[#4B3621] hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition">Reject</button>
+                      <button onClick={() => setRejectTarget(post)} className="flex-1 rounded-lg border border-[#4B3621]/15 px-2 py-2 text-xs font-semibold text-[#4B3621] hover:bg-[#E3C565] hover:border-[#4B3621] hover:text-[#4B3621] transition">Reject</button>
                     </div>
                   )}
                 </div>
@@ -120,11 +120,11 @@ export default function AdminRentalApproval({ navigate }: { navigate: (s: string
       {/* Reject Modal */}
       {rejectTarget && (
         <WireModal title="Reject Rental Post" onClose={() => setRejectTarget(null)}>
-          <p className="text-sm text-gray-600 mb-1">Post: <strong>{rejectTarget.title}</strong></p>
-          <p className="text-xs text-gray-400 mb-3">By: {rejectTarget.user}</p>
+          <p className="text-sm text-[#4B3621] mb-1">Post: <strong>{rejectTarget.title}</strong></p>
+          <p className="text-xs text-[#4B3621] mb-3">By: {rejectTarget.user}</p>
           <WireTextarea placeholder="Explain why this post is being rejected and what the student should correct." rows={4} />
           <div className="flex gap-2 mt-4">
-            <button onClick={() => setRejectTarget(null)} className="flex-1 rounded-xl border border-[#4B3621]/20 py-2.5 text-sm font-semibold text-[#4B3621] hover:bg-gray-50 transition">Cancel</button>
+            <button onClick={() => setRejectTarget(null)} className="flex-1 rounded-xl border border-[#4B3621]/20 py-2.5 text-sm font-semibold text-[#4B3621] hover:bg-[#E3C565] transition">Cancel</button>
             <button onClick={() => reject(rejectTarget.id)} className="flex-1 rounded-xl bg-[#4B3621] py-2.5 text-sm font-semibold text-white hover:bg-[#3a2918] transition">Confirm Reject</button>
           </div>
         </WireModal>
