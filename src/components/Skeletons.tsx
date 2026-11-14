@@ -27,7 +27,7 @@ function SA({ className }: { className: string }) {
 
 export function LandingSkeleton() {
   return (
-    <div className="min-h-screen bg-[#E3C565]">
+    <div className="min-h-screen bg-white">
       {/* Nav */}
       <div className="fixed inset-x-0 top-0 z-40 h-[70px] bg-[#E3C565] border-b border-[#4B3621] px-6 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-2">
@@ -126,7 +126,7 @@ export function LandingSkeleton() {
 
 export function AuthSkeleton() {
   return (
-    <div className="min-h-screen bg-[#E3C565]">
+    <div className="min-h-screen bg-white">
       {/* Public nav */}
       <div className="fixed inset-x-0 top-0 z-40 h-[70px] bg-[#E3C565] border-b border-[#4B3621] px-6 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-2">
@@ -187,7 +187,7 @@ export function AuthSkeleton() {
 
 export function AdminLoginSkeleton() {
   return (
-    <div className="min-h-screen bg-[#E3C565]">
+    <div className="min-h-screen bg-white">
       <div className="mx-auto grid min-h-screen max-w-6xl items-center gap-5 px-4 py-6 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
         {/* Left — black panel */}
         <div className="rounded-[28px] bg-[#000000] min-h-[440px] p-10 flex flex-col justify-between">
@@ -360,7 +360,7 @@ export function StudentSkeleton() {
 
 export function GuestSkeleton() {
   return (
-    <div className="min-h-screen bg-[#E3C565]">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="h-14 bg-[#4B3621] px-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-500">
         <div className="flex items-center gap-2">

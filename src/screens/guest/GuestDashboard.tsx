@@ -49,7 +49,7 @@ export default function GuestDashboard({ navigate }: { navigate: (s: string) => 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#E3C565]">
+    <div className="min-h-screen bg-white">
       {/* Guest Header */}
       <header className="bg-[#4B3621] text-white px-3 py-2.5 flex items-center justify-between sticky top-0 z-40 border-b border-gray-500 h-14 shrink-0">
         <div className="flex items-center gap-2 min-w-0">
@@ -75,7 +75,7 @@ export default function GuestDashboard({ navigate }: { navigate: (s: string) => 
       <div className="flex h-[calc(100vh-56px)] overflow-hidden relative">
         <GuestSidebar active="guest-dashboard" navigate={navigate} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        <main className="flex-1 overflow-y-auto bg-[#E3C565] p-4 lg:p-5">
+        <main className="flex-1 overflow-y-auto bg-white p-4 lg:p-5">
           <div className="flex flex-col gap-5 max-w-4xl">
 
             {/* Welcome + upgrade banner */}

@@ -10,7 +10,7 @@ export function WireBox({ className = "", children }: { className?: string; chil
 
 export function WirePlaceholder({ label, className = "" }: { label: string; className?: string }) {
   return (
-    <div className={`bg-[#E3C565] flex items-center justify-center text-[#4B3621] text-xs border border-dashed border-[#4B3621] ${className}`}>
+    <div className={`bg-white flex items-center justify-center text-[#4B3621] text-xs border border-dashed border-[#4B3621] ${className}`}>
       [ {label} ]
     </div>
   );
@@ -40,7 +40,7 @@ export function WireBtn({
     secondary: "bg-[#4B3621] text-white hover:bg-[#000000] border border-[#4B3621]",
     danger: "bg-[#000000] text-white hover:bg-[#c94735] border border-[#000000]",
     ghost: "bg-transparent text-[#4B3621] hover:bg-[#E3C565] border border-transparent",
-    outline: "bg-[#E3C565] text-[#4B3621] hover:bg-[#E3C565] border border-[#4B3621]",
+    outline: "bg-white text-[#4B3621] hover:bg-[#E3C565] border border-[#4B3621]",
   };
   return (
     <button
@@ -77,7 +77,7 @@ export function WireInput({
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className="border border-[#4B3621] px-3 py-2 text-sm bg-[#E3C565] focus:outline-none focus:border-gray-500 w-full"
+        className="border border-[#4B3621] px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#4B3621] w-full"
       />
     </div>
   );
@@ -87,7 +87,7 @@ export function WireSelect({ label, options, className = "" }: { label?: string;
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
       {label && <label className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">{label}</label>}
-      <select className="border border-[#4B3621] px-3 py-2 text-sm bg-[#E3C565] focus:outline-none focus:border-gray-500 w-full">
+      <select className="border border-[#4B3621] px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#4B3621] w-full">
         {options.map((o) => <option key={o}>{o}</option>)}
       </select>
     </div>
@@ -98,7 +98,7 @@ export function WireTextarea({ label, placeholder, rows = 3, className = "" }: {
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
       {label && <label className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">{label}</label>}
-      <textarea rows={rows} placeholder={placeholder} className="border border-[#4B3621] px-3 py-2 text-sm bg-[#E3C565] focus:outline-none focus:border-gray-500 w-full resize-none" />
+      <textarea rows={rows} placeholder={placeholder} className="border border-[#4B3621] px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#4B3621] w-full resize-none" />
     </div>
   );
 }
@@ -115,7 +115,7 @@ export function WireBadge({ children, variant = "default" }: { children: ReactNo
 }
 
 export function WireCard({ children, className = "", onClick }: { children: ReactNode; className?: string; onClick?: () => void }) {
-  return <div className={`bg-[#E3C565] border-2 border-[#4B3621] p-4 ${className}`} onClick={onClick}>{children}</div>;
+  return <div className={`bg-white border-2 border-[#4B3621] p-4 ${className}`} onClick={onClick}>{children}</div>;
 }
 
 export function WireSectionTitle({ children }: { children: ReactNode }) {
@@ -248,7 +248,7 @@ export function WirePublicNav({ navigate }: { navigate: (s: string) => void }) {
   return (
     <>
     <div className="h-[70px]" aria-hidden="true" />
-    <nav className="fixed inset-x-0 top-0 z-40 border-b border-[#4B3621]/20 bg-[#E3C565] text-[#4B3621] shadow-sm">
+    <nav className="fixed inset-x-0 top-0 z-40 border-b border-[#4B3621]/20 bg-white text-[#4B3621] shadow-sm">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center">
@@ -343,7 +343,7 @@ function AuthHeader({ role, onMenuToggle, navigate }: { role: string; onMenuTogg
   const isStudent = role === "Student";
   const displayRole = isStudent ? profile?.display_name || "Student" : role;
   return (
-    <header className={`${isStudent ? "bg-[#E3C565] border-[#4B3621] text-[#4B3621]" : "bg-[#4B3621] border-[#4B3621] text-white"} px-4 py-3 flex items-center justify-between border-b h-16 shrink-0`}>
+    <header className={`${isStudent ? "bg-white border-[#4B3621] text-[#4B3621]" : "bg-[#4B3621] border-[#4B3621] text-white"} px-4 py-3 flex items-center justify-between border-b h-16 shrink-0`}>
       <div className="flex items-center gap-2 min-w-0">
         <HamburgerBtn onClick={onMenuToggle} />
         <img src={organizationLogo} alt="University Organization logo" className="h-7 w-7 shrink-0 object-contain" />
@@ -414,7 +414,7 @@ function SidebarDrawer({
         className={`
           fixed lg:static inset-y-0 left-0 z-40
           ${collapsed ? "lg:w-16" : "lg:w-48"} w-56 shrink-0
-          bg-[#E3C565] border-r border-[#4B3621]
+          bg-white border-r border-[#4B3621]
           flex flex-col py-3 overflow-y-auto
           transition-transform duration-200
           ${open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
@@ -479,7 +479,7 @@ function AppLayout({
           collapsed={sidebarCollapsed}
           accentColor={accentColor}
         />
-        <main className={`flex-1 overflow-y-auto p-4 lg:p-6 ${role === "Student" ? "bg-[#E3C565]" : "bg-[#E3C565]"}`}>
+        <main className="flex-1 overflow-y-auto bg-white p-4 lg:p-6">
           {children}
         </main>
       </div>

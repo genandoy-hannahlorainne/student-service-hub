@@ -16,7 +16,7 @@ const GUEST_NAV_ITEMS = [
 function GuestLayout({ children, navigate, active }: { children: React.ReactNode; navigate: (s: string) => void; active: string }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
-    <div className="min-h-screen bg-[#E3C565]">
+    <div className="min-h-screen bg-white">
       <header className="bg-[#4B3621] text-white px-3 py-2.5 flex items-center justify-between sticky top-0 z-40 border-b border-gray-500 h-14 shrink-0">
         <div className="flex items-center gap-2 min-w-0">
           <button onClick={() => setSidebarOpen(v => !v)} className="lg:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5 border border-gray-500 hover:bg-[#E3C565]0 mr-1 shrink-0">
@@ -51,7 +51,7 @@ function GuestLayout({ children, navigate, active }: { children: React.ReactNode
           </div>
           <button onClick={() => navigate("landing")} className="text-left px-4 py-2.5 text-sm text-[#4B3621] hover:bg-[#E3C565] border-t border-[#4B3621] mt-auto">â— Logout</button>
         </aside>
-        <main className="flex-1 overflow-y-auto bg-[#E3C565] p-4 lg:p-5">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-white p-4 lg:p-5">{children}</main>
       </div>
     </div>
   );
@@ -68,7 +68,7 @@ export function GuestPost({ navigate }: { navigate: (s: string) => void }) {
           <p className="text-sm text-[#4B3621] mt-1">Let students know what you need â€” they may be able to help</p>
         </div>
 
-        <div className="border border-dashed border-[#4B3621] p-3 bg-[#E3C565] text-sm text-[#4B3621]">
+        <div className="border border-dashed border-[#4B3621] p-3 bg-white text-sm text-[#4B3621]">
           <strong>Guest Posting Rules:</strong>
           <ul className="mt-1 list-disc list-inside text-xs flex flex-col gap-0.5">
             <li>Posts must be for legitimate academic needs only</li>
@@ -85,7 +85,7 @@ export function GuestPost({ navigate }: { navigate: (s: string) => void }) {
             {/* Post type â€” locked to Looking For */}
             <div>
               <WireLabel>Post Type</WireLabel>
-              <div className="mt-2 border border-[#4B3621] px-4 py-3 bg-[#E3C565] flex items-center gap-2">
+              <div className="mt-2 border border-[#4B3621] px-4 py-3 bg-white flex items-center gap-2">
                 <input type="radio" checked readOnly className="w-4 h-4" />
                 <span className="text-sm text-[#4B3621] font-medium">Looking For / Need</span>
                 <WireBadge variant="default">Guest limit</WireBadge>
@@ -130,7 +130,7 @@ export function GuestPost({ navigate }: { navigate: (s: string) => void }) {
             {/* Image upload (optional) */}
             <div>
               <WireLabel>Upload Reference Image (Optional)</WireLabel>
-              <div className="border-2 border-dashed border-[#4B3621] p-5 text-center bg-[#E3C565] mt-2">
+              <div className="border-2 border-dashed border-[#4B3621] p-5 text-center bg-white mt-2">
                 <WirePlaceholder label="Click or drag image here" className="h-16 w-full mb-2" />
                 <WireBtn variant="outline" size="sm">ðŸ“· Upload Image</WireBtn>
                 <p className="text-xs text-[#4B3621] mt-2">Max 5MB Â· JPG or PNG</p>
@@ -140,7 +140,7 @@ export function GuestPost({ navigate }: { navigate: (s: string) => void }) {
           </div>
         </WireCard>
 
-        <div className="border border-dashed border-gray-500 p-3 bg-[#E3C565] text-center">
+        <div className="border border-dashed border-[#4B3621] p-3 bg-white text-center">
           <p className="text-sm text-[#4B3621] font-medium">Your post will be reviewed by an Administrator before becoming publicly visible.</p>
           <p className="text-xs text-[#4B3621] mt-1">Review usually takes 1“2 business days.</p>
         </div>

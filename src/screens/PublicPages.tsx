@@ -16,7 +16,7 @@ function PublicShell({
   children: ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#E3C565]">
+    <div className="min-h-screen bg-white">
       <WirePublicNav navigate={navigate} />
       <header className="bg-[#4B3621] px-6 py-14 text-center text-white">
         <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-[#E3C565]">University Organization Student Services Hub</p>

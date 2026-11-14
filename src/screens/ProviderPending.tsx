@@ -32,7 +32,7 @@ export default function ProviderPending({
       : "Application Pending Review";
 
   return (
-    <div className="min-h-screen bg-[#E3C565] flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md bg-[#E3C565] rounded-2xl border border-[#4B3621] shadow-lg p-8 flex flex-col items-center gap-6">
         {/* Logo */}
         <img src={organizationLogo} alt="University Organization" className="h-16 w-16 object-contain" />

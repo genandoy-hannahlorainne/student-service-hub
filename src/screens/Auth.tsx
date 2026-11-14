@@ -37,7 +37,7 @@ function AuthShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#E3C565] text-[#000000]">
+    <div className="min-h-screen bg-white text-[#000000]">
       <WirePublicNav navigate={navigate} />
       <div className="px-4 py-5 sm:px-6 lg:px-8">
         <div className="mx-auto grid min-h-[calc(100vh-96px)] max-w-6xl items-center gap-5 lg:grid-cols-[0.85fr_1.15fr]">
@@ -547,7 +547,7 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
   const displayError = localError || (!localError ? authError : "") || "";
 
   return (
-    <div className="min-h-screen bg-[#E3C565] text-[#000000]">
+    <div className="min-h-screen bg-white text-[#000000]">
       <div className="mx-auto grid min-h-screen max-w-6xl items-center gap-5 px-4 py-6 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
         <div className="relative min-h-[440px] overflow-hidden rounded-[28px] bg-[#000000] p-7 text-white shadow-[0_22px_60px_rgba(0,0,0,0.18)] sm:p-10">
           <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full border-[34px] border-[#E3C565]/40" />
