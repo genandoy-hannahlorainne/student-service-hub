@@ -4,14 +4,14 @@
 @source "./";
 
 :root {
-  --uniserve-navy: #4B3621;
-  --uniserve-ink: #000000;
-  --uniserve-teal: #E3C565;
-  --uniserve-mango: #E3C565;
+  --uniserve-navy: #1d1b20;
+  --uniserve-ink: #1d1b20;
+  --uniserve-teal: #ff765e;
+  --uniserve-mango: #ffb84d;
   --uniserve-mist: #ffffff;
-  --uniserve-pale-teal: #E3C565;
-  --uniserve-slate: #4B3621;
-  --uniserve-border: #4B3621;
+  --uniserve-pale-teal: #f1eff3;
+  --uniserve-slate: #68636d;
+  --uniserve-border: #e7e3e9;
 }
 
 * {
@@ -29,7 +29,7 @@ html, body, #root {
 }
 
 body {
-  background: #ffffff;
+  background: #f6f5f7;
   color: var(--uniserve-ink);
 }
 

@@ -36,11 +36,11 @@ export function WireBtn({
   const base = "inline-flex items-center justify-center font-medium cursor-pointer transition-colors";
   const sizes = { sm: "px-3 py-1 text-xs", md: "px-4 py-2 text-sm", lg: "px-5 py-2.5 text-sm" };
   const variants = {
-    primary: "bg-[#4B3621] text-white hover:bg-[#000000] border border-[#4B3621]",
-    secondary: "bg-[#E3C565] text-[#000000] hover:bg-[#4B3621] border border-[#4B3621]",
-    danger: "bg-gray-700 text-white hover:bg-gray-600 border border-gray-700",
-    ghost: "bg-transparent text-gray-700 hover:bg-gray-100 border border-transparent",
-    outline: "bg-white text-[#4B3621] hover:bg-blue-50 border border-[#4B3621]",
+    primary: "bg-[#1d1b20] text-white hover:bg-[#ff765e] border border-[#1d1b20]",
+    secondary: "bg-[#ff765e] text-white hover:bg-[#e85b46] border border-[#ff765e]",
+    danger: "bg-[#e85b46] text-white hover:bg-[#c94735] border border-[#e85b46]",
+    ghost: "bg-transparent text-[#68636d] hover:bg-[#f1eff3] border border-transparent",
+    outline: "bg-white text-[#1d1b20] hover:bg-[#f1eff3] border border-[#e7e3e9]",
   };
   return (
     <button
@@ -115,7 +115,7 @@ export function WireBadge({ children, variant = "default" }: { children: ReactNo
 }
 
 export function WireCard({ children, className = "", onClick }: { children: ReactNode; className?: string; onClick?: () => void }) {
-  return <div className={`bg-white border border-gray-300 p-4 ${className}`} onClick={onClick}>{children}</div>;
+  return <div className={`bg-white border border-[#e7e3e9] rounded-2xl p-4 shadow-[0_8px_24px_rgba(29,27,32,0.04)] ${className}`} onClick={onClick}>{children}</div>;
 }
 
 export function WireSectionTitle({ children }: { children: ReactNode }) {
@@ -343,7 +343,7 @@ function AuthHeader({ role, onMenuToggle, navigate }: { role: string; onMenuTogg
   const isStudent = role === "Student";
   const displayRole = isStudent ? profile?.display_name || "Student" : role;
   return (
-    <header className={`${isStudent ? "bg-white border-[#4B3621]/15 text-[#4B3621]" : "bg-gray-800 border-gray-600 text-white"} px-4 py-3 flex items-center justify-between border-b h-16 shrink-0 shadow-sm`}>
+    <header className={`${isStudent ? "bg-white border-[#e7e3e9] text-[#1d1b20]" : "bg-[#1d1b20] border-[#1d1b20] text-white"} px-4 py-3 flex items-center justify-between border-b h-16 shrink-0`}>
       <div className="flex items-center gap-2 min-w-0">
         <HamburgerBtn onClick={onMenuToggle} />
         <img src={organizationLogo} alt="University Organization logo" className="h-7 w-7 shrink-0 object-contain" />
@@ -353,15 +353,15 @@ function AuthHeader({ role, onMenuToggle, navigate }: { role: string; onMenuTogg
         </div>
       </div>
       <div className="flex items-center gap-2 shrink-0">
-        <div className={`hidden md:flex items-center rounded-lg border px-2 py-1.5 ${isStudent ? "border-gray-200 bg-gray-50" : "border-gray-500 bg-gray-700"}`}>
+        <div className={`hidden md:flex items-center rounded-xl border px-2 py-1.5 ${isStudent ? "border-[#e7e3e9] bg-[#f6f5f7]" : "border-gray-500 bg-gray-700"}`}>
           <i className={`bi bi-search text-xs mr-1 ${isStudent ? "text-gray-400" : "text-gray-400"}`} aria-hidden="true" />
           <input placeholder="Search" className={`bg-transparent text-sm focus:outline-none w-32 ${isStudent ? "text-[#4B3621] placeholder-gray-400" : "text-white placeholder-gray-400"}`} />
         </div>
-        <button className={`${isStudent ? "text-gray-500 hover:bg-[#f5f3f0]" : "text-gray-300 hover:text-white"} rounded-lg text-sm w-9 h-9 flex items-center justify-center`} aria-label="Notifications">
+        <button className={`${isStudent ? "text-[#68636d] hover:bg-[#f1eff3]" : "text-gray-300 hover:text-white"} rounded-xl text-sm w-9 h-9 flex items-center justify-center`} aria-label="Notifications">
           <i className="bi bi-bell" aria-hidden="true" />
         </button>
-        <button className={`flex items-center gap-2 rounded-xl border px-2 py-1.5 text-sm ${isStudent ? "border-[#4B3621]/15 hover:bg-[#f5f3f0]" : "border-transparent hover:text-gray-300"}`}>
-          <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${isStudent ? "bg-[#E3C565] text-[#4B3621]" : "bg-gray-700"}`}>
+        <button className={`flex items-center gap-2 rounded-xl border px-2 py-1.5 text-sm ${isStudent ? "border-[#e7e3e9] hover:bg-[#f1eff3]" : "border-transparent hover:text-gray-300"}`}>
+          <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${isStudent ? "bg-[#ff765e] text-white" : "bg-gray-700"}`}>
             {displayRole.charAt(0).toUpperCase()}
           </span>
           <span className="hidden max-w-[140px] truncate text-xs font-semibold sm:block">{displayRole}</span>
@@ -414,7 +414,7 @@ function SidebarDrawer({
         className={`
           fixed lg:static inset-y-0 left-0 z-40
           ${collapsed ? "lg:w-16" : "lg:w-48"} w-56 shrink-0
-          bg-gray-100 border-r border-gray-300
+          bg-white border-r border-[#e7e3e9]
           flex flex-col py-3 overflow-y-auto
           transition-transform duration-200
           ${open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
@@ -432,8 +432,8 @@ function SidebarDrawer({
             onClick={() => handleNav(item.screen)}
             className={`text-left px-4 py-2.5 text-sm transition-colors ${collapsed ? "lg:px-0 lg:justify-center lg:text-center" : ""} ${
               active === item.screen
-                ? `bg-[#E3C565]/25 font-semibold text-[#4B3621] border-l-4 ${accentColor}`
-                : "text-gray-700 hover:bg-[#f5f3f0]"
+                ? `bg-[#fff0ed] font-semibold text-[#1d1b20] border-l-4 border-[#ff765e]`
+                : "text-[#68636d] hover:bg-[#f6f5f7]"
             } ${item.label === "Logout" ? "mt-auto text-gray-500 border-t border-gray-300" : ""}`}
           >
             <i className={`bi ${bootstrapIconForLabel(item.label)} ${collapsed ? "lg:mr-0" : "mr-2"}`} aria-hidden="true" />
@@ -479,7 +479,7 @@ function AppLayout({
           collapsed={sidebarCollapsed}
           accentColor={accentColor}
         />
-        <main className={`flex-1 overflow-y-auto p-4 lg:p-5 ${role === "Student" ? "bg-[#f5f3f0]" : "bg-gray-50"}`}>
+        <main className={`flex-1 overflow-y-auto p-4 lg:p-6 ${role === "Student" ? "bg-[#f6f5f7]" : "bg-gray-50"}`}>
           {children}
         </main>
       </div>

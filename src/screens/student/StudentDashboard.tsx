@@ -3,9 +3,15 @@ import { StudentLayout, WireBadge, WireBtn, WireCard } from "../../components/Wi
 import { useAuth } from "../../context/AuthContext";
 
 const serviceCards = [
-  ["Printing", "bi-printer", "Send documents to print", "printing-service"],
-  ["School supplies", "bi-bag", "Find academic essentials", "school-supplies"],
-  ["Resource rental", "bi-box-seam", "Borrow or share resources", "resource-rental"],
+  { title: "Printing", icon: "bi-printer", description: "Send documents to print", screen: "printing-service", tone: "dark" },
+  { title: "School supplies", icon: "bi-bag", description: "Find academic essentials", screen: "school-supplies", tone: "orange" },
+  { title: "Resource rental", icon: "bi-box-seam", description: "Borrow or share resources", screen: "resource-rental", tone: "purple" },
+];
+
+const stats = [
+  { label: "Active orders", icon: "bi-receipt", screen: "order-tracking", note: "No order records yet" },
+  { label: "Rental posts", icon: "bi-box-seam", screen: "rental-post-status", note: "No rental records yet" },
+  { label: "Transactions", icon: "bi-arrow-left-right", screen: "transaction-receipt", note: "No transaction records yet" },
 ];
 
 export default function StudentDashboard({ navigate }: { navigate: (s: string) => void }) {
@@ -26,75 +32,119 @@ export default function StudentDashboard({ navigate }: { navigate: (s: string) =
 
   return (
     <StudentLayout active="student-dashboard" navigate={navigate}>
-      <div className="mx-auto max-w-7xl space-y-6">
-        <section className="flex flex-col justify-between gap-5 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-[#4B3621]/10 sm:flex-row sm:items-center">
+      <div className="mx-auto max-w-[1440px] space-y-6">
+        <section className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#E3C565]">Student overview</p>
-            <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#4B3621]">Hi, {name}</h1>
-            <p className="mt-1 text-sm text-gray-500">
-              {profile?.student_number || "Student number unavailable"} · Your services and activity in one place.
-            </p>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#ff765e]">Student dashboard</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d1b20] sm:text-4xl">Good morning, {name}</h1>
+            <p className="mt-2 text-sm text-[#68636d]">Stay on top of your services, requests, and student activity.</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#E3C565] font-bold text-[#4B3621]">{initials}</div>
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1d1b20] text-sm font-bold text-white">{initials}</div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Account status</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-[#9a959e]">Account status</p>
               <WireBadge variant={profile?.account_status === "active" ? "success" : "pending"}>{profile?.account_status || "Loading"}</WireBadge>
             </div>
           </div>
         </section>
 
-        <section className="grid gap-4 sm:grid-cols-3">
-          {[
-            ["Active orders", "0", "No order records yet", "order-tracking"],
-            ["Rental posts", "0", "No rental records yet", "rental-post-status"],
-            ["Transactions", "0", "No transaction records yet", "transaction-receipt"],
-          ].map(([label, value, note, screen]) => (
-            <button key={label} onClick={() => navigate(screen)} className="rounded-2xl bg-white p-5 text-left shadow-sm ring-1 ring-[#4B3621]/10 transition hover:-translate-y-0.5 hover:ring-[#E3C565]">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-gray-500">{label}</p>
-              <p className="mt-3 text-3xl font-bold text-[#4B3621]">{value}</p>
-              <p className="mt-1 text-xs text-gray-400">{note}</p>
+        <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
+          <WireCard className="relative overflow-hidden border-0 bg-[#1d1b20] p-6 text-white shadow-[0_14px_35px_rgba(29,27,32,0.12)] sm:p-8">
+            <div className="absolute -right-12 -top-14 h-44 w-44 rounded-full bg-[#ff765e]/20" />
+            <div className="relative">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/55">Your student account</p>
+                <i className="bi bi-wallet2 text-xl text-[#ff765e]" aria-hidden="true" />
+              </div>
+              <p className="mt-8 text-4xl font-semibold tracking-tight">Ready to serve</p>
+              <p className="mt-2 max-w-md text-sm leading-6 text-white/60">
+                Access printing, supplies, rentals, and your service records from one place.
+              </p>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <WireBtn onClick={() => navigate("browse-services")} className="rounded-xl bg-[#ff765e] px-5 text-white hover:bg-[#e85b46]">
+                  Browse services <i className="bi bi-arrow-up-right ml-2" aria-hidden="true" />
+                </WireBtn>
+                <WireBtn variant="ghost" onClick={() => navigate("transaction-receipt")} className="rounded-xl text-white/75 hover:bg-white/10 hover:text-white">
+                  View activity
+                </WireBtn>
+              </div>
+            </div>
+          </WireCard>
+
+          <WireCard className="border-0 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9a959e]">Profile sync</p>
+                <h2 className="mt-1 text-lg font-semibold text-[#1d1b20]">Live connection</h2>
+              </div>
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#fff0ed] text-[#ff765e]"><i className="bi bi-broadcast-pin" aria-hidden="true" /></span>
+            </div>
+            <div className="mt-7 flex items-end justify-between">
+              <div>
+                <p className="text-3xl font-semibold text-[#1d1b20]">Online</p>
+                <p className="mt-1 text-xs text-[#9a959e]">Last synced {lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
+              </div>
+              <i className="bi bi-check-circle-fill text-2xl text-[#6f62d8]" aria-hidden="true" />
+            </div>
+            <div className="mt-6 h-2 overflow-hidden rounded-full bg-[#f1eff3]"><div className="h-full w-full rounded-full bg-[#6f62d8]" /></div>
+          </WireCard>
+        </section>
+
+        <section className="grid gap-4 md:grid-cols-3">
+          {stats.map((stat) => (
+            <button key={stat.label} onClick={() => navigate(stat.screen)} className="group rounded-2xl border border-[#e7e3e9] bg-white p-5 text-left shadow-[0_8px_24px_rgba(29,27,32,0.04)] transition hover:-translate-y-1 hover:border-[#ff765e]">
+              <div className="flex items-center justify-between">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#f6f5f7] text-[#68636d] transition group-hover:bg-[#fff0ed] group-hover:text-[#ff765e]"><i className={`bi ${stat.icon}`} aria-hidden="true" /></span>
+                <i className="bi bi-arrow-up-right text-[#b8b3bb] transition group-hover:text-[#ff765e]" aria-hidden="true" />
+              </div>
+              <p className="mt-7 text-xs font-bold uppercase tracking-[0.16em] text-[#9a959e]">{stat.label}</p>
+              <p className="mt-1 text-3xl font-semibold text-[#1d1b20]">0</p>
+              <p className="mt-1 text-xs text-[#9a959e]">{stat.note}</p>
             </button>
           ))}
         </section>
 
         <section>
-          <div className="mb-3 flex items-end justify-between">
+          <div className="mb-4 flex items-end justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#E3C565]">Services</p>
-              <h2 className="mt-1 text-xl font-bold text-[#4B3621]">What do you need today?</h2>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#ff765e]">Services</p>
+              <h2 className="mt-1 text-xl font-semibold text-[#1d1b20]">What do you need today?</h2>
             </div>
-            <WireBtn variant="outline" size="sm" onClick={() => navigate("browse-services")}>Browse all</WireBtn>
+            <WireBtn variant="outline" size="sm" onClick={() => navigate("browse-services")} className="rounded-xl">View all</WireBtn>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
-            {serviceCards.map(([title, icon, description, screen], index) => (
-              <button key={title} onClick={() => navigate(screen)} className={`rounded-2xl p-5 text-left transition hover:-translate-y-0.5 hover:shadow-md ${index === 0 ? "bg-[#4B3621] text-white" : index === 1 ? "bg-[#E3C565] text-[#4B3621]" : "bg-white text-[#4B3621] ring-1 ring-[#4B3621]/15"}`}>
-                <i className={`bi ${icon} text-2xl`} aria-hidden="true" />
-                <h3 className="mt-8 font-bold">{title}</h3>
-                <p className="mt-1 text-sm opacity-70">{description}</p>
-                <span className="mt-5 inline-flex text-xs font-bold uppercase tracking-wider">Open <i className="bi bi-arrow-up-right ml-2" aria-hidden="true" /></span>
+            {serviceCards.map((service) => (
+              <button key={service.title} onClick={() => navigate(service.screen)} className={`group rounded-2xl p-6 text-left transition hover:-translate-y-1 hover:shadow-lg ${service.tone === "dark" ? "bg-[#1d1b20] text-white" : service.tone === "orange" ? "bg-[#ff765e] text-white" : "bg-[#756be2] text-white"}`}>
+                <div className="flex items-center justify-between">
+                  <i className={`bi ${service.icon} text-2xl`} aria-hidden="true" />
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 transition group-hover:bg-white/25"><i className="bi bi-arrow-up-right" aria-hidden="true" /></span>
+                </div>
+                <h3 className="mt-12 font-semibold">{service.title}</h3>
+                <p className="mt-1 text-sm text-white/70">{service.description}</p>
               </button>
             ))}
           </div>
         </section>
 
         <section className="grid gap-4 lg:grid-cols-[1.4fr_0.6fr]">
-          <WireCard className="rounded-2xl border-0 p-6 shadow-sm ring-1 ring-[#4B3621]/10">
+          <WireCard className="border-0 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-gray-500">Recent activity</p>
-                <h2 className="mt-1 text-lg font-bold text-[#4B3621]">Nothing here yet</h2>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9a959e]">Recent activity</p>
+                <h2 className="mt-1 text-lg font-semibold text-[#1d1b20]">No activity yet</h2>
               </div>
-              <i className="bi bi-clock-history text-2xl text-[#E3C565]" aria-hidden="true" />
+              <button onClick={() => navigate("order-tracking")} className="text-xs font-semibold text-[#ff765e]">See all <i className="bi bi-arrow-right ml-1" aria-hidden="true" /></button>
             </div>
-            <p className="mt-5 rounded-xl border border-dashed border-gray-300 bg-[#faf9f7] p-5 text-sm text-gray-500">
-              Your orders, posts, and completed transactions will appear here once they exist in the database.
-            </p>
+            <div className="mt-5 rounded-2xl border border-dashed border-[#d9d4dc] bg-[#faf9fb] p-8 text-center">
+              <i className="bi bi-activity text-2xl text-[#b8b3bb]" aria-hidden="true" />
+              <p className="mt-3 text-sm text-[#68636d]">Your orders, posts, and completed transactions will appear here.</p>
+            </div>
           </WireCard>
-          <WireCard className="rounded-2xl border-0 bg-[#4B3621] p-6 text-white shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#E3C565]">Data status</p>
-            <h2 className="mt-2 text-lg font-bold">Live profile connected</h2>
-            <p className="mt-2 text-sm leading-5 text-white/70">Last synced at {lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.</p>
+          <WireCard className="border-0 bg-[#fff4e8] p-6">
+            <i className="bi bi-lightbulb text-2xl text-[#f39a33]" aria-hidden="true" />
+            <h2 className="mt-8 text-lg font-semibold text-[#1d1b20]">Need something?</h2>
+            <p className="mt-2 text-sm leading-6 text-[#68636d]">Explore all available student services and find what fits your task.</p>
+            <button onClick={() => navigate("browse-services")} className="mt-6 text-sm font-bold text-[#1d1b20]">Explore now <i className="bi bi-arrow-up-right ml-1" aria-hidden="true" /></button>
           </WireCard>
         </section>
       </div>
