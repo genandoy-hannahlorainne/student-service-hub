@@ -115,7 +115,8 @@ export function WireBadge({ children, variant = "default" }: { children: ReactNo
 }
 
 export function WireCard({ children, className = "", onClick }: { children: ReactNode; className?: string; onClick?: () => void }) {
-  return <div className={`bg-white border-2 border-[#4B3621] p-4 ${className}`} onClick={onClick}>{children}</div>;
+  const hasCustomBackground = className.includes("bg-");
+  return <div className={`${hasCustomBackground ? "" : "bg-white"} border-2 border-[#4B3621] p-4 ${className}`} onClick={onClick}>{children}</div>;
 }
 
 export function WireSectionTitle({ children }: { children: ReactNode }) {
@@ -309,18 +310,19 @@ export function WirePublicNav({ navigate }: { navigate: (s: string) => void }) {
 type NavItem = { label: string; screen?: string; icon?: string };
 
 function bootstrapIconForLabel(label: string): string {
-  if (label.includes("Dashboard")) return "bi-grid-1x2";
-  if (label.includes("Browse") || label.includes("Services")) return "bi-grid";
-  if (label.includes("Printing")) return "bi-printer";
-  if (label.includes("Supplies")) return "bi-bag";
-  if (label.includes("Rental")) return "bi-box-seam";
-  if (label.includes("Orders")) return "bi-receipt";
-  if (label.includes("Transaction")) return "bi-clock-history";
-  if (label.includes("Profile") || label.includes("Users")) return "bi-person";
-  if (label.includes("Provider")) return "bi-shop";
-  if (label.includes("Approval")) return "bi-check2-circle";
-  if (label.includes("Settings")) return "bi-gear";
-  if (label.includes("Logout")) return "bi-box-arrow-right";
+  const normalizedLabel = label.toLowerCase();
+  if (normalizedLabel.includes("overview") || normalizedLabel.includes("dashboard")) return "bi-grid-1x2";
+  if (normalizedLabel.includes("browse") || normalizedLabel.includes("service")) return "bi-grid";
+  if (normalizedLabel.includes("printing")) return "bi-printer";
+  if (normalizedLabel.includes("supplies")) return "bi-bag";
+  if (normalizedLabel.includes("rental")) return "bi-box-seam";
+  if (normalizedLabel.includes("order")) return "bi-receipt";
+  if (normalizedLabel.includes("transaction")) return "bi-clock-history";
+  if (normalizedLabel.includes("profile") || normalizedLabel.includes("user")) return "bi-person";
+  if (normalizedLabel.includes("provider")) return "bi-shop";
+  if (normalizedLabel.includes("approval")) return "bi-check2-circle";
+  if (normalizedLabel.includes("setting")) return "bi-gear";
+  if (normalizedLabel.includes("log out") || normalizedLabel.includes("logout")) return "bi-box-arrow-right";
   return "bi-circle";
 }
 

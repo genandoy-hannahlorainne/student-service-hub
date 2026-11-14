@@ -5,12 +5,12 @@ import {
 } from "../../components/WireframeUI";
 
 const GUEST_NAV_ITEMS = [
-  { label: "Dashboard", icon: "âŠž", screen: "guest-dashboard" },
-  { label: "Browse Services", icon: "â—«", screen: "browse-services" },
-  { label: "Post a Request", icon: "âœ‰", screen: "guest-post" },
-  { label: "My Posts", icon: "â—‰", screen: "guest-my-posts" },
-  { label: "Resource Hub", icon: "â—ˆ", screen: "resource-rental" },
-  { label: "Profile", icon: "â—Ž", screen: "guest-dashboard" },
+  { label: "Dashboard", icon: "bi-grid-1x2", screen: "guest-dashboard" },
+  { label: "Browse Services", icon: "bi-grid", screen: "browse-services" },
+  { label: "Post a Request", icon: "bi-envelope-plus", screen: "guest-post" },
+  { label: "My Posts", icon: "bi-file-earmark-text", screen: "guest-my-posts" },
+  { label: "Resource Hub", icon: "bi-box-seam", screen: "resource-rental" },
+  { label: "Profile", icon: "bi-person", screen: "guest-dashboard" },
 ];
 
 function GuestLayout({ children, navigate, active }: { children: React.ReactNode; navigate: (s: string) => void; active: string }) {
@@ -19,12 +19,12 @@ function GuestLayout({ children, navigate, active }: { children: React.ReactNode
     <div className="min-h-screen bg-white">
       <header className="bg-[#4B3621] text-white px-3 py-2.5 flex items-center justify-between sticky top-0 z-40 border-b border-gray-500 h-14 shrink-0">
         <div className="flex items-center gap-2 min-w-0">
-          <button onClick={() => setSidebarOpen(v => !v)} className="lg:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5 border border-gray-500 hover:bg-[#E3C565]0 mr-1 shrink-0">
+          <button onClick={() => setSidebarOpen(v => !v)} className="lg:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5 border border-[#E3C565] hover:bg-[#E3C565] mr-1 shrink-0" aria-label="Toggle guest navigation">
             <span className="block w-5 h-0.5 bg-[#E3C565]" /><span className="block w-5 h-0.5 bg-[#E3C565]" /><span className="block w-5 h-0.5 bg-[#E3C565]" />
           </button>
           <WirePlaceholder label="LOGO" className="w-7 h-7 shrink-0" />
           <span className="font-bold text-sm hidden sm:block truncate">University Organization Student Services Hub</span>
-          <span className="text-xs bg-[#E3C565]0 px-2 py-0.5 ml-1 shrink-0">GUEST</span>
+          <span className="text-xs bg-[#E3C565] text-[#4B3621] px-2 py-0.5 ml-1 shrink-0">GUEST</span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <WireBtn size="sm" variant="secondary" onClick={() => navigate("register")} className="hidden sm:inline-flex">Upgrade to PUPTian</WireBtn>
@@ -41,8 +41,8 @@ function GuestLayout({ children, navigate, active }: { children: React.ReactNode
             <button onClick={() => setSidebarOpen(false)} className="text-[#4B3621] hover:text-[#4B3621] text-xl leading-none">&times;</button>
           </div>
           {GUEST_NAV_ITEMS.map((item) => (
-            <button key={item.label} onClick={() => { navigate(item.screen); setSidebarOpen(false); }} className={`text-left px-4 py-2.5 text-sm transition-colors ${active === item.screen ? "bg-gray-300 font-semibold text-[#000000] border-l-4 border-gray-600" : "text-[#4B3621] hover:bg-[#E3C565]"}`}>
-              {item.icon} {item.label}
+            <button key={item.label} onClick={() => { navigate(item.screen); setSidebarOpen(false); }} className={`flex items-center gap-3 text-left px-4 py-2.5 text-sm transition-colors ${active === item.screen ? "bg-[#E3C565] font-semibold text-[#000000] border-l-4 border-[#4B3621]" : "text-[#4B3621] hover:bg-[#E3C565]"}`}>
+              <i className={`bi ${item.icon} w-4 text-center`} aria-hidden="true" /> {item.label}
             </button>
           ))}
           <div className="mt-4 mx-3 border border-dashed border-[#4B3621] p-2 text-xs text-[#4B3621]">
