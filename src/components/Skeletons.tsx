@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 /**
  * Skeletons.tsx
  *
@@ -647,6 +649,54 @@ export function AdminSkeleton() {
       </div>
     </div>
   );
+}
+
+type PageSkeletonProps = {
+  role: "student" | "guest" | "provider" | "admin";
+  variant: string;
+};
+
+function PageChrome({ role, children }: { role: PageSkeletonProps["role"]; children: ReactNode }) {
+  const darkSidebar = role === "admin" || role === "provider";
+  return (
+    <div className="flex h-screen overflow-hidden bg-white">
+      <aside className={`hidden w-48 shrink-0 flex-col border-r border-[#4B3621] py-3 lg:flex ${darkSidebar ? "bg-[#4B3621]" : "bg-white"}`}>
+        <S className={`mx-3 mb-4 h-10 ${darkSidebar ? "bg-[#E3C565]" : "bg-[#E3C565]"}`} />
+        {[1, 2, 3, 4, 5, 6, 7].map((item) => <S key={item} className={`mx-3 my-1 h-9 ${darkSidebar ? "bg-[#E3C565]/30" : "bg-[#E3C565]"}`} />)}
+      </aside>
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <header className={`${darkSidebar ? "bg-[#4B3621]" : "bg-white"} flex h-16 shrink-0 items-center justify-between border-b border-[#4B3621] px-4`}>
+          <div className="flex items-center gap-2"><S className="h-9 w-9 bg-[#E3C565]" /><S className="h-4 w-44 bg-[#E3C565]" /></div>
+          <div className="flex items-center gap-2"><S className="h-8 w-24 bg-[#E3C565]" /><S className="h-8 w-8 bg-[#E3C565]" /></div>
+        </header>
+        <main className="flex-1 overflow-y-auto bg-white p-4 lg:p-6">{children}</main>
+      </div>
+    </div>
+  );
+}
+
+function TitleSkeleton({ width = "w-56" }: { width?: string }) {
+  return <div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div className="flex flex-col gap-2"><S className="h-3 w-32" /><S className={`h-8 ${width}`} /><S className="h-3 w-72" /></div><S className="h-9 w-32" /></div>;
+}
+
+function SkeletonCards({ count = 3, className = "" }: { count?: number; className?: string }) {
+  return <div className={`grid gap-4 ${count === 4 ? "md:grid-cols-4" : "md:grid-cols-3"} ${className}`}>{Array.from({ length: count }, (_, index) => <div key={index} className="border-2 border-[#4B3621] bg-white p-5"><S className="h-8 w-8" /><S className="mt-6 h-5 w-3/4" /><S className="mt-3 h-3 w-full" /><S className="mt-2 h-3 w-2/3" /></div>)}</div>;
+}
+
+export function PageSkeleton({ role, variant }: PageSkeletonProps) {
+  const content = (() => {
+    if (role === "student" && variant === "dashboard") return <><TitleSkeleton width="w-72" /><SkeletonCards count={3} /><SkeletonCards count={3} /></>;
+    if (role === "student" && (variant === "printing" || variant === "printing-confirmation")) return <><TitleSkeleton /><div className="mb-5 h-12 border-2 border-[#4B3621] bg-[#E3C565] p-3"><S className="h-5 w-full" /></div><div className="grid gap-5 lg:grid-cols-5"><div className="lg:col-span-3 border-2 border-[#4B3621] bg-white p-5"><S className="mb-5 h-6 w-40" /><S className="h-40 w-full" /><div className="mt-4 grid grid-cols-2 gap-3"><S className="h-10 w-full" /><S className="h-10 w-full" /></div></div><div className="lg:col-span-2 border-2 border-[#4B3621] bg-white p-5"><S className="mb-5 h-6 w-40" />{[1, 2, 3, 4, 5].map((item) => <S key={item} className="mb-3 h-10 w-full" />)}</div></div></>;
+    if (role === "student" && variant === "supplies") return <><TitleSkeleton /><div className="mb-5 grid grid-cols-3 gap-2"><S className="h-12 w-full" /><S className="h-12 w-full" /><S className="h-12 w-full" /></div><div className="border-2 border-[#4B3621] bg-white p-5"><S className="mb-5 h-6 w-64" /><SkeletonCards count={4} /></div></>;
+    if (role === "student" && (variant === "rentals" || variant === "rental-posts")) return <><TitleSkeleton /><div className="mb-5 flex gap-2"><S className="h-9 w-28" /><S className="h-9 w-28" /><S className="h-9 w-28" /></div><SkeletonCards count={3} /></>;
+    if (role === "student" && variant === "create-rental") return <><TitleSkeleton /><div className="grid gap-5 lg:grid-cols-5"><div className="space-y-4 lg:col-span-2"><div className="border-2 border-[#4B3621] p-5">{[1, 2, 3].map((item) => <S key={item} className="mb-3 h-12 w-full" />)}</div></div><div className="border-2 border-[#4B3621] p-5 lg:col-span-3"><S className="mb-5 h-6 w-40" />{[1, 2, 3, 4].map((item) => <S key={item} className="mb-4 h-11 w-full" />)}</div></div></>;
+    if (role === "student" && (variant === "orders" || variant === "transactions")) return <><TitleSkeleton /><div className="space-y-3">{[1, 2, 3, 4].map((item) => <div key={item} className="flex items-center justify-between border-2 border-[#4B3621] bg-white p-4"><div><S className="h-3 w-28" /><S className="mt-2 h-5 w-64" /><S className="mt-2 h-3 w-40" /></div><S className="h-8 w-24" /></div>)}</div></>;
+    if (role === "guest" && variant === "post") return <><TitleSkeleton /><div className="mb-5 border-2 border-dashed border-[#4B3621] p-4"><S className="h-4 w-52" /><S className="mt-2 h-3 w-full" /></div><div className="max-w-2xl border-2 border-[#4B3621] bg-white p-5">{[1, 2, 3, 4, 5, 6].map((item) => <S key={item} className="mb-4 h-11 w-full" />)}</div></>;
+    if (role === "admin") return <><TitleSkeleton /><SkeletonCards count={4} /><div className="mt-5 grid gap-4 lg:grid-cols-2"><div className="border-2 border-[#4B3621] p-5">{[1, 2, 3].map((item) => <S key={item} className="mb-3 h-12 w-full" />)}</div><div className="border-2 border-[#4B3621] p-5">{[1, 2, 3].map((item) => <S key={item} className="mb-3 h-12 w-full" />)}</div></div></>;
+    if (role === "provider") return <><TitleSkeleton /><SkeletonCards count={4} /><div className="mt-5 space-y-3">{[1, 2, 3].map((item) => <div key={item} className="border-2 border-[#4B3621] p-4"><S className="h-5 w-56" /><S className="mt-3 h-3 w-80" /></div>)}</div></>;
+    return <><TitleSkeleton /><SkeletonCards count={3} /></>;
+  })();
+  return <PageChrome role={role}>{content}</PageChrome>;
 }
 
 // ─── 9. Page Transition Overlay ───────────────────────────────────────────────

@@ -7,7 +7,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import {
   LandingSkeleton, AuthSkeleton, AdminLoginSkeleton, AdminLandingSkeleton,
   StudentSkeleton, GuestSkeleton, ProviderSkeleton, AdminSkeleton,
-  PageTransitionBar,
+  PageTransitionBar, PageSkeleton,
 } from "./components/Skeletons";
 
 // Public screens
@@ -331,6 +331,25 @@ function screenFromHash(): Screen {
 
 /** Pick the right skeleton for a screen that is about to render. */
 function SkeletonFor({ screen }: { screen: Screen }) {
+  const pageVariants: Partial<Record<Screen, { role: "student" | "guest" | "provider" | "admin"; variant: string }>> = {
+    "student-dashboard": { role: "student", variant: "dashboard" },
+    "browse-services": { role: "student", variant: "dashboard" },
+    "printing-service": { role: "student", variant: "printing" },
+    "printing-confirmation": { role: "student", variant: "printing-confirmation" },
+    "order-tracking": { role: "student", variant: "orders" },
+    "school-supplies": { role: "student", variant: "supplies" },
+    "resource-rental": { role: "student", variant: "rentals" },
+    "create-rental-post": { role: "student", variant: "create-rental" },
+    "rental-post-status": { role: "student", variant: "rental-posts" },
+    "transaction-receipt": { role: "student", variant: "transactions" },
+    "guest-post": { role: "guest", variant: "post" },
+    "guest-my-posts": { role: "guest", variant: "rental-posts" },
+    "guest-dashboard": { role: "guest", variant: "dashboard" },
+    "provider-dashboard": { role: "provider", variant: "dashboard" },
+    "provider-profile": { role: "provider", variant: "profile" },
+  };
+  const pageVariant = pageVariants[screen];
+  if (pageVariant) return <PageSkeleton {...pageVariant} />;
   // Admin world
   if (screen === "admin-landing") return <AdminLandingSkeleton />;
   if (screen === "login-admin")   return <AdminLoginSkeleton />;
