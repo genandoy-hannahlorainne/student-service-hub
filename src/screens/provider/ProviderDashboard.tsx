@@ -1,19 +1,48 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { fetchTransactions, ServiceTransaction } from "../../lib/api";
 import {
   ProviderLayout, WireBtn, WireCard, WireBadge, WireStatCard,
   WireSectionTitle, WirePlaceholder, WireModal,
 } from "../../components/WireframeUI";
 
-const ORDERS = [
-  { id: "ORD-2025-001", student: "Juan dela Cruz", service: "Printing", items: "thesis_chapter1_final.pdf Â· 2Ã—B&W Short", file: "thesis_chapter1_final.pdf", fileSize: "3.2 MB", filePages: "12 pages", date: "Dec 10, 2025", amount: "â‚±70.00", payment: "GCash", fulfillment: "Delivery", status: "Pending" },
-  { id: "ORD-2025-003", student: "Ana Reyes", service: "Printing", items: "resume.docx Â· 5Ã—Color Short", file: "resume.docx", fileSize: "0.8 MB", filePages: "2 pages", date: "Dec 11, 2025", amount: "â‚±95.00", payment: "Cash", fulfillment: "Pickup", status: "Pending" },
-  { id: "ORD-2025-004", student: "Pedro Santos", service: "Printing", items: "project_report.pdf Â· 1Ã—Color Long", file: "project_report.pdf", fileSize: "5.1 MB", filePages: "20 pages", date: "Dec 11, 2025", amount: "â‚±55.00", payment: "Maya", fulfillment: "Delivery", status: "Processing" },
-  { id: "ORD-2025-002", student: "Maria Cruz", service: "Printing", items: "assignment1.pdf Â· 3Ã—B&W Short", file: "assignment1.pdf", fileSize: "1.4 MB", filePages: "6 pages", date: "Dec 9, 2025", amount: "â‚±90.00", payment: "Cash", fulfillment: "Pickup", status: "Ready for Pickup" },
-];
-
 const STATUS_FLOW = ["Accepted", "Processing", "Ready for Pickup", "Out for Delivery", "Completed"];
 
-type Order = typeof ORDERS[0];
+type Order = {
+  id: string;
+  student: string;
+  service: string;
+  items: string;
+  file: string;
+  fileSize: string;
+  filePages: string;
+  date: string;
+  amount: string;
+  payment: string;
+  fulfillment: string;
+  status: string;
+};
+
+function toOrder(transaction: ServiceTransaction): Order {
+  const metadata = transaction.metadata ?? {};
+  const files = Array.isArray(metadata.files) ? metadata.files as Array<{ name?: string; size?: number; copies?: number }> : [];
+  const firstFile = files[0];
+  const fileName = firstFile?.name ?? "Uploaded files";
+  const copies = firstFile?.copies ?? 1;
+  return {
+    id: transaction.reference_code,
+    student: transaction.student_name ?? "Student",
+    service: transaction.service_type,
+    items: `${fileName} · ${copies} copy/copies`,
+    file: fileName,
+    fileSize: firstFile?.size ? `${(firstFile.size / 1024 / 1024).toFixed(2)} MB` : "Size unavailable",
+    filePages: `${files.length} file${files.length === 1 ? "" : "s"}`,
+    date: new Date(transaction.created_at).toLocaleDateString(),
+    amount: `₱${Number(transaction.amount).toFixed(2)}`,
+    payment: transaction.payment_method ?? "Not specified",
+    fulfillment: typeof metadata.fulfillment === "string" ? metadata.fulfillment : "Not specified",
+    status: transaction.status,
+  };
+}
 
 // Modal shown right after accepting an order â€” provider downloads the student's file
 function FileDownloadModal({ order, onClose }: { order: Order; onClose: () => void }) {
@@ -151,10 +180,17 @@ function RejectModal({ order, onReject, onClose }: { order: Order; onReject: (id
 }
 
 export default function ProviderDashboard({ navigate }: { navigate: (s: string) => void }) {
-  const [orders, setOrders] = useState(ORDERS);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loadError, setLoadError] = useState("");
   const [fileModal, setFileModal] = useState<Order | null>(null);    // shown after accepting
   const [statusModal, setStatusModal] = useState<Order | null>(null);
   const [rejectModal, setRejectModal] = useState<Order | null>(null);
+
+  useEffect(() => {
+    void fetchTransactions("provider")
+      .then(({ transactions }) => setOrders(transactions.map(toOrder)))
+      .catch((error) => setLoadError(error instanceof Error ? error.message : "Could not load provider orders."));
+  }, []);
 
   const acceptOrder = (id: string) => {
     const order = orders.find(o => o.id === id);
@@ -195,6 +231,7 @@ export default function ProviderDashboard({ navigate }: { navigate: (s: string) 
         {/* New / Pending Orders */}
         <section>
           <WireSectionTitle>New Orders â€” Awaiting Response</WireSectionTitle>
+          {loadError && <p role="alert" className="mb-3 border border-[#4B3621] bg-[#E3C565] p-3 text-sm text-[#4B3621]">{loadError}</p>}
           {pending.length === 0 ? (
             <p className="text-sm text-[#4B3621] py-6 text-center border border-dashed border-[#4B3621]">No pending orders.</p>
           ) : (

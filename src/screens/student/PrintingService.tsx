@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createTransaction } from "../../lib/api";
 import {
   StudentLayout, WireBtn, WireCard, WirePlaceholder,
   WireInput, WireSelect, WireTextarea, WireRadioGroup,
@@ -16,6 +17,8 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
   const [paymentProof, setPaymentProof] = useState("");
   const [paymentReference, setPaymentReference] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [step, setStep] = useState(1);
   const steps = ["File", "Details", "Shop", "Fulfillment", "Payment"];
 
@@ -43,6 +46,31 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
       delete next[id];
       return next;
     });
+  };
+
+  const submitOrder = async () => {
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      await createTransaction({
+        service_type: "printing",
+        amount: fulfillment === "delivery" ? 70 : 40,
+        payment_method: paymentMethod,
+        metadata: {
+          files: files.map((file) => ({ name: file.name, size: file.size, copies: copies[file.id] ?? 1 })),
+          notes,
+          shop: selectedShop === null ? null : shops[selectedShop].name,
+          fulfillment,
+          payment_proof: paymentProof || null,
+          payment_reference: paymentReference || null,
+        },
+      });
+      navigate("transaction-receipt");
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Could not submit the order.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -261,8 +289,9 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
             </div>
             <div className="mt-5 flex justify-end gap-2">
               <WireBtn variant="outline" onClick={() => setShowConfirmation(false)}>Back to payment</WireBtn>
-              <WireBtn onClick={() => navigate("order-tracking")}>Submit Order</WireBtn>
+              <WireBtn disabled={submitting} onClick={() => void submitOrder()}>{submitting ? "Submitting..." : "Submit Order"}</WireBtn>
             </div>
+            {submitError && <p role="alert" className="mt-3 border border-[#4B3621] bg-[#E3C565] p-3 text-sm text-[#4B3621]">{submitError}</p>}
           </div>
         </div>
       )}

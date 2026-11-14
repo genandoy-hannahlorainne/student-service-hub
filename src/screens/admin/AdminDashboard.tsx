@@ -1,10 +1,29 @@
+import { useEffect, useState } from "react";
+import { fetchAdminData, fetchTransactions, AdminData, ServiceTransaction } from "../../lib/api";
 import { AdminLayout } from "../../components/WireframeUI";
 import organizationLogo from "../../assets/images/org_ssh_logo.png";
 
 export default function AdminDashboard({ navigate }: { navigate: (s: string) => void }) {
+  const [data, setData] = useState<AdminData | null>(null);
+  const [transactions, setTransactions] = useState<ServiceTransaction[]>([]);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    void Promise.all([fetchAdminData(), fetchTransactions("admin")])
+      .then(([adminData, transactionData]) => {
+        setData(adminData);
+        setTransactions(transactionData.transactions);
+      })
+      .catch((error) => setLoadError(error instanceof Error ? error.message : "Could not load admin data."));
+  }, []);
+
+  const pendingProviders = data?.providers.filter((provider) => provider.status === "pending_approval") ?? [];
+  const activeProviders = data?.providers.filter((provider) => provider.status === "active") ?? [];
+  const completedTransactions = transactions.filter((transaction) => transaction.status.toLowerCase() === "completed");
   return (
     <AdminLayout active="admin-dashboard" navigate={navigate}>
       <div className="flex flex-col gap-4 pb-4">
+        {loadError && <p role="alert" className="border border-[#4B3621] bg-[#E3C565] p-3 text-sm text-[#4B3621]">{loadError}</p>}
 
         {/* ── Row 1: Hero + KPIs ─────────────────────────────────────── */}
         <div className="grid gap-4 lg:grid-cols-[1.6fr_0.4fr]">
@@ -31,9 +50,9 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
           {/* Quick KPIs stacked */}
           <div className="grid grid-rows-3 gap-4">
             {[
-              { label: "Pending Approvals", value: "3", icon: "bi-hourglass-split", color: "bg-[#E3C565] text-[#4B3621]" },
-              { label: "Active Orders",      value: "14", icon: "bi-bag-check",        color: "bg-[#4B3621] text-white" },
-              { label: "Active Providers",   value: "5",  icon: "bi-shop",             color: "bg-[#E3C565] text-[#4B3621] ring-1 ring-[#4B3621]/15" },
+              { label: "Pending Approvals", value: pendingProviders.length, icon: "bi-hourglass-split", color: "bg-[#E3C565] text-[#4B3621]" },
+              { label: "Active Orders",      value: transactions.filter((transaction) => transaction.status.toLowerCase() !== "completed").length, icon: "bi-bag-check", color: "bg-[#4B3621] text-white" },
+              { label: "Active Providers",   value: activeProviders.length, icon: "bi-shop", color: "bg-[#E3C565] text-[#4B3621] ring-1 ring-[#4B3621]/15" },
             ].map((kpi) => (
               <div key={kpi.label} className={`rounded-[20px] p-4 flex items-center gap-4 ${kpi.color}`}>
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black/10 text-xl">
@@ -51,10 +70,10 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
         {/* ── Row 2: Platform stats ──────────────────────────────────── */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { label: "Total Users",            value: "347", icon: "bi-people",            bg: "bg-[#E3C565] ring-1 ring-[#4B3621]/10" },
-            { label: "PUPTians",               value: "312", icon: "bi-mortarboard",        bg: "bg-[#E3C565] ring-1 ring-[#4B3621]/10" },
-            { label: "Pending Rental Posts",   value: "8",   icon: "bi-box-seam",           bg: "bg-[#E3C565] ring-1 ring-[#4B3621]/10" },
-            { label: "Completed Transactions", value: "892", icon: "bi-receipt-cutoff",     bg: "bg-[#E3C565]" },
+            { label: "Total Users", value: data?.accounts.total ?? 0, icon: "bi-people", bg: "bg-[#E3C565] ring-1 ring-[#4B3621]/10" },
+            { label: "Active Accounts", value: data?.accounts.active ?? 0, icon: "bi-mortarboard", bg: "bg-[#E3C565] ring-1 ring-[#4B3621]/10" },
+            { label: "Available Supply Shops", value: data?.supplies.shops ?? 0, icon: "bi-shop", bg: "bg-[#E3C565] ring-1 ring-[#4B3621]/10" },
+            { label: "Completed Transactions", value: completedTransactions.length, icon: "bi-receipt-cutoff", bg: "bg-[#E3C565]" },
           ].map((s) => (
             <div key={s.label} className={`rounded-[20px] p-5 flex flex-col gap-3 ${s.bg}`}>
               <i className={`bi ${s.icon} text-2xl text-[#4B3621]`} aria-hidden="true" />
@@ -81,14 +100,11 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
               </button>
             </div>
             <div className="flex flex-col gap-2">
-              {[
-                { name: "Quick Copy Solutions", type: "Printing",       date: "Oct 28, 2026" },
-                { name: "Campus Supplies Co.",  type: "School Supplies", date: "Oct 27, 2026" },
-              ].map((p) => (
-                <div key={p.name} className="flex items-center justify-between rounded-2xl bg-[#E3C565] px-4 py-3 gap-3">
+              {pendingProviders.map((p) => (
+                <div key={p.id} className="flex items-center justify-between rounded-2xl bg-[#E3C565] px-4 py-3 gap-3">
                   <div>
-                    <p className="text-sm font-semibold text-[#4B3621]">{p.name}</p>
-                    <p className="text-xs text-[#4B3621]/60">{p.type} · {p.date}</p>
+                    <p className="text-sm font-semibold text-[#4B3621]">{p.business_name}</p>
+                    <p className="text-xs text-[#4B3621]/60">{p.service_type} · {new Date(p.created_at).toLocaleDateString()}</p>
                   </div>
                   <div className="flex gap-2 shrink-0">
                     <button className="rounded-lg bg-[#4B3621] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#3a2918] transition">
@@ -101,7 +117,7 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
                 </div>
               ))}
               {/* empty state hint */}
-              <p className="text-center text-xs text-[#4B3621]/40 pt-1">2 pending — review required</p>
+              {pendingProviders.length === 0 && <p className="text-center text-xs text-[#4B3621]/40 pt-1">No pending provider approvals.</p>}
             </div>
           </div>
 
@@ -119,22 +135,19 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
               </button>
             </div>
             <div className="flex flex-col gap-2">
-              {[
-                { id: "ORD-004", student: "Pedro Santos",  amount: "₱55.00",  status: "Processing",       statusColor: "bg-[#E3C565] text-[#4B3621]" },
-                { id: "ORD-003", student: "Ana Reyes",     amount: "₱95.00",  status: "Accepted",         statusColor: "bg-[#E3C565] text-[#4B3621]" },
-                { id: "ORD-002", student: "Maria Cruz",    amount: "₱240.00", status: "Ready for Pickup", statusColor: "bg-[#E3C565] text-[#4B3621]" },
-              ].map((o) => (
+              {transactions.slice(0, 3).map((o) => (
                 <div key={o.id} className="flex items-center justify-between rounded-2xl bg-[#E3C565] px-4 py-3">
                   <div>
-                    <p className="text-xs font-mono text-[#4B3621]/50">{o.id}</p>
-                    <p className="text-sm font-semibold text-[#4B3621]">{o.student}</p>
+                    <p className="text-xs font-mono text-[#4B3621]/50">{o.reference_code}</p>
+                    <p className="text-sm font-semibold text-[#4B3621]">{o.student_name ?? "Student"}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-sm font-bold text-[#4B3621]">{o.amount}</span>
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${o.statusColor}`}>{o.status}</span>
+                    <span className="text-sm font-bold text-[#4B3621]">₱{Number(o.amount).toFixed(2)}</span>
+                    <span className="rounded-full bg-[#E3C565] px-2 py-0.5 text-[10px] font-semibold text-[#4B3621]">{o.status}</span>
                   </div>
                 </div>
               ))}
+              {transactions.length === 0 && <p className="text-center text-xs text-[#4B3621]/40 pt-1">No orders yet.</p>}
             </div>
           </div>
         </div>
@@ -153,27 +166,9 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
             </button>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
-            {[
-              { user: "Juan dela Cruz", title: "Typewriter for Rent — Good Condition", cat: "Typewriter" },
-              { user: "Ana Reyes",      title: "Need a Laptop for thesis — Dec 18",    cat: "Laptop" },
-              { user: "Pedro Santos",   title: "Scientific Calculator available",       cat: "Calculator" },
-            ].map((post) => (
-              <div key={post.title} className="rounded-2xl bg-[#E3C565]/10 p-4 flex flex-col gap-3">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#E3C565]/70">{post.cat}</span>
-                  <p className="text-sm font-semibold mt-1 leading-snug">{post.title}</p>
-                  <p className="text-xs text-white/60 mt-0.5">{post.user}</p>
-                </div>
-                <div className="flex gap-2 mt-auto">
-                  <button className="flex-1 rounded-lg bg-[#E3C565] px-2 py-1.5 text-xs font-semibold text-[#4B3621] hover:bg-[#d4b555] transition">
-                    Approve
-                  </button>
-                  <button className="flex-1 rounded-lg bg-[#E3C565]/10 border border-white/20 px-2 py-1.5 text-xs font-semibold text-white hover:bg-[#E3C565]/20 transition">
-                    Reject
-                  </button>
-                </div>
-              </div>
-            ))}
+            <p className="col-span-full border border-dashed border-white/30 p-5 text-center text-sm text-white/70">
+              Rental review data will appear here when the admin rental endpoint is connected.
+            </p>
           </div>
         </div>
 

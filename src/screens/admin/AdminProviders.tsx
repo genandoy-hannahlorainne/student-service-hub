@@ -1,14 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { fetchAdminData, AdminProviderData } from "../../lib/api";
 import { AdminLayout, WireModal, WireTextarea } from "../../components/WireframeUI";
-
-const PROVIDERS = [
-  { name: "Speedy Print Shop",          type: "Printing",        location: "Western Bicutan, Taguig",  fee: "₱30", status: "active",  since: "Oct 2025" },
-  { name: "Taguig Print Center",        type: "Printing",        location: "Central Bicutan, Taguig",  fee: "₱35", status: "active",  since: "Nov 2025" },
-  { name: "Campus Copy Express",        type: "Printing",        location: "Western Bicutan, Taguig",  fee: "₱25", status: "inactive",since: "Oct 2025" },
-  { name: "UniServe Supplies",          type: "School Supplies", location: "PUP Taguig Campus",        fee: "₱20", status: "active",  since: "Sep 2025" },
-  { name: "Quick Copy Solutions",       type: "Printing",        location: "Ususan, Taguig",           fee: "TBD", status: "pending", since: "Oct 2025" },
-  { name: "Campus Supplies Co.",        type: "School Supplies", location: "Fort Bonifacio, Taguig",   fee: "TBD", status: "pending", since: "Oct 2025" },
-];
 
 const FLOW_STEPS = [
   ["bi-telephone",       "UniServe contacts potential provider"],
@@ -27,11 +19,19 @@ const statusStyle: Record<string, string> = {
 };
 
 export default function AdminProviders({ navigate }: { navigate: (s: string) => void }) {
+  const [providers, setProviders] = useState<AdminProviderData[]>([]);
+  const [loadError, setLoadError] = useState("");
   const [rejectModal, setRejectModal] = useState<string | null>(null);
   const [viewFlow, setViewFlow] = useState(false);
 
-  const active  = PROVIDERS.filter(p => p.status === "active").length;
-  const pending = PROVIDERS.filter(p => p.status === "pending").length;
+  useEffect(() => {
+    void fetchAdminData()
+      .then(({ providers: loaded }) => setProviders(loaded))
+      .catch((error) => setLoadError(error instanceof Error ? error.message : "Could not load providers."));
+  }, []);
+
+  const active = providers.filter((p) => p.status === "active").length;
+  const pending = providers.filter((p) => p.status === "pending_approval").length;
 
   return (
     <AdminLayout active="admin-providers" navigate={navigate}>
@@ -79,6 +79,7 @@ export default function AdminProviders({ navigate }: { navigate: (s: string) => 
         </div>
 
         {/* ── Policy notice ───────────────────────────────────────────── */}
+        {loadError && <p role="alert" className="border border-[#4B3621] bg-[#E3C565] p-3 text-sm text-[#4B3621]">{loadError}</p>}
         <div className="rounded-[18px] border border-[#E3C565] bg-[#fffdf0] px-5 py-3 flex items-start gap-3 text-sm text-[#4B3621]">
           <i className="bi bi-info-circle mt-0.5 shrink-0 text-[#4B3621]" />
           <p><strong>Platform Policy:</strong> Only officially approved providers appear on the student-facing platform. Delivery fees are part of the collaboration agreement and cannot be modified independently by providers.</p>
@@ -95,16 +96,16 @@ export default function AdminProviders({ navigate }: { navigate: (s: string) => 
               <span className="ml-auto rounded-full bg-[#E3C565] px-2 py-0.5 text-[10px] font-bold text-[#4B3621]">{pending}</span>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              {PROVIDERS.filter(p => p.status === "pending").map((p) => (
-                <div key={p.name} className="rounded-2xl bg-[#E3C565] p-4 flex flex-col gap-3">
+              {providers.filter(p => p.status === "pending_approval").map((p) => (
+                <div key={p.id} className="rounded-2xl bg-[#E3C565] p-4 flex flex-col gap-3">
                   <div>
-                    <p className="font-semibold text-[#4B3621]">{p.name}</p>
-                    <p className="text-xs text-[#4B3621]/60">{p.type} · {p.location}</p>
-                    <p className="text-xs text-[#4B3621]/50 mt-0.5">Applied {p.since}</p>
+                    <p className="font-semibold text-[#4B3621]">{p.business_name}</p>
+                    <p className="text-xs text-[#4B3621]/60">{p.service_type} · {p.business_address}</p>
+                    <p className="text-xs text-[#4B3621]/50 mt-0.5">Applied {new Date(p.created_at).toLocaleDateString()}</p>
                   </div>
                   <div className="flex gap-2 mt-auto">
                     <button className="flex-1 rounded-lg bg-[#4B3621] px-3 py-2 text-xs font-semibold text-white hover:bg-[#3a2918] transition">Approve</button>
-                    <button onClick={() => setRejectModal(p.name)} className="flex-1 rounded-lg border border-[#4B3621]/20 px-3 py-2 text-xs font-semibold text-[#4B3621] hover:bg-[#E3C565] hover:border-[#4B3621] hover:text-[#4B3621] transition">Reject</button>
+                    <button onClick={() => setRejectModal(p.business_name)} className="flex-1 rounded-lg border border-[#4B3621]/20 px-3 py-2 text-xs font-semibold text-[#4B3621] hover:bg-[#E3C565] hover:border-[#4B3621] hover:text-[#4B3621] transition">Reject</button>
                   </div>
                 </div>
               ))}
@@ -114,27 +115,27 @@ export default function AdminProviders({ navigate }: { navigate: (s: string) => 
 
         {/* ── All providers grid ──────────────────────────────────────── */}
         <div className="rounded-[24px] bg-[#E3C565] ring-1 ring-[#4B3621]/10 p-5 flex flex-col gap-4">
-          <h2 className="font-bold text-[#4B3621]">All Providers <span className="text-[#4B3621]/40 font-normal text-sm">({PROVIDERS.length})</span></h2>
+          <h2 className="font-bold text-[#4B3621]">All Providers <span className="text-[#4B3621]/40 font-normal text-sm">({providers.length})</span></h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {PROVIDERS.map((p) => (
-              <div key={p.name} className="rounded-2xl border border-[#4B3621]/10 p-4 flex flex-col gap-3">
+            {providers.map((p) => (
+              <div key={p.id} className="rounded-2xl border border-[#4B3621]/10 p-4 flex flex-col gap-3">
                 <div className="flex items-start justify-between gap-2">
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${statusStyle[p.status]}`}>{p.status}</span>
-                  <span className="text-[10px] text-[#4B3621]/40 font-medium">{p.type}</span>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${statusStyle[p.status === "pending_approval" ? "pending" : p.status] ?? statusStyle.pending}`}>{p.status.replace("_", " ")}</span>
+                  <span className="text-[10px] text-[#4B3621]/40 font-medium">{p.service_type}</span>
                 </div>
                 <div>
-                  <p className="font-semibold text-[#4B3621]">{p.name}</p>
-                  <p className="text-xs text-[#4B3621]/60 mt-0.5">{p.location}</p>
+                  <p className="font-semibold text-[#4B3621]">{p.business_name}</p>
+                  <p className="text-xs text-[#4B3621]/60 mt-0.5">{p.business_address}</p>
                 </div>
                 <div className="flex items-center justify-between mt-auto pt-2 border-t border-[#4B3621]/5">
                   <div>
-                    <p className="text-[10px] text-[#4B3621]/40">Agreed fee</p>
-                    <p className="text-sm font-bold text-[#4B3621]">{p.fee}</p>
+                    <p className="text-[10px] text-[#4B3621]/40">Contact person</p>
+                    <p className="text-sm font-bold text-[#4B3621]">{p.contact_person}</p>
                   </div>
                   <div className="flex gap-1.5">
                     <button className="rounded-lg border border-[#4B3621]/15 px-3 py-1.5 text-xs font-medium text-[#4B3621] hover:bg-[#E3C565] transition">Edit</button>
                     <button className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${p.status === "active" ? "bg-[#E3C565] text-[#4B3621] hover:bg-[#E3C565] hover:text-[#4B3621]" : "bg-[#4B3621] text-white hover:bg-[#3a2918]"}`}>
-                      {p.status === "active" ? "Deactivate" : p.status === "inactive" ? "Activate" : "Review"}
+                      {p.status === "active" ? "Deactivate" : p.status === "suspended" ? "Activate" : "Review"}
                     </button>
                   </div>
                 </div>

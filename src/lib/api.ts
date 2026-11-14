@@ -196,8 +196,46 @@ export interface ServiceTransaction {
   amount: number;
   payment_method: string | null;
   created_at: string;
+  student_name?: string;
+  provider_name?: string;
+  metadata?: Record<string, unknown>;
 }
 
-export async function fetchTransactions(): Promise<{ transactions: ServiceTransaction[] }> {
-  return apiFetch<{ transactions: ServiceTransaction[] }>("/transactions");
+export async function fetchTransactions(scope?: "provider" | "admin"): Promise<{ transactions: ServiceTransaction[] }> {
+  return apiFetch<{ transactions: ServiceTransaction[] }>(`/transactions${scope ? `?scope=${scope}` : ""}`);
+}
+
+export interface CreateTransactionPayload {
+  service_type: string;
+  amount: number;
+  payment_method: string;
+  provider_id?: string | null;
+  metadata?: Record<string, unknown>;
+}
+
+export async function createTransaction(payload: CreateTransactionPayload): Promise<{ transaction: ServiceTransaction }> {
+  return apiFetch<{ transaction: ServiceTransaction }>("/transactions", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export interface AdminProviderData {
+  id: string;
+  business_name: string;
+  contact_person: string;
+  business_address: string;
+  service_type: string;
+  status: string;
+  created_at: string;
+}
+
+export interface AdminData {
+  providers: AdminProviderData[];
+  accounts: { total: number; active: number; pending: number };
+  supplies: { shops: number; products: number };
+}
+
+export async function fetchAdminData(): Promise<AdminData> {
+  return apiFetch<AdminData>("/admin-data");
 }

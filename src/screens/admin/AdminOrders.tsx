@@ -1,17 +1,34 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
+import { fetchTransactions, ServiceTransaction } from "../../lib/api";
 import { AdminLayout, WireModal } from "../../components/WireframeUI";
 
-const ORDERS = [
-  { id: "ORD-004", student: "Pedro Santos", provider: "Speedy Print Shop",    service: "Printing", date: "Oct 28, 2026", amount: "₱55.00",  payment: "Maya · Pending",  fulfillment: "Delivery", status: "processing" },
-  { id: "ORD-003", student: "Ana Reyes",    provider: "Speedy Print Shop",    service: "Printing", date: "Oct 28, 2026", amount: "₱95.00",  payment: "Cash · COD",      fulfillment: "Pickup",   status: "accepted" },
-  { id: "ORD-002", student: "Maria Cruz",   provider: "UniServe Supplies",    service: "Supplies", date: "Oct 28, 2026", amount: "₱240.00", payment: "Cash · COD",      fulfillment: "Pickup",   status: "ready" },
-  { id: "ORD-001", student: "Juan dela Cruz", provider: "Speedy Print Shop",  service: "Printing", date: "Oct 27, 2026", amount: "₱70.00",  payment: "GCash · Pending", fulfillment: "Delivery", status: "processing" },
-  { id: "ORD-098", student: "Carla Tan",    provider: "Taguig Print Center",  service: "Printing", date: "Oct 26, 2026", amount: "₱120.00", payment: "GCash · Paid",    fulfillment: "Delivery", status: "completed" },
-  { id: "ORD-097", student: "Jose Lim",     provider: "UniServe Supplies",    service: "Supplies", date: "Oct 25, 2026", amount: "₱85.00",  payment: "Cash · Paid",     fulfillment: "Pickup",   status: "completed" },
-];
+type Order = {
+  id: string;
+  student: string;
+  provider: string;
+  service: string;
+  date: string;
+  amount: string;
+  payment: string;
+  fulfillment: string;
+  status: string;
+};
 
-type Order = typeof ORDERS[0];
+function toOrder(transaction: ServiceTransaction): Order {
+  const status = transaction.status.toLowerCase();
+  return {
+    id: transaction.reference_code,
+    student: transaction.student_name ?? "Student",
+    provider: transaction.provider_name ?? "Unassigned provider",
+    service: transaction.service_type,
+    date: new Date(transaction.created_at).toLocaleDateString(),
+    amount: `₱${Number(transaction.amount).toFixed(2)}`,
+    payment: transaction.payment_method ?? "Not specified",
+    fulfillment: typeof transaction.metadata?.fulfillment === "string" ? transaction.metadata.fulfillment : "Not specified",
+    status: status === "submitted" ? "processing" : status,
+  };
+}
 
 const statusLabel: Record<string, string>  = { processing: "Processing", accepted: "Accepted", ready: "Ready for Pickup", completed: "Completed" };
 const statusStyle: Record<string, string>  = {
@@ -23,9 +40,17 @@ const statusStyle: Record<string, string>  = {
 const FILTERS = ["all", "processing", "accepted", "ready", "completed"];
 
 export default function AdminOrders({ navigate }: { navigate: (s: string) => void }) {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loadError, setLoadError] = useState("");
   const [filter,    setFilter]    = useState("all");
   const [viewOrder, setViewOrder] = useState<Order | null>(null);
   const [search,    setSearch]    = useState("");
+
+  useEffect(() => {
+    void fetchTransactions("admin")
+      .then(({ transactions }) => setOrders(transactions.map(toOrder)))
+      .catch((error) => setLoadError(error instanceof Error ? error.message : "Could not load orders."));
+  }, []);
 
   const filtered = ORDERS.filter(o =>
     (filter === "all" || o.status === filter) &&
@@ -75,6 +100,7 @@ export default function AdminOrders({ navigate }: { navigate: (s: string) => voi
         </div>
 
         {/* ── Status filters ──────────────────────────────────────────── */}
+        {loadError && <p role="alert" className="border border-[#4B3621] bg-[#E3C565] p-3 text-sm text-[#4B3621]">{loadError}</p>}
         <div className="flex flex-wrap gap-2">
           {FILTERS.map((f) => (
             <button
