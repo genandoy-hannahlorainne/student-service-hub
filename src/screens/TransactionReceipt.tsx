@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { StudentLayout, WireBadge, WireBtn, WireCard } from "../components/WireframeUI";
+import { ProviderLayout, StudentLayout, WireBadge, WireBtn, WireCard } from "../components/WireframeUI";
 import { fetchTransactions, ServiceTransaction } from "../lib/api";
 
-export default function TransactionReceipt({ navigate }: { navigate: (s: string) => void }) {
+export default function TransactionReceipt({ navigate, portal = "student" }: { navigate: (s: string) => void; portal?: "student" | "provider" }) {
   const [transactions, setTransactions] = useState<ServiceTransaction[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    void fetchTransactions()
+    void fetchTransactions(portal === "provider" ? "provider" : undefined)
       .then(({ transactions: loaded }) => setTransactions(loaded))
       .catch((error: unknown) => {
         console.error("[TransactionReceipt] failed to load transactions:", error);
@@ -16,15 +16,28 @@ export default function TransactionReceipt({ navigate }: { navigate: (s: string)
   }, []);
 
   return (
+    portal === "provider" ? (
+    <ProviderLayout active="provider-transaction-history" navigate={navigate}>
+      <TransactionContent transactions={transactions} loadError={loadError} navigate={navigate} portal={portal} />
+    </ProviderLayout>
+    ) : (
     <StudentLayout active="transaction-receipt" navigate={navigate}>
+      <TransactionContent transactions={transactions} loadError={loadError} navigate={navigate} portal={portal} />
+    </StudentLayout>
+    )
+  );
+}
+
+function TransactionContent({ transactions, loadError, navigate, portal }: { transactions: ServiceTransaction[]; loadError: string | null; navigate: (s: string) => void; portal: "student" | "provider" }) {
+  return (
       <div className="mx-auto max-w-7xl space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#E3C565]">Student activity</p>
-            <h1 className="mt-1 text-2xl font-bold text-[#4B3621]">Transactions</h1>
-            <p className="mt-1 text-sm text-[#4B3621]">Your payment and service records from the database.</p>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#E3C565]">{portal === "provider" ? "Provider activity" : "Student activity"}</p>
+            <h1 className="mt-1 text-2xl font-bold text-[#4B3621]">{portal === "provider" ? "Transaction history" : "Transactions"}</h1>
+            <p className="mt-1 text-sm text-[#4B3621]">{portal === "provider" ? "Orders assigned to your provider account." : "Your payment and service records from the database."}</p>
           </div>
-          <WireBtn variant="outline" size="sm" onClick={() => navigate("order-tracking")}>Back to orders</WireBtn>
+          <WireBtn variant="outline" size="sm" onClick={() => navigate(portal === "provider" ? "provider-dashboard" : "order-tracking")}>Back to orders</WireBtn>
         </div>
 
         {loadError ? (
@@ -34,7 +47,7 @@ export default function TransactionReceipt({ navigate }: { navigate: (s: string)
             <i className="bi bi-receipt text-3xl text-[#E3C565]" aria-hidden="true" />
             <h2 className="mt-3 font-semibold text-[#4B3621]">No transactions yet</h2>
             <p className="mt-1 text-sm text-[#4B3621]">Completed payments and service transactions will appear here.</p>
-            <WireBtn className="mt-4" onClick={() => navigate("browse-services")}>Browse services</WireBtn>
+            <WireBtn className="mt-4" onClick={() => navigate(portal === "provider" ? "provider-dashboard" : "browse-services")}>{portal === "provider" ? "Back to dashboard" : "Browse services"}</WireBtn>
           </WireCard>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
@@ -59,6 +72,5 @@ export default function TransactionReceipt({ navigate }: { navigate: (s: string)
           </div>
         )}
       </div>
-    </StudentLayout>
   );
 }

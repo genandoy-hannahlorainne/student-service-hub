@@ -1,8 +1,12 @@
 import {
   ProviderLayout, WireCard, WireBadge, WireSectionTitle, WirePlaceholder, WireBtn,
 } from "../../components/WireframeUI";
+import { useAuth } from "../../context/AuthContext";
 
 export default function ProviderProfile({ navigate }: { navigate: (s: string) => void }) {
+  const { profile, providerRecord } = useAuth();
+  const providerName = providerRecord?.business_name ?? "Service Provider";
+  const serviceType = providerRecord?.service_type ?? "Not specified";
   return (
     <ProviderLayout active="provider-profile" navigate={navigate}>
       <div className="flex flex-col gap-5 max-w-2xl">
@@ -12,7 +16,7 @@ export default function ProviderProfile({ navigate }: { navigate: (s: string) =>
         <WireCard className="flex items-center gap-4">
           <WirePlaceholder label="Shop Logo" className="w-20 h-20 shrink-0" />
           <div className="flex flex-col gap-1">
-            <h2 className="text-lg font-bold text-[#4B3621]">Speedy Print Shop</h2>
+            <h2 className="text-lg font-bold text-[#4B3621]">{providerName}</h2>
             <WireBadge variant="success">âœ“ University Organization-approved Collaborator</WireBadge>
             <p className="text-xs text-[#4B3621] mt-1">Member since October 2025</p>
           </div>
@@ -23,12 +27,12 @@ export default function ProviderProfile({ navigate }: { navigate: (s: string) =>
           <WireSectionTitle>Business Information</WireSectionTitle>
           <div className="grid sm:grid-cols-2 gap-4 text-sm">
             {[
-              ["Provider Name", "Speedy Print Shop"],
-              ["Contact Person", "Ramon Villanueva"],
-              ["Email Address", "speedyprint.taguig@gmail.com"],
-              ["Contact Number", "0917-XXX-XXXX"],
-              ["Business Address", "Purok 3, Western Bicutan, Taguig City (near PUP Taguig Main Gate)"],
-              ["Service Type", "Printing Services"],
+              ["Provider Name", providerName],
+              ["Contact Person", providerRecord?.contact_person ?? "Not provided"],
+              ["Email Address", profile?.email ?? "Not provided"],
+              ["Contact Number", profile?.phone ?? "Not provided"],
+              ["Business Address", providerRecord?.business_address ?? "Not provided"],
+              ["Service Type", serviceType],
             ].map(([k, v]) => (
               <div key={k} className="flex flex-col gap-0.5">
                 <span className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">{k}</span>
@@ -63,7 +67,7 @@ export default function ProviderProfile({ navigate }: { navigate: (s: string) =>
                 <span className="text-sm text-[#4B3621]">Agreed Delivery Fee:</span>
                 <span className="text-lg font-bold text-[#4B3621]">â‚±30.00</span>
               </div>
-              <p className="text-xs text-[#4B3621]">This fee was agreed upon between University Organization and Speedy Print Shop as of October 15, 2025.</p>
+              <p className="text-xs text-[#4B3621]">This fee is based on the current collaboration agreement with {providerName}.</p>
             </div>
 
             <div className="border border-dashed border-[#4B3621] p-3 bg-[#E3C565]">

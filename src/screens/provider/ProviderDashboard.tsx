@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchTransactions, ServiceTransaction } from "../../lib/api";
+import { useAuth } from "../../context/AuthContext";
 import {
   ProviderLayout, WireBtn, WireCard, WireBadge, WireStatCard,
   WireSectionTitle, WirePlaceholder, WireModal,
@@ -180,6 +181,7 @@ function RejectModal({ order, onReject, onClose }: { order: Order; onReject: (id
 }
 
 export default function ProviderDashboard({ navigate }: { navigate: (s: string) => void }) {
+  const { providerRecord } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loadError, setLoadError] = useState("");
   const [fileModal, setFileModal] = useState<Order | null>(null);    // shown after accepting
@@ -215,7 +217,7 @@ export default function ProviderDashboard({ navigate }: { navigate: (s: string) 
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div>
             <h1 className="text-xl font-bold text-[#4B3621]">Provider Dashboard</h1>
-            <p className="text-sm text-[#4B3621] mt-0.5">Speedy Print Shop â€” University Organization Collaborating Provider</p>
+            <p className="text-sm text-[#4B3621] mt-0.5">{providerRecord?.business_name ?? "Service Provider"} — University Organization Collaborating Provider</p>
           </div>
           <WireBadge variant="success">â— Active</WireBadge>
         </div>

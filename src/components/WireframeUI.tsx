@@ -345,7 +345,7 @@ function HamburgerBtn({ onClick }: { onClick: () => void }) {
 
 function AuthHeader({ role, onMenuToggle, navigate }: { role: string; onMenuToggle: () => void; navigate: (s: string) => void }) {
   const { profile } = useAuth();
-  const isStudent = role === "Student";
+  const isStudent = role === "Student" || role !== "UniServe Admin";
   const displayRole = isStudent ? profile?.display_name || "Student" : role;
   return (
     <header className={`${isStudent ? "bg-white border-[#4B3621] text-[#4B3621]" : "bg-[#4B3621] border-[#4B3621] text-white"} px-4 py-3 flex items-center justify-between border-b h-16 shrink-0`}>
@@ -441,7 +441,7 @@ function SidebarDrawer({
                 : "text-[#4B3621] hover:bg-[#E3C565]"
             } ${item.label === "Logout" ? "mt-auto text-[#4B3621] border-t border-[#4B3621]" : ""}`}
           >
-            <i className={`bi ${bootstrapIconForLabel(item.label)} ${collapsed ? "lg:mr-0" : "mr-2"}`} aria-hidden="true" />
+            <i className={`bi ${item.icon ?? bootstrapIconForLabel(item.label)} ${collapsed ? "lg:mr-0" : "mr-2"}`} aria-hidden="true" />
             <span className={collapsed ? "lg:hidden" : ""}>{item.label}</span>
           </button>
         ))}
@@ -508,17 +508,18 @@ export function StudentLayout({ children, active, navigate }: { children: ReactN
 }
 
 export function ProviderLayout({ children, active, navigate }: { children: ReactNode; active: string; navigate: (s: string) => void }) {
+  const { providerRecord } = useAuth();
   const items: NavItem[] = [
-    { label: "Dashboard", screen: "provider-dashboard", icon: "âŠž" },
-    { label: "Orders", screen: "provider-dashboard", icon: "â—ˆ" },
-    { label: "Services", screen: "provider-profile", icon: "â—«" },
-    { label: "Availability", screen: "provider-profile", icon: "â—‰" },
-    { label: "Delivery Settings", screen: "provider-profile", icon: "◌" },
-    { label: "Transaction History", screen: "transaction-receipt", icon: "◌" },
-    { label: "Profile", screen: "provider-profile", icon: "â—Ž" },
-    { label: "Logout", screen: "landing", icon: "â—" },
+    { label: "Dashboard", screen: "provider-dashboard", icon: "bi-grid-1x2" },
+    { label: "Orders", screen: "provider-dashboard", icon: "bi-receipt" },
+    { label: "Services", screen: "provider-profile", icon: "bi-tools" },
+    { label: "Availability", screen: "provider-profile", icon: "bi-calendar-check" },
+    { label: "Delivery Settings", screen: "provider-profile", icon: "bi-truck" },
+    { label: "Transaction History", screen: "provider-transaction-history", icon: "bi-clock-history" },
+    { label: "Profile", screen: "provider-profile", icon: "bi-person" },
+    { label: "Logout", screen: "landing", icon: "bi-box-arrow-right" },
   ];
-  return <AppLayout items={items} active={active} navigate={navigate} role="Speedy Print Shop" accentColor="border-gray-600">{children}</AppLayout>;
+  return <AppLayout items={items} active={active} navigate={navigate} role={providerRecord?.business_name ?? "Service Provider"} accentColor="border-gray-600">{children}</AppLayout>;
 }
 
 export function AdminLayout({ children, active, navigate }: { children: ReactNode; active: string; navigate: (s: string) => void }) {

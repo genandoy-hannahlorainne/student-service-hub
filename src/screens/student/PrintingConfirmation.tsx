@@ -55,8 +55,8 @@ export default function PrintingConfirmation({ navigate }: { navigate: (s: strin
               <div className="flex items-center gap-2">
                 <WirePlaceholder label="🪟" className="w-10 h-10 shrink-0" />
                 <div className="text-sm">
-                  <p className="font-semibold text-[#4B3621]">Speedy Print Shop</p>
-                  <p className="text-[#4B3621] text-xs">📍 Near PUP Taguig Main Gate</p>
+                  <p className="font-semibold text-[#4B3621]">Charie Ledesma Printing Services</p>
+                  <p className="text-[#4B3621] text-xs">📍 PUP Taguig area</p>
                   <WireBadge variant="success">University Organization-approved Collaborator</WireBadge>
                 </div>
               </div>

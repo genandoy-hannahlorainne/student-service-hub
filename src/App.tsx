@@ -62,7 +62,7 @@ type Screen =
   // Guest
   | "guest-dashboard" | "guest-post" | "guest-my-posts"
   // Provider
-  | "provider-dashboard" | "provider-profile"
+  | "provider-dashboard" | "provider-profile" | "provider-transaction-history"
   // Admin
   | "admin-landing" | "admin-dashboard" | "admin-providers" | "admin-rental-approval"
   | "admin-orders" | "admin-website"
@@ -83,7 +83,7 @@ const GUEST_SCREENS = new Set<Screen>([
 ]);
 
 const PROVIDER_SCREENS = new Set<Screen>([
-  "provider-dashboard", "provider-profile",
+  "provider-dashboard", "provider-profile", "provider-transaction-history",
 ]);
 
 const ADMIN_SCREENS = new Set<Screen>([
@@ -488,6 +488,7 @@ function AppInner() {
       // Provider
       case "provider-dashboard": return <ProviderDashboard navigate={navigate} />;
       case "provider-profile": return <ProviderProfile navigate={navigate} />;
+      case "provider-transaction-history": return <TransactionReceipt navigate={navigate} portal="provider" />;
       // Admin
       case "admin-landing": return <AdminLanding navigate={navigate} />;
       case "admin-dashboard": return <AdminDashboard navigate={navigate} />;

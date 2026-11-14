@@ -211,7 +211,7 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
               <div className="border border-[#4B3621] p-3 bg-[#E3C565] text-sm">
                 <p className="text-[#4B3621]">
                   📍 Pickup Location:{" "}
-                  <strong>Speedy Print Shop — Near PUP Taguig Main Gate</strong>
+                  <strong>Charie Ledesma Printing Services — PUP Taguig area</strong>
                 </p>
                 <p className="text-xs text-[#4B3621] mt-0.5">No delivery fee for pickup orders.</p>
               </div>
