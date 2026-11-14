@@ -136,7 +136,10 @@ export const handler: Handler = async (
         SELECT id, business_name, contact_person, business_address,
                service_type, status, approved_at, rejection_reason
         FROM providers
-        WHERE user_id = ${identity.sub}
+        WHERE user_id = ${identity.sub}::uuid
+           OR user_id = (
+             SELECT id FROM user_profiles WHERE email = ${identity.email} LIMIT 1
+           )
         LIMIT 1
       `;
       if (providerResult.rows.length > 0) {

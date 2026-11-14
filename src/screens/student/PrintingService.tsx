@@ -23,9 +23,7 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
   const steps = ["File", "Details", "Shop", "Fulfillment", "Payment"];
 
   const shops = [
-    { name: "Speedy Print Shop", location: "Near PUP Taguig Main Gate", services: "Color, B&W, Binding", fee: "₱30", available: true },
-    { name: "Taguig Print Center", location: "45 Central Bicutan, Taguig", services: "B&W, Lamination, Spiral", fee: "₱35", available: true },
-    { name: "Campus Copy Express", location: "Western Bicutan, Taguig", services: "Color, B&W, Scanning", fee: "₱25", available: false },
+    { name: "Charie Ledesma Printing Services", location: "PUP Taguig area", services: "Printing services", fee: "TBD", available: true },
   ];
 
   const addFiles = (selectedFiles: FileList | null) => {

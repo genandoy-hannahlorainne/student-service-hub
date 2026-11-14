@@ -54,7 +54,10 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
         SELECT st.id, st.service_type, st.reference_code, st.status, st.amount, st.payment_method, st.created_at,
                up.display_name AS student_name, p.business_name AS provider_name, st.metadata
         FROM service_transactions st
-        JOIN providers p ON p.id = st.provider_id AND p.user_id = ${identity.sub}::uuid
+        JOIN providers p ON p.id = st.provider_id
+        JOIN user_profiles provider_profile
+          ON provider_profile.id = p.user_id
+         AND (provider_profile.id = ${identity.sub}::uuid OR provider_profile.email = ${identity.email})
         JOIN user_profiles up ON up.id = st.user_id
         ORDER BY st.created_at DESC
       `;
