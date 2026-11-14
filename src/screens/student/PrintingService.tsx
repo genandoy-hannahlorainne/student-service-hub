@@ -9,6 +9,8 @@ import {
 export default function PrintingService({ navigate }: { navigate: (s: string) => void }) {
   const [fulfillment, setFulfillment] = useState<"pickup" | "delivery">("pickup");
   const [selectedShop, setSelectedShop] = useState<number | null>(null);
+  const [step, setStep] = useState(1);
+  const steps = ["File", "Details", "Shop", "Notes", "Fulfillment", "Payment"];
 
   const shops = [
     { name: "Speedy Print Shop", location: "Near PUP Taguig Main Gate", services: "Color, B&W, Binding", fee: "₱30", available: true },
@@ -24,13 +26,10 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
           <p className="text-sm text-[#4B3621] mt-1">Fill in your printing details and select a collaborating shop</p>
         </div>
         <WireCard className="rounded-2xl border-0 shadow-sm ring-1 ring-[#4B3621]/10">
-          <WireProgressTracker steps={["File", "Details", "Shop", "Fulfillment", "Payment"]} current={0} />
+          <WireProgressTracker steps={steps} current={step - 1} />
         </WireCard>
 
-        {/* ── Bento: top 2-col layout — file upload (wide) + printing details (narrow) ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-
-          {/* Step 1: Upload File — 3 cols */}
+        {step === 1 && (
           <WireCard className="lg:col-span-3">
             <WireSectionTitle>1. Upload File</WireSectionTitle>
             <div className="flex flex-col gap-3">
@@ -46,9 +45,10 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
               <WirePlaceholder label="File Preview — Page 1 of document" className="h-40 w-full" />
             </div>
           </WireCard>
+        )}
 
-          {/* Step 2: Printing Details — 2 cols */}
-          <WireCard className="lg:col-span-2">
+        {step === 2 && (
+          <WireCard>
             <WireSectionTitle>2. Printing Details</WireSectionTitle>
             <div className="flex flex-col gap-4">
               <WireInput label="Number of Copies" type="number" placeholder="e.g. 2" />
@@ -58,10 +58,9 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
               <WireSelect label="Paper Type" options={["Standard (80gsm)", "Thick (120gsm)", "Glossy", "Matte"]} />
             </div>
           </WireCard>
-        </div>
+        )}
 
-        {/* ── Bento: shop selector full width ── */}
-        <WireCard>
+        {step === 3 && <WireCard>
           <WireSectionTitle>3. Select Printing Shop</WireSectionTitle>
           <p className="text-xs text-[#4B3621] mb-4 border border-dashed border-[#4B3621] p-2 bg-[#E3C565]">
             Only University Organization-approved collaborating printing shops are listed below. Shops must have an
@@ -104,21 +103,17 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
               </div>
             ))}
           </div>
-        </WireCard>
+        </WireCard>}
 
-        {/* ── Bento: notes + fulfillment side by side ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Step 4: Notes */}
-          <WireCard>
+        {step === 4 && <WireCard>
             <WireSectionTitle>4. Notes / Special Instructions</WireSectionTitle>
             <WireTextarea
               placeholder="Example: Please staple each copy separately. Print portrait orientation only."
               rows={5}
             />
-          </WireCard>
+          </WireCard>}
 
-          {/* Step 5: Fulfillment */}
-          <WireCard>
+        {step === 5 && <WireCard>
             <WireSectionTitle>5. Fulfillment Method</WireSectionTitle>
             <div className="flex gap-3 mb-4">
               {(["pickup", "delivery"] as const).map((f) => (
@@ -156,11 +151,9 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
                 <p className="text-xs text-[#4B3621] mt-0.5">No delivery fee for pickup orders.</p>
               </div>
             )}
-          </WireCard>
-        </div>
+          </WireCard>}
 
-        {/* ── Bento: payment full width ── */}
-        <WireCard>
+        {step === 6 && <WireCard>
           <WireSectionTitle>6. Payment Method</WireSectionTitle>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
             <WireRadioGroup name="payment" options={["Cash on Pickup/Delivery", "GCash", "Maya"]} />
@@ -179,13 +172,21 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
               </div>
             </div>
           </div>
-        </WireCard>
+        </WireCard>}
 
-        {/* ── CTA ── */}
-        <div className="flex justify-end">
-          <WireBtn size="lg" onClick={() => navigate("printing-confirmation")}>
-            Review Order →
+        <div className="flex justify-between gap-3">
+          <WireBtn variant="outline" disabled={step === 1} onClick={() => setStep((current) => Math.max(1, current - 1))}>
+            ← Back
           </WireBtn>
+          {step < steps.length ? (
+            <WireBtn size="lg" onClick={() => setStep((current) => Math.min(steps.length, current + 1))}>
+              Next: {steps[step]} →
+            </WireBtn>
+          ) : (
+            <WireBtn size="lg" onClick={() => navigate("printing-confirmation")}>
+              Review Order →
+            </WireBtn>
+          )}
         </div>
       </div>
     </StudentLayout>

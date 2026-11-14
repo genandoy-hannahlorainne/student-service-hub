@@ -14,7 +14,7 @@ export default function PrintingConfirmation({ navigate }: { navigate: (s: strin
           </p>
         </div>
         <WireCard className="rounded-2xl border-0 shadow-sm ring-1 ring-[#4B3621]/10">
-          <WireProgressTracker steps={["File", "Details", "Shop", "Fulfillment", "Payment"]} current={4} />
+          <WireProgressTracker steps={["File", "Details", "Shop", "Notes", "Fulfillment", "Payment"]} current={5} />
         </WireCard>
 
         {/* ── Bento top row: file preview (narrow) + shop + specs (wide) ── */}
