@@ -62,14 +62,30 @@ export async function getToken(): Promise<string | null> {
  */
 export async function loginWithEmail(email: string, password: string): Promise<NetlifyUser> {
   const goTrue = getGoTrue();
-  // The pre-provisioned student account is identified by its student number in
-  // the app, while Netlify Identity still authenticates against its email.
-  const identityEmail =
-    email.trim().toUpperCase() === "2023-00502-TG-0"
-      ? "hannahlorainne102825@gmail.com"
-      : email;
+  const identifier = email.trim();
+  const identityEmail = /^\d{4}-\d{5}-TG-[01]$/i.test(identifier)
+    ? await resolveStudentEmail(identifier)
+    : identifier;
   // GoTrue.login() returns a GoTrueUser which is the same shape as NetlifyUser.
   return goTrue.login(identityEmail, password, false) as Promise<NetlifyUser>;
+}
+
+async function resolveStudentEmail(studentNumber: string): Promise<string> {
+  const response = await fetch("/.netlify/functions/student-login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ student_number: studentNumber.toUpperCase() }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Invalid student number or password.");
+  }
+
+  const body = (await response.json()) as { email?: string };
+  if (!body.email) {
+    throw new Error("Invalid student number or password.");
+  }
+  return body.email;
 }
 
 /**

@@ -255,6 +255,10 @@ export function Login({ navigate }: { navigate: (s: string) => void }) {
       setLocalError("Student number and password are required.");
       return;
     }
+    if (!STUDENT_NUM_RE.test(studentNumber.trim())) {
+      setLocalError("Student number must follow the format: YYYY-NNNNN-TG-0 or TG-1.");
+      return;
+    }
 
     setLoading(true);
     try {
