@@ -24,8 +24,11 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
 
       const provider = body.provider_id
         ? await sql`SELECT id FROM providers WHERE id = ${body.provider_id}::uuid AND status = 'active'::provider_status LIMIT 1`
-        : await sql`SELECT id FROM providers WHERE status = 'active'::provider_status AND service_type IN ('printing', 'both') ORDER BY created_at ASC LIMIT 1`;
+        : await sql`SELECT id FROM providers WHERE status = 'active'::provider_status AND LOWER(service_type) IN ('printing', 'both') ORDER BY created_at ASC LIMIT 1`;
       const providerId = provider.rows[0]?.id ?? null;
+      if (!providerId) {
+        return errorResponse(409, "No active provider is available for this service.");
+      }
       const referenceCode = `TXN-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
       const inserted = await sql`
         INSERT INTO service_transactions (user_id, provider_id, service_type, reference_code, status, amount, payment_method, metadata)
@@ -37,8 +40,21 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
 
     if (event.httpMethod !== "GET") return errorResponse(405, "Method not allowed");
     const scope = new URL(event.rawUrl ?? "http://localhost").searchParams.get("scope");
-    const adminView = scope === "admin" && (hasRole(identity, "admin") || hasRole(identity, "co_admin"));
-    const providerView = scope === "provider" && hasRole(identity, "provider");
+    const roleResult = await sql`
+      SELECT role
+      FROM user_roles
+      WHERE user_id = ${identity.sub}::uuid
+         OR user_id = (
+           SELECT id FROM user_profiles WHERE email = ${identity.email} LIMIT 1
+         )
+    `;
+    const roles = roleResult.rows.map((row) => String(row.role));
+    const adminView =
+      scope === "admin" &&
+      (roles.includes("admin") || roles.includes("co_admin") || hasRole(identity, "admin") || hasRole(identity, "co_admin"));
+    const providerView =
+      scope === "provider" &&
+      (roles.includes("provider") || hasRole(identity, "provider"));
     let result;
     if (adminView) {
       result = await sql`
@@ -54,7 +70,15 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
         SELECT st.id, st.service_type, st.reference_code, st.status, st.amount, st.payment_method, st.created_at,
                up.display_name AS student_name, p.business_name AS provider_name, st.metadata
         FROM service_transactions st
-        JOIN providers p ON p.id = st.provider_id
+        JOIN providers p
+          ON p.status = 'active'::provider_status
+         AND (
+           p.id = st.provider_id
+           OR (
+             st.provider_id IS NULL
+             AND (LOWER(p.service_type) = LOWER(st.service_type) OR LOWER(p.service_type) = 'both')
+           )
+         )
         JOIN user_profiles provider_profile
           ON provider_profile.id = p.user_id
          AND (provider_profile.id = ${identity.sub}::uuid OR provider_profile.email = ${identity.email})
