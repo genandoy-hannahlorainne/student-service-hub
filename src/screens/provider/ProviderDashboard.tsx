@@ -7,15 +7,18 @@ import {
 } from "../../components/WireframeUI";
 
 const STATUS_FLOW = ["Accepted", "Processing", "Ready for Pickup", "Out for Delivery", "Completed"];
+const STATUS_STEPS = ["Pending", ...STATUS_FLOW];
 
 type Order = {
   id: string;
   student: string;
   service: string;
   items: string;
+  files: Array<{ name: string; size: number; copies: number }>;
   file: string;
   fileSize: string;
   filePages: string;
+  totalCopies: number;
   date: string;
   amount: string;
   payment: string;
@@ -23,25 +26,54 @@ type Order = {
   status: string;
 };
 
+function displayStatus(status: string) {
+  if (status.toLowerCase() === "submitted" || status.toLowerCase() === "pending") return "Pending";
+  return status;
+}
+
+function OrderStatusBar({ status }: { status: string }) {
+  const currentIndex = STATUS_STEPS.indexOf(status);
+  return (
+    <div className="mt-3 border-t border-[#4B3621]/30 pt-3">
+      <p className="text-[10px] font-bold uppercase tracking-wide text-[#4B3621]">Order progress</p>
+      <div className="mt-2 grid grid-cols-3 gap-1 sm:grid-cols-6">
+        {STATUS_STEPS.map((step, index) => (
+          <div key={step} className="text-center">
+            <div className={`mx-auto h-2 w-full rounded-full border border-[#4B3621] ${currentIndex >= index ? "bg-[#4B3621]" : "bg-white"}`} />
+            <p className={`mt-1 text-[9px] leading-tight text-[#4B3621] ${status === step ? "font-bold" : ""}`}>{step}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function toOrder(transaction: ServiceTransaction): Order {
   const metadata = transaction.metadata ?? {};
-  const files = Array.isArray(metadata.files) ? metadata.files as Array<{ name?: string; size?: number; copies?: number }> : [];
-  const firstFile = files[0];
-  const fileName = firstFile?.name ?? "Uploaded files";
-  const copies = firstFile?.copies ?? 1;
+  const files = Array.isArray(metadata.files)
+    ? (metadata.files as Array<{ name?: string; size?: number; copies?: number }>).map((file) => ({
+      name: file.name ?? "Uploaded file",
+      size: file.size ?? 0,
+      copies: file.copies ?? 1,
+    }))
+    : [];
+  const firstFile = files[0] ?? { name: "Uploaded files", size: 0, copies: 1 };
+  const totalCopies = files.reduce((total, file) => total + file.copies, 0);
   return {
     id: transaction.reference_code,
     student: transaction.student_name ?? "Student",
     service: transaction.service_type,
-    items: `${fileName} · ${copies} copy/copies`,
-    file: fileName,
-    fileSize: firstFile?.size ? `${(firstFile.size / 1024 / 1024).toFixed(2)} MB` : "Size unavailable",
-    filePages: `${files.length} file${files.length === 1 ? "" : "s"}`,
+    items: `${files.length || 1} file${files.length === 1 ? "" : "s"} · ${totalCopies} cop${totalCopies === 1 ? "y" : "ies"}`,
+    files,
+    file: firstFile.name,
+    fileSize: firstFile.size ? `${(firstFile.size / 1024 / 1024).toFixed(2)} MB` : "Size unavailable",
+    filePages: `${files.length || 1} file${files.length === 1 ? "" : "s"}`,
+    totalCopies,
     date: new Date(transaction.created_at).toLocaleDateString(),
     amount: `₱${Number(transaction.amount).toFixed(2)}`,
     payment: transaction.payment_method ?? "Not specified",
     fulfillment: typeof metadata.fulfillment === "string" ? metadata.fulfillment : "Not specified",
-    status: transaction.status,
+    status: displayStatus(transaction.status),
   };
 }
 
@@ -60,14 +92,20 @@ function FileDownloadModal({ order, onClose }: { order: Order; onClose: () => vo
 
         {/* File details */}
         <div>
-          <p className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide mb-2">Student&apos;s Uploaded File</p>
-          <div className="border border-[#4B3621] p-3 flex items-center gap-3 bg-[#E3C565]">
-            <WirePlaceholder label="ðŸ“„" className="w-12 h-12 shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-[#4B3621] text-sm truncate">{order.file}</p>
-              <p className="text-xs text-[#4B3621]">{order.fileSize} Â· {order.filePages}</p>
-              <p className="text-xs text-[#4B3621] mt-0.5">Uploaded by {order.student}</p>
-            </div>
+          <p className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide mb-2">Student&apos;s Uploaded Files</p>
+          <div className="flex flex-col gap-2">
+            {(order.files.length > 0 ? order.files : [{ name: order.file, size: 0, copies: order.totalCopies }]).map((file, index) => (
+              <div key={`${file.name}-${index}`} className="border border-[#4B3621] p-3 flex items-center gap-3 bg-[#E3C565]">
+                <WirePlaceholder label="FILE" className="w-12 h-12 shrink-0 text-[10px]" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-[#4B3621] text-sm truncate">{file.name}</p>
+                  <p className="text-xs text-[#4B3621]">
+                    {file.size ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : "Size unavailable"} · {file.copies} cop{file.copies === 1 ? "y" : "ies"}
+                  </p>
+                  <p className="text-xs text-[#4B3621] mt-0.5">Uploaded by {order.student}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -76,7 +114,8 @@ function FileDownloadModal({ order, onClose }: { order: Order; onClose: () => vo
           <p className="font-semibold mb-1.5">Print Specifications:</p>
           <div className="flex flex-col gap-1">
             {[
-              ["Copies", order.items.split("Â·")[1]?.trim() ?? "â€”"],
+              ["Files", `${order.files.length || 1} file${order.files.length === 1 ? "" : "s"}`],
+              ["Total copies", `${order.totalCopies} cop${order.totalCopies === 1 ? "y" : "ies"}`],
               ["Paper Size", "Short (8.5Ã—11)"],
               ["Color", "Black & White"],
               ["Sides", "Single-Sided"],
@@ -134,17 +173,28 @@ function FileDownloadModal({ order, onClose }: { order: Order; onClose: () => vo
 function StatusModal({ order, onUpdate, onClose }: { order: Order; onUpdate: (id: string, status: string) => void; onClose: () => void }) {
   return (
     <WireModal title={`Update Order â€” ${order.id}`} onClose={onClose}>
-      <p className="text-sm text-[#4B3621] mb-1"><strong>Student:</strong> {order.student}</p>
-      <p className="text-sm text-[#4B3621] mb-3"><strong>Items:</strong> {order.items}</p>
+      <div className="mb-3 border border-[#4B3621] bg-[#E3C565] p-3 text-sm text-[#4B3621]">
+        <p><strong>Student:</strong> {order.student}</p>
+        <p><strong>Order:</strong> {order.files.length || 1} file{order.files.length === 1 ? "" : "s"} · {order.totalCopies} cop{order.totalCopies === 1 ? "y" : "ies"}</p>
+        <p><strong>Fulfillment:</strong> {order.fulfillment}</p>
+        <p><strong>Total:</strong> {order.amount}</p>
+      </div>
 
       {/* File download option for active orders */}
-      <div className="border border-[#4B3621] p-3 bg-[#E3C565] mb-4 flex items-center gap-3">
-        <WirePlaceholder label="ðŸ“„" className="w-9 h-9 shrink-0" />
-        <div className="flex-1 min-w-0">
-          <p className="text-xs text-[#4B3621] font-medium truncate">{order.file}</p>
-          <p className="text-xs text-[#4B3621]">{order.fileSize} Â· {order.filePages}</p>
+      <div className="border border-[#4B3621] p-3 bg-[#E3C565] mb-4">
+        <p className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide mb-2">Files to print</p>
+        <div className="flex flex-col gap-2">
+          {(order.files.length > 0 ? order.files : [{ name: order.file, size: 0, copies: order.totalCopies }]).map((file, index) => (
+            <div key={`${file.name}-${index}`} className="flex items-center gap-3">
+              <WirePlaceholder label="FILE" className="w-9 h-9 shrink-0 text-[9px]" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-[#4B3621] font-medium truncate">{file.name}</p>
+                <p className="text-xs text-[#4B3621]">{file.size ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : "Size unavailable"} · {file.copies} cop{file.copies === 1 ? "y" : "ies"}</p>
+              </div>
+            </div>
+          ))}
         </div>
-        <WireBtn size="sm" variant="outline">â¬‡ Download File</WireBtn>
+        <WireBtn size="sm" variant="outline" className="mt-3">Download File</WireBtn>
       </div>
 
       <p className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide mb-2">Set New Status</p>
@@ -285,16 +335,19 @@ export default function ProviderDashboard({ navigate }: { navigate: (s: string) 
           ) : (
             <div className="flex flex-col gap-2">
               {active.map((order) => (
-                <WireCard key={order.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <span className="text-xs font-mono text-[#4B3621]">{order.id}</span>
-                    <p className="font-semibold text-[#4B3621] text-sm">{order.student} â€” <span className="font-normal text-[#4B3621]">{order.items}</span></p>
-                    <p className="text-xs text-[#4B3621]">{order.date} Â· {order.fulfillment} Â· {order.amount}</p>
+                <WireCard key={order.id}>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <span className="text-xs font-mono text-[#4B3621]">{order.id}</span>
+                      <p className="font-semibold text-[#4B3621] text-sm">{order.student} — <span className="font-normal text-[#4B3621]">{order.items}</span></p>
+                      <p className="text-xs text-[#4B3621]">{order.date} · {order.fulfillment} · {order.amount}</p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap shrink-0">
+                      <WireBadge variant="active">{order.status}</WireBadge>
+                      <WireBtn size="sm" variant="outline" onClick={() => setStatusModal(order)}>Update Status</WireBtn>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-wrap shrink-0">
-                    <WireBadge variant="active">{order.status}</WireBadge>
-                    <WireBtn size="sm" variant="outline" onClick={() => setStatusModal(order)}>Update Status</WireBtn>
-                  </div>
+                  <OrderStatusBar status={order.status} />
                 </WireCard>
               ))}
             </div>

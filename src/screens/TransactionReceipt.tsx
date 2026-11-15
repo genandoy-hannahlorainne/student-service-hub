@@ -2,6 +2,83 @@ import { useEffect, useState } from "react";
 import { ProviderLayout, StudentLayout, WireBadge, WireBtn, WireCard } from "../components/WireframeUI";
 import { fetchTransactions, ServiceTransaction } from "../lib/api";
 
+const ORDER_STEPS = ["Pending", "Accepted", "Processing", "Ready for Pickup", "Out for Delivery", "Completed"];
+
+function normalizedStatus(status: string) {
+  return status.toLowerCase() === "submitted" ? "Pending" : status;
+}
+
+function getPrintFiles(transaction: ServiceTransaction) {
+  const files = transaction.metadata?.files;
+  return Array.isArray(files)
+    ? files as Array<{ name?: string; size?: number; copies?: number }>
+    : [];
+}
+
+function OrderStatusBar({ status }: { status: string }) {
+  const currentStatus = normalizedStatus(status);
+  const currentIndex = ORDER_STEPS.indexOf(currentStatus);
+  const isRejected = currentStatus === "Rejected";
+  return (
+    <div className="mt-5 border border-[#4B3621] bg-[#E3C565] p-3">
+      <p className="text-xs font-bold uppercase tracking-wide text-[#4B3621]">Order progress</p>
+      {isRejected ? (
+        <p className="mt-2 border border-[#4B3621] bg-white px-3 py-2 text-sm font-semibold text-[#4B3621]">Order rejected</p>
+      ) : (
+        <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
+          {ORDER_STEPS.map((step, index) => {
+            const completed = currentIndex >= index;
+            const current = currentStatus === step;
+            return (
+              <div key={step} className="text-center">
+                <div className={`mx-auto flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold ${
+                  completed ? "border-[#4B3621] bg-[#4B3621] text-white" : "border-[#4B3621] bg-white text-[#4B3621]"
+                }`}>
+                  {completed ? "✓" : index + 1}
+                </div>
+                <p className={`mt-1 text-[10px] leading-tight text-[#4B3621] ${current ? "font-bold" : ""}`}>{step}</p>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      <p className="mt-3 text-sm text-[#4B3621]">Current status: <strong>{currentStatus}</strong></p>
+    </div>
+  );
+}
+
+function PrintOrderSummary({ transaction }: { transaction: ServiceTransaction }) {
+  const metadata = transaction.metadata ?? {};
+  const files = getPrintFiles(transaction);
+  const totalCopies = files.reduce((total, file) => total + (file.copies ?? 1), 0);
+  const fulfillment = typeof metadata.fulfillment === "string" ? metadata.fulfillment : "Not specified";
+  return (
+    <div className="mt-5 border border-[#4B3621] p-3 text-sm text-[#4B3621]">
+      <p className="text-xs font-bold uppercase tracking-wide">Order summary</p>
+      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+        <p><strong>Files:</strong> {files.length || 1} file{files.length === 1 ? "" : "s"}</p>
+        <p><strong>Total copies:</strong> {totalCopies || 1}</p>
+        <p><strong>Fulfillment:</strong> {fulfillment}</p>
+        <p><strong>Payment:</strong> {transaction.payment_method || "Not specified"}</p>
+      </div>
+      <div className="mt-3 border-t border-[#4B3621] pt-2">
+        <p className="font-semibold">Files to print</p>
+        <div className="mt-1 flex flex-col gap-1">
+          {(files.length > 0 ? files : [{ name: "Uploaded files", size: 0, copies: totalCopies || 1 }]).map((file, index) => (
+            <div key={`${file.name}-${index}`} className="flex items-center justify-between gap-3">
+              <span className="min-w-0 truncate">{file.name}</span>
+              <span className="shrink-0">{file.copies ?? 1} cop{(file.copies ?? 1) === 1 ? "y" : "ies"}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      {typeof metadata.notes === "string" && metadata.notes && (
+        <p className="mt-3 border-t border-[#4B3621] pt-2"><strong>Notes:</strong> {metadata.notes}</p>
+      )}
+    </div>
+  );
+}
+
 export default function TransactionReceipt({ navigate, portal = "student" }: { navigate: (s: string) => void; portal?: "student" | "provider" }) {
   const [transactions, setTransactions] = useState<ServiceTransaction[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -70,8 +147,8 @@ function TransactionContent({ transactions, loadError, navigate, portal }: { tra
                     <p className="text-xs font-bold uppercase tracking-wide text-[#4B3621]">{transaction.service_type}</p>
                     <h2 className="mt-1 font-bold text-[#4B3621]">{transaction.reference_code}</h2>
                   </div>
-                  <WireBadge variant={transaction.status.toLowerCase() === "paid" ? "success" : "pending"}>
-                    {transaction.status}
+                  <WireBadge variant={["completed", "paid"].includes(transaction.status.toLowerCase()) ? "success" : "pending"}>
+                    {normalizedStatus(transaction.status)}
                   </WireBadge>
                 </div>
                 <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
@@ -79,6 +156,8 @@ function TransactionContent({ transactions, loadError, navigate, portal }: { tra
                   <div><p className="text-xs text-[#4B3621]">Payment</p><p className="font-semibold text-[#4B3621]">{transaction.payment_method || "Not specified"}</p></div>
                   <div className="col-span-2"><p className="text-xs text-[#4B3621]">Date</p><p className="text-[#4B3621]">{new Date(transaction.created_at).toLocaleString()}</p></div>
                 </div>
+                <OrderStatusBar status={transaction.status} />
+                <PrintOrderSummary transaction={transaction} />
               </WireCard>
             ))}
           </div>
