@@ -74,7 +74,7 @@ export default function CreateRentalPost({ navigate }: { navigate: (s: string) =
               />
 
               <div className="grid sm:grid-cols-2 gap-4">
-                <WireInput label="Location" placeholder="e.g. PUP Taguig Campus" />
+                <WireInput label="Location" placeholder="e.g. University campus" />
                 <WireInput label="Rental Price / Rate" placeholder="e.g. ₱50/day, or Free" />
               </div>
 

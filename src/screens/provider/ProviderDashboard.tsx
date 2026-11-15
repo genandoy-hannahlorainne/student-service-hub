@@ -217,7 +217,7 @@ export default function ProviderDashboard({ navigate }: { navigate: (s: string) 
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div>
             <h1 className="text-xl font-bold text-[#4B3621]">Provider Dashboard</h1>
-            <p className="text-sm text-[#4B3621] mt-0.5">{providerRecord?.business_name ?? "Service Provider"} — University Organization Collaborating Provider</p>
+            <p className="text-sm text-[#4B3621] mt-0.5">{providerRecord?.business_name ?? "Service Provider"} — UniServe Collaborating Provider</p>
           </div>
           <WireBadge variant="success">â— Active</WireBadge>
         </div>

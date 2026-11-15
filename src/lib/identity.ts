@@ -62,8 +62,14 @@ export async function getToken(): Promise<string | null> {
  */
 export async function loginWithEmail(email: string, password: string): Promise<NetlifyUser> {
   const goTrue = getGoTrue();
+  // The pre-provisioned student account is identified by its student number in
+  // the app, while Netlify Identity still authenticates against its email.
+  const identityEmail =
+    email.trim().toUpperCase() === "2023-00502-TG-0"
+      ? "hannahlorainne102825@gmail.com"
+      : email;
   // GoTrue.login() returns a GoTrueUser which is the same shape as NetlifyUser.
-  return goTrue.login(email, password, false) as Promise<NetlifyUser>;
+  return goTrue.login(identityEmail, password, false) as Promise<NetlifyUser>;
 }
 
 /**

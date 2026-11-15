@@ -17,7 +17,7 @@ export default function ProviderProfile({ navigate }: { navigate: (s: string) =>
           <WirePlaceholder label="Shop Logo" className="w-20 h-20 shrink-0" />
           <div className="flex flex-col gap-1">
             <h2 className="text-lg font-bold text-[#4B3621]">{providerName}</h2>
-            <WireBadge variant="success">âœ“ University Organization-approved Collaborator</WireBadge>
+            <WireBadge variant="success">âœ“ UniServe-approved Collaborator</WireBadge>
             <p className="text-xs text-[#4B3621] mt-1">Member since October 2025</p>
           </div>
         </WireCard>
@@ -72,9 +72,9 @@ export default function ProviderProfile({ navigate }: { navigate: (s: string) =>
 
             <div className="border border-dashed border-[#4B3621] p-3 bg-[#E3C565]">
               <p className="text-xs text-[#4B3621]">
-                <strong>âš  Important Notice:</strong> The delivery fee displayed above is an <strong>agreed rate between University Organization and this Service Provider</strong>.
+                <strong>âš  Important Notice:</strong> The delivery fee displayed above is an <strong>agreed rate between UniServe and this Service Provider</strong>.
                 The delivery fee <strong>cannot be changed independently</strong> by the Service Provider.
-                Any changes to the delivery fee must be discussed with and approved by University Organization administration, and a new collaboration agreement must be signed.
+                Any changes to the delivery fee must be discussed with and approved by UniServe administration, and a new collaboration agreement must be signed.
               </p>
             </div>
           </div>

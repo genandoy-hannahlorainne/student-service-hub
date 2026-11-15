@@ -63,7 +63,7 @@ export default function AdminWebsite({ navigate }: { navigate: (s: string) => vo
           {active === "landing" && (
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2"><WireInput label="Hero Headline" placeholder="Make school days a little easier." /></div>
-              <div className="sm:col-span-2"><WireInput label="Hero Subtitle" placeholder="Printing, supplies, and academic resources for PUP Taguig." /></div>
+              <div className="sm:col-span-2"><WireInput label="Hero Subtitle" placeholder="Printing, supplies, and academic resources for the University community." /></div>
               <div className="sm:col-span-2"><WireTextarea label="Hero Description" rows={3} placeholder="Describe the platform briefly…" /></div>
               <WireInput label="About Section Title" placeholder="About UniServe" />
               <div className="sm:col-span-2"><WireTextarea label="About Section Content" rows={4} placeholder="About text…" /></div>
@@ -116,7 +116,7 @@ export default function AdminWebsite({ navigate }: { navigate: (s: string) => vo
               <WireTextarea
                 label="Terms and Services Content"
                 rows={14}
-                placeholder={"1. PUPTians must use official PUP student credentials.\n2. Service Providers must be officially approved.\n3. Delivery fees are agreed upon between UniServe and providers.\n\nEdit and format full terms here."}
+                placeholder={"1. Students must use their official student credentials.\n2. Service Providers must be officially approved.\n3. Delivery fees are agreed upon between UniServe and providers.\n\nEdit and format full terms here."}
               />
               <p className="text-xs text-[#4B3621]/40">Last updated: October 1, 2026</p>
             </div>

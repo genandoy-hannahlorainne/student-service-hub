@@ -5,6 +5,7 @@
  * been approved by an admin.
  */
 
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { WireBtn } from "../components/WireframeUI";
 import organizationLogo from "../assets/images/org_ssh_logo.png";
@@ -15,6 +16,7 @@ export default function ProviderPending({
   navigate: (s: string) => void;
 }) {
   const { providerRecord, logout, profile } = useAuth();
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -35,7 +37,7 @@ export default function ProviderPending({
     <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md bg-[#E3C565] rounded-2xl border border-[#4B3621] shadow-lg p-8 flex flex-col items-center gap-6">
         {/* Logo */}
-        <img src={organizationLogo} alt="University Organization" className="h-16 w-16 object-contain" />
+        <img src={organizationLogo} alt="UniServe" className="h-16 w-16 object-contain" />
 
         {/* Status badge */}
         <div className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold ${statusColor}`}>
@@ -66,7 +68,7 @@ export default function ProviderPending({
                 </div>
               )}
               <p className="text-sm text-[#4B3621]">
-                Contact University Organization for more information or to appeal.
+                Contact UniServe for more information or to appeal.
               </p>
             </>
           ) : (
@@ -98,13 +100,26 @@ export default function ProviderPending({
         {/* Actions */}
         <div className="w-full flex flex-col gap-2">
           <WireBtn variant="outline" className="w-full" onClick={() => navigate("contact")}>
-            Contact University Organization
+            Contact UniServe
           </WireBtn>
-          <WireBtn variant="ghost" className="w-full text-[#4B3621]" onClick={handleLogout}>
+          <WireBtn variant="ghost" className="w-full text-[#4B3621]" onClick={() => setShowLogoutConfirm(true)}>
             Log out
           </WireBtn>
         </div>
       </div>
+      {showLogoutConfirm && (
+        <div role="dialog" aria-modal="true" aria-labelledby="pending-logout-title" className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setShowLogoutConfirm(false)} aria-hidden="true" />
+          <div className="relative w-full max-w-sm bg-[#E3C565] border border-[#4B3621] p-6">
+            <h2 id="pending-logout-title" className="text-base font-bold text-[#4B3621]">Sign out?</h2>
+            <p className="mt-2 text-sm text-[#4B3621]">Are you sure you want to log out of your UniServe account?</p>
+            <div className="mt-5 flex gap-2">
+              <button onClick={() => setShowLogoutConfirm(false)} className="flex-1 border border-[#4B3621] px-4 py-2.5 text-sm font-semibold text-[#4B3621]">Cancel</button>
+              <button onClick={() => void handleLogout()} className="flex-1 bg-[#000000] px-4 py-2.5 text-sm font-semibold text-white">Log out</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

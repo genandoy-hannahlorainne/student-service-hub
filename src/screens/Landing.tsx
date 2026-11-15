@@ -16,7 +16,7 @@ const services = [
     icon: "bi-stars",
     eyebrow: "02 / SUPPLY",
     title: "School supplies",
-    description: "Find everyday academic essentials from participating providers near PUP Taguig.",
+    description: "Find everyday academic essentials from participating University providers.",
     screen: "school-supplies",
     tone: "bg-[#E3C565] text-[#000000]",
   },
@@ -33,10 +33,10 @@ const services = [
 const roles = [
   {
     icon: "bi-mortarboard",
-    name: "PUPTian",
+    name: "Student",
     label: "Full student access",
     description: "Order services, buy supplies, rent resources, and track every transaction.",
-    action: "Login as PUPTian",
+    action: "Student login",
     screen: "login",
     actionClass: "bg-[#4B3621] text-white hover:bg-[#0b2b45]",
   },
@@ -52,7 +52,7 @@ const roles = [
   {
     icon: "bi-shop",
     name: "Provider",
-    label: "University Organization collaborator",
+    label: "UniServe collaborator",
     description: "Manage approved services, receive orders, and keep students updated.",
     action: "Provider login",
     screen: "login-provider",
@@ -81,11 +81,11 @@ export default function Landing({ navigate }: LandingProps) {
               <div className="relative flex h-full flex-col justify-between">
                 <div className="flex items-center gap-3">
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center ring-2 ring-white/20">
-                    <img src={organizationLogo} alt="University Organization logo" className="h-full w-full object-contain" />
+                    <img src={organizationLogo} alt="UniServe logo" className="h-full w-full object-contain" />
                   </span>
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#E3C565]">PUP Taguig</p>
-                    <p className="font-semibold">University Organization Student Services Hub</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#E3C565]">UniServe</p>
+                    <p className="font-semibold">University Student Services Hub</p>
                   </div>
                 </div>
 
@@ -98,7 +98,7 @@ export default function Landing({ navigate }: LandingProps) {
                     Make school days a little easier.
                   </h1>
                   <p className="mt-5 max-w-xl text-sm leading-6 text-[#E3C565] sm:text-base">
-                    Printing, supplies, and academic resources brought together for the PUP Taguig community.
+                    Printing, supplies, and academic resources brought together for the University community.
                   </p>
                   <div className="mt-8 flex flex-wrap gap-3">
                     <WireBtn size="lg" onClick={() => navigate("register")} className="rounded-xl border-[#E3C565] bg-[#E3C565] px-6 font-semibold text-[#000000] hover:bg-[#E3C565]">
@@ -135,7 +135,7 @@ export default function Landing({ navigate }: LandingProps) {
                 <div className="mt-6 space-y-3">
                   {[
                     ["Browse services", "public-services"],
-                    ["How the University Organization hub works", "how-it-works"],
+                    ["How the UniServe hub works", "how-it-works"],
                     ["Become a provider", "provider-partnership"],
                   ].map(([label, screen]) => (
                     <button key={screen} onClick={() => navigate(screen)} className="flex w-full items-center justify-between rounded-2xl bg-[#E3C565] px-4 py-3 text-left text-sm font-semibold transition hover:bg-[#E3C565]">
@@ -181,7 +181,7 @@ export default function Landing({ navigate }: LandingProps) {
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#E3C565]">Choose your path</p>
               <h2 className="mt-3 text-3xl font-bold leading-tight text-[#4B3621]">The right tools for your role.</h2>
               <p className="mt-4 text-sm leading-6 text-[#4B3621]">Start where you are. Your workspace adapts to what you need to do.</p>
-              <button onClick={() => navigate("about")} className="mt-8 text-sm font-bold text-[#4B3621] underline decoration-[#E3C565] decoration-2 underline-offset-4">Learn about the University Organization hub <i className="bi bi-arrow-right" aria-hidden="true" /></button>
+              <button onClick={() => navigate("about")} className="mt-8 text-sm font-bold text-[#4B3621] underline decoration-[#E3C565] decoration-2 underline-offset-4">Learn about the UniServe hub <i className="bi bi-arrow-right" aria-hidden="true" /></button>
             </div>
             <div className="grid gap-4 md:grid-cols-3">
               {roles.map((role) => (
@@ -227,16 +227,16 @@ export default function Landing({ navigate }: LandingProps) {
         <section id="about" className="px-4 py-16 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <div className="mb-8 text-center">
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#E3C565]">About University Organization</p>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#E3C565]">About UniServe</p>
               <h2 className="mt-2 text-3xl font-bold tracking-tight text-[#4B3621] sm:text-4xl">Bringing campus essentials together.</h2>
-              <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#4B3621]">University Organization brings everyday student services and academic resources into one organized platform.</p>
+              <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#4B3621]">UniServe brings everyday student services and academic resources into one organized platform.</p>
             </div>
             <div className="grid gap-8 md:grid-cols-2">
               <div className="rounded-[24px] border border-[#4B3621]/20 bg-[#E3C565] p-7">
-                <h3 className="text-base font-bold text-[#4B3621] border-b border-[#4B3621]/10 pb-2 mb-4">What University Organization solves</h3>
+                <h3 className="text-base font-bold text-[#4B3621] border-b border-[#4B3621]/10 pb-2 mb-4">What UniServe solves</h3>
                 <p className="text-sm leading-7 text-[#4B3621]">
                   Students often need printing, school supplies, and academic resources at the same time.
-                  University Organization gives them one trusted place to discover services, submit requests, and follow
+                  UniServe gives them one trusted place to discover services, submit requests, and follow
                   updates without relying on scattered messages or posts.
                 </p>
               </div>
@@ -252,7 +252,7 @@ export default function Landing({ navigate }: LandingProps) {
             </div>
             <div className="mt-6 grid gap-5 sm:grid-cols-3">
               {[
-                ["bi-mortarboard", "Student-first", "Designed around the daily needs of PUP Taguig students."],
+                ["bi-mortarboard", "Student-first", "Designed around the daily needs of University students."],
                 ["bi-people", "Community-based", "Connects students, guests, and local service providers."],
                 ["bi-shield-check", "Managed", "Admin review helps keep providers and rental posts reliable."],
               ].map(([icon, title, description]) => (
@@ -278,7 +278,7 @@ export default function Landing({ navigate }: LandingProps) {
             </div>
             <div className="grid gap-5 md:grid-cols-4">
               {[
-                ["01", "bi-person-plus", "Create an account", "Choose PUPTian, Guest, or Provider access."],
+                ["01", "bi-person-plus", "Create an account", "Choose Student, Guest, or Provider access."],
                 ["02", "bi-grid", "Choose a service", "Browse printing, supplies, or academic resources."],
                 ["03", "bi-send", "Submit a request", "Provide the details needed to process your request."],
                 ["04", "bi-graph-up-arrow", "Track updates", "See order status and next steps in your portal."],
@@ -297,7 +297,7 @@ export default function Landing({ navigate }: LandingProps) {
             </div>
             <div className="mt-8 rounded-[18px] border border-white/10 bg-[#E3C565]/5 p-5 text-sm text-[#E3C565]">
               <strong className="text-white">Note for guests:</strong> Guest accounts can browse services
-              and submit public requests, while ordering and purchasing are reserved for PUPTian accounts.
+              and submit public requests, while ordering and purchasing are reserved for Student accounts.
             </div>
             <div className="mt-8 text-center">
               <WireBtn size="lg" onClick={() => navigate("register")} className="rounded-xl border-[#E3C565] bg-[#E3C565] px-6 font-semibold text-[#000000] hover:bg-[#E3C565]">
@@ -312,8 +312,8 @@ export default function Landing({ navigate }: LandingProps) {
           <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-[1.2fr_0.8fr]">
             <div className="rounded-[26px] border border-[#4B3621] bg-[#E3C565] p-7 sm:p-9">
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#E3C565]">A trusted campus network</p>
-              <h2 className="mt-3 text-2xl font-bold text-[#4B3621]">Designed for the PUP Taguig community.</h2>
-              <p className="mt-4 max-w-2xl text-sm leading-6 text-[#4B3621]">The University Organization hub connects students with participating providers and keeps academic resource sharing focused, visible, and moderated.</p>
+              <h2 className="mt-3 text-2xl font-bold text-[#4B3621]">Designed for the University community.</h2>
+              <p className="mt-4 max-w-2xl text-sm leading-6 text-[#4B3621]">The UniServe hub connects students with participating providers and keeps academic resource sharing focused, visible, and moderated.</p>
               <div className="mt-7 flex flex-wrap gap-2">
                 {["Approved providers", "Pickup & delivery", "Order tracking", "Moderated listings"].map((item) => (
                   <span key={item} className="rounded-full bg-[#E3C565] px-3 py-2 text-xs font-semibold text-[#4B3621]">{item}</span>
@@ -337,13 +337,13 @@ export default function Landing({ navigate }: LandingProps) {
               <span className="flex h-10 w-10 shrink-0 items-center justify-center">
                 <img src={organizationLogo} alt="" className="h-full w-full object-contain" />
               </span>
-              <span className="font-bold text-white">University Organization Student Services Hub</span>
+              <span className="font-bold text-white">UniServe University Student Services Hub</span>
             </div>
-            <p className="mt-3 max-w-sm text-xs leading-5">A student service and resource platform for PUP Taguig.</p>
+            <p className="mt-3 max-w-sm text-xs leading-5">A student service and resource platform for the University community.</p>
           </div>
           <div className="text-left text-xs sm:text-right">
-            <p>PUP Taguig Campus</p>
-            <p className="mt-1">uniserve@puptaguig.edu.ph</p>
+            <p>University campus</p>
+            <p className="mt-1">uniserve@university.edu</p>
           </div>
         </div>
       </footer>

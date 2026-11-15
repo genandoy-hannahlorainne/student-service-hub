@@ -56,8 +56,8 @@ export default function PrintingConfirmation({ navigate }: { navigate: (s: strin
                 <WirePlaceholder label="🪟" className="w-10 h-10 shrink-0" />
                 <div className="text-sm">
                   <p className="font-semibold text-[#4B3621]">Charie Ledesma Printing Services</p>
-                  <p className="text-[#4B3621] text-xs">📍 PUP Taguig area</p>
-                  <WireBadge variant="success">University Organization-approved Collaborator</WireBadge>
+                  <p className="text-[#4B3621] text-xs">📍 University area</p>
+                  <WireBadge variant="success">UniServe-approved Collaborator</WireBadge>
                 </div>
               </div>
             </div>
@@ -80,7 +80,7 @@ export default function PrintingConfirmation({ navigate }: { navigate: (s: strin
             <WireSectionTitle>Fulfillment</WireSectionTitle>
             <div className="text-sm text-[#4B3621] flex flex-col gap-1">
               <p className="font-medium">🚚 Delivery</p>
-              <p className="text-[#4B3621]">Room 201, PUP Taguig Main Building</p>
+              <p className="text-[#4B3621]">University Main Building</p>
               <p className="text-[#4B3621]">Agreed Delivery Fee: ₱30.00</p>
             </div>
           </WireCard>

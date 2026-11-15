@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   WireBtn, WireCard, WirePlaceholder, WireBadge, WireSectionTitle,
 } from "../../components/WireframeUI";
+import { useAuth } from "../../context/AuthContext";
 
 const GUEST_NAV = [
   { label: "Dashboard", icon: "âŠž", screen: "guest-dashboard" },
@@ -12,7 +13,7 @@ const GUEST_NAV = [
   { label: "Profile", icon: "â—Ž", screen: "guest-dashboard" },
 ];
 
-function GuestSidebar({ active, navigate, open, onClose }: { active: string; navigate: (s: string) => void; open: boolean; onClose: () => void }) {
+function GuestSidebar({ active, navigate, open, onClose, onLogoutRequest }: { active: string; navigate: (s: string) => void; open: boolean; onClose: () => void; onLogoutRequest: () => void }) {
   return (
     <>
       {open && <div className="fixed inset-0 bg-black/40 z-30 lg:hidden" onClick={onClose} />}
@@ -31,13 +32,13 @@ function GuestSidebar({ active, navigate, open, onClose }: { active: string; nav
           </button>
         ))}
         <div className="mt-4 mx-3 border border-dashed border-[#4B3621] p-2 text-xs text-[#4B3621]">
-          <p className="font-semibold mb-1 text-[#4B3621]">Locked (PUPTian only):</p>
+          <p className="font-semibold mb-1 text-[#4B3621]">Locked (Student only):</p>
           <p>âœ— Order Printing</p>
           <p>âœ— Buy Supplies</p>
           <p>âœ— Create Rental Posts</p>
           <p>âœ— Track Orders</p>
         </div>
-        <button onClick={() => navigate("landing")} className="text-left px-4 py-2.5 text-sm text-[#4B3621] hover:bg-[#E3C565] border-t border-[#4B3621] mt-auto">
+        <button onClick={onLogoutRequest} className="text-left px-4 py-2.5 text-sm text-[#4B3621] hover:bg-[#E3C565] border-t border-[#4B3621] mt-auto">
           â— Logout
         </button>
       </aside>
@@ -47,6 +48,14 @@ function GuestSidebar({ active, navigate, open, onClose }: { active: string; nav
 
 export default function GuestDashboard({ navigate }: { navigate: (s: string) => void }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    setShowLogoutConfirm(false);
+    await logout();
+    navigate("landing");
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -63,17 +72,17 @@ export default function GuestDashboard({ navigate }: { navigate: (s: string) => 
             <span className="block w-5 h-0.5 bg-[#E3C565]" />
           </button>
           <WirePlaceholder label="LOGO" className="w-7 h-7 shrink-0" />
-          <span className="font-bold text-sm hidden sm:block truncate">University Organization Student Services Hub</span>
+          <span className="font-bold text-sm hidden sm:block truncate">UniServe University Student Services Hub</span>
           <span className="text-xs bg-[#E3C565]0 px-2 py-0.5 ml-1 shrink-0">GUEST</span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <WireBtn size="sm" variant="secondary" onClick={() => navigate("register")} className="hidden sm:inline-flex">Upgrade to PUPTian</WireBtn>
+          <WireBtn size="sm" variant="secondary" onClick={() => navigate("register")} className="hidden sm:inline-flex">Upgrade to Student</WireBtn>
           <WirePlaceholder label="ðŸ‘¤" className="w-7 h-7 text-xs shrink-0" />
         </div>
       </header>
 
       <div className="flex h-[calc(100vh-56px)] overflow-hidden relative">
-        <GuestSidebar active="guest-dashboard" navigate={navigate} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <GuestSidebar active="guest-dashboard" navigate={navigate} open={sidebarOpen} onClose={() => setSidebarOpen(false)} onLogoutRequest={() => setShowLogoutConfirm(true)} />
 
         <main className="flex-1 overflow-y-auto bg-white p-4 lg:p-5">
           <div className="flex flex-col gap-5 max-w-4xl">
@@ -91,17 +100,17 @@ export default function GuestDashboard({ navigate }: { navigate: (s: string) => 
               {/* Upgrade CTA */}
               <div className="border-2 border-dashed border-[#4B3621] p-4 bg-[#E3C565] flex flex-col sm:flex-row items-start gap-3">
                 <div className="flex-1">
-                  <p className="font-semibold text-[#4B3621] text-sm">Are you a PUP Taguig student?</p>
+                  <p className="font-semibold text-[#4B3621] text-sm">Are you a University student?</p>
                   <p className="text-xs text-[#4B3621] mt-0.5">
-                    Register as a <strong>PUPTian</strong> to unlock full access â€” order printing, purchase supplies,
+                    Register as a <strong>Student</strong> to unlock full access â€” order printing, purchase supplies,
                     create rental posts, and track your orders.
                   </p>
                 </div>
-                <WireBtn variant="outline" size="sm" onClick={() => navigate("register")} className="shrink-0">Upgrade to PUPTian â†’</WireBtn>
+                <WireBtn variant="outline" size="sm" onClick={() => navigate("register")} className="shrink-0">Upgrade to Student â†’</WireBtn>
               </div>
 
               {/* Mobile upgrade shortcut */}
-              <WireBtn variant="secondary" className="sm:hidden w-full" onClick={() => navigate("register")}>Upgrade to PUPTian Account</WireBtn>
+              <WireBtn variant="secondary" className="sm:hidden w-full" onClick={() => navigate("register")}>Upgrade to Student Account</WireBtn>
             </div>
 
             {/* Available features */}
@@ -125,7 +134,7 @@ export default function GuestDashboard({ navigate }: { navigate: (s: string) => 
 
             {/* Locked features */}
             <section>
-              <h2 className="text-sm font-semibold text-[#4B3621] uppercase tracking-wide mb-3">Requires PUPTian Account</h2>
+              <h2 className="text-sm font-semibold text-[#4B3621] uppercase tracking-wide mb-3">Requires Student Account</h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 opacity-60">
                 {[
                   { icon: "ðŸ–¨", title: "Order Printing", desc: "Upload and order documents from approved shops" },
@@ -139,7 +148,7 @@ export default function GuestDashboard({ navigate }: { navigate: (s: string) => 
                       <WireBadge variant="rejected">Locked</WireBadge>
                     </div>
                     <p className="text-xs text-[#4B3621]">{item.desc}</p>
-                    <div className="border border-dashed border-[#4B3621] py-1.5 text-center text-xs text-[#4B3621]">PUPTian Only</div>
+                    <div className="border border-dashed border-[#4B3621] py-1.5 text-center text-xs text-[#4B3621]">Student Only</div>
                   </WireCard>
                 ))}
               </div>
@@ -155,7 +164,7 @@ export default function GuestDashboard({ navigate }: { navigate: (s: string) => 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold text-[#4B3621]">Looking for a typewriter to rent for 2 days</p>
-                    <p className="text-xs text-[#4B3621] mt-0.5">Posted Dec 10, 2025 Â· Category: Typewriter Â· PUP Taguig area</p>
+                    <p className="text-xs text-[#4B3621] mt-0.5">Posted Dec 10, 2025 Â· Category: Typewriter Â· University area</p>
                   </div>
                   <WireBadge variant="pending">Pending Review</WireBadge>
                 </div>
@@ -168,6 +177,19 @@ export default function GuestDashboard({ navigate }: { navigate: (s: string) => 
           </div>
         </main>
       </div>
+      {showLogoutConfirm && (
+        <div role="dialog" aria-modal="true" aria-labelledby="guest-logout-title" className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setShowLogoutConfirm(false)} aria-hidden="true" />
+          <div className="relative w-full max-w-sm bg-[#E3C565] border border-[#4B3621] p-6">
+            <h2 id="guest-logout-title" className="text-base font-bold text-[#4B3621]">Sign out?</h2>
+            <p className="mt-2 text-sm text-[#4B3621]">Are you sure you want to log out of your UniServe account?</p>
+            <div className="mt-5 flex gap-2">
+              <button onClick={() => setShowLogoutConfirm(false)} className="flex-1 border border-[#4B3621] px-4 py-2.5 text-sm font-semibold text-[#4B3621]">Cancel</button>
+              <button onClick={() => void handleLogout()} className="flex-1 bg-[#000000] px-4 py-2.5 text-sm font-semibold text-white">Log out</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

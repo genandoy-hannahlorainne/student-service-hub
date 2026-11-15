@@ -48,11 +48,11 @@ function AuthShell({
             <div className="relative flex h-full flex-col justify-between">
               <div className="flex items-center gap-3">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center ring-2 ring-white/20">
-                  <img src={organizationLogo} alt="University Organization logo" className="h-full w-full object-contain" />
+                  <img src={organizationLogo} alt="UniServe logo" className="h-full w-full object-contain" />
                 </span>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#E3C565]">PUP Taguig</p>
-                  <p className="font-semibold">Student Services Hub</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#E3C565]">UniServe</p>
+                  <p className="font-semibold">University Student Services Hub</p>
                 </div>
               </div>
               <div className="relative py-12">
@@ -64,7 +64,7 @@ function AuthShell({
                 <p className="mt-5 max-w-sm text-sm leading-6 text-[#E3C565]">{subtitle}</p>
               </div>
               <div className="border-t border-white/15 pt-5 text-xs text-[#E3C565]">
-                <strong className="text-white">One hub.</strong> Printing, supplies, and academic resources for the PUP Taguig community.
+                <strong className="text-white">One hub.</strong> Printing, supplies, and academic resources for the University community.
               </div>
             </div>
           </div>
@@ -82,6 +82,44 @@ function AuthShell({
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function PasswordInput({
+  id,
+  value,
+  onChange,
+  autoComplete = "current-password",
+  placeholder = "Enter your password",
+}: {
+  id: string;
+  value: string;
+  onChange: (value: string) => void;
+  autoComplete?: string;
+  placeholder?: string;
+}) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div className="relative">
+      <input
+        id={id}
+        type={visible ? "text" : "password"}
+        autoComplete={autoComplete}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="border border-[#4B3621] px-3 py-2 pr-10 text-sm bg-[#E3C565] focus:outline-none focus:border-[#4B3621] w-full rounded-lg"
+        required
+      />
+      <button
+        type="button"
+        aria-label={visible ? "Hide password" : "Show password"}
+        onClick={() => setVisible((current) => !current)}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#4B3621]"
+      >
+        <i className={`bi ${visible ? "bi-eye-slash" : "bi-eye"}`} aria-hidden="true" />
+      </button>
     </div>
   );
 }
@@ -130,7 +168,7 @@ function portalRoleCheck(roles: UserRole[], allowedRoles: UserRole[]): string | 
   if (roles.includes("admin") || roles.includes("co_admin"))
     return "Admin accounts must sign in through the Admin portal.";
   if (roles.includes("student"))
-    return "Student accounts must sign in through the PUPTian login portal.";
+    return "Student accounts must sign in through the Student login portal.";
   if (roles.includes("provider"))
     return "Provider accounts must sign in through the Provider login portal.";
   if (roles.includes("guest"))
@@ -199,11 +237,11 @@ function formatStudentNumber(raw: string): string {
   return out;
 }
 
-// ─── 1. PUPTian Login ─────────────────────────────────────────────────────────
+// ─── 1. Student Login ─────────────────────────────────────────────────────────
 
 export function Login({ navigate }: { navigate: (s: string) => void }) {
   const { login, logout, authError, clearAuthError, providerPending } = useAuth();
-  const [email, setEmail] = useState("");
+  const [studentNumber, setStudentNumber] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState("");
@@ -213,14 +251,14 @@ export function Login({ navigate }: { navigate: (s: string) => void }) {
     setLocalError("");
     clearAuthError();
 
-    if (!email.trim() || !password) {
-      setLocalError("Email and password are required.");
+    if (!studentNumber.trim() || !password) {
+      setLocalError("Student number and password are required.");
       return;
     }
 
     setLoading(true);
     try {
-      const roles = await login(email.trim(), password);
+      const roles = await login(studentNumber.trim(), password);
 
       // Portal enforcement — only student (and admin as override) may use this portal
       const portalError = portalRoleCheck(roles, ["student"]);
@@ -247,9 +285,9 @@ export function Login({ navigate }: { navigate: (s: string) => void }) {
   return (
     <AuthShell
       navigate={navigate}
-      roleBadge="PUPTian Login"
+      roleBadge="Student Login"
       roleColor="bg-[#4B3621]"
-      title="University Organization Student Services Hub"
+      title="UniServe University Student Services Hub"
       subtitle="Sign in with your student account"
     >
       <WireCard className="rounded-[26px] border-[#4B3621]/20 p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
@@ -257,16 +295,17 @@ export function Login({ navigate }: { navigate: (s: string) => void }) {
           {displayError && <ErrorAlert message={displayError} />}
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="login-email" className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">
-              Student Number / Email
+            <label htmlFor="login-student-number" className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">
+              Student Number
             </label>
             <input
-              id="login-email"
-              type="email"
+              id="login-student-number"
+              type="text"
+              inputMode="text"
               autoComplete="username"
-              placeholder="e.g. 2021-00001 or juan@pup.edu.ph"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="e.g. 2023-00502-TG-0"
+              value={studentNumber}
+              onChange={(e) => setStudentNumber(e.target.value)}
               className="border border-[#4B3621] px-3 py-2 text-sm bg-[#E3C565] focus:outline-none focus:border-[#4B3621] w-full rounded-lg"
               required
             />
@@ -276,16 +315,7 @@ export function Login({ navigate }: { navigate: (s: string) => void }) {
             <label htmlFor="login-password" className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">
               Password
             </label>
-            <input
-              id="login-password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="border border-[#4B3621] px-3 py-2 text-sm bg-[#E3C565] focus:outline-none focus:border-[#4B3621] w-full rounded-lg"
-              required
-            />
+            <PasswordInput id="login-password" value={password} onChange={setPassword} />
           </div>
 
           <div className="flex items-center justify-between">
@@ -299,14 +329,14 @@ export function Login({ navigate }: { navigate: (s: string) => void }) {
           </div>
 
           <WireBtn type="submit" size="lg" className="w-full mt-1" disabled={loading}>
-            {loading ? "Signing in…" : "Login as PUPTian"}
+            {loading ? "Signing in…" : "Login as Student"}
           </WireBtn>
         </form>
 
         <div className="border-t border-[#4B3621] mt-4 pt-4 text-center">
           <p className="text-sm text-[#4B3621] mb-3">No account yet?</p>
           <WireBtn variant="outline" className="w-full" onClick={() => navigate("register")}>
-            Register as PUPTian
+            Register as Student
           </WireBtn>
         </div>
       </WireCard>
@@ -360,12 +390,12 @@ export function GuestLogin({ navigate }: { navigate: (s: string) => void }) {
       navigate={navigate}
       roleBadge="Guest Login"
       roleColor="bg-[#E3C565] text-[#000000]"
-      title="University Organization Student Services Hub"
+      title="UniServe University Student Services Hub"
       subtitle="Limited access — browse and post requests"
     >
       <div className="mb-4 rounded-2xl border border-[#4B3621]/15 bg-[#E3C565]/35 p-4 text-xs text-[#4B3621]">
         <strong>Guest Access:</strong> You can browse services and post public need requests.
-        Full ordering features require a PUPTian account.
+        Full ordering features require a Student account.
       </div>
 
       <WireCard className="rounded-[26px] border-[#4B3621]/20 p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
@@ -377,7 +407,7 @@ export function GuestLogin({ navigate }: { navigate: (s: string) => void }) {
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="guest-password" className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">Password</label>
-            <input id="guest-password" type="password" autoComplete="current-password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} className="border border-[#4B3621] px-3 py-2 text-sm bg-[#E3C565] focus:outline-none focus:border-[#4B3621] w-full rounded-lg" required />
+            <PasswordInput id="guest-password" value={password} onChange={setPassword} />
           </div>
           <WireBtn type="submit" size="lg" className="w-full mt-1 bg-[#4B3621] border-gray-600" disabled={loading}>
             {loading ? "Signing in…" : "Login as Guest"}
@@ -392,7 +422,7 @@ export function GuestLogin({ navigate }: { navigate: (s: string) => void }) {
       <div className="mt-4 flex flex-col gap-2">
         <p className="text-xs text-[#4B3621] text-center mb-1">Other login portals:</p>
         <div className="grid grid-cols-2 gap-2">
-          <WireBtn variant="secondary" size="sm" onClick={() => navigate("login")}>PUPTian</WireBtn>
+          <WireBtn variant="secondary" size="sm" onClick={() => navigate("login")}>Student</WireBtn>
           <WireBtn variant="secondary" size="sm" onClick={() => navigate("login-provider")}>Provider</WireBtn>
         </div>
         <p className="text-center text-xs text-[#4B3621] mt-1">
@@ -438,11 +468,11 @@ export function ProviderLogin({ navigate }: { navigate: (s: string) => void }) {
       navigate={navigate}
       roleBadge="Service Provider Login"
       roleColor="bg-[#4B3621]"
-      title="University Organization Student Services Hub"
+      title="UniServe University Student Services Hub"
       subtitle="Collaborating provider portal"
     >
       <div className="mb-4 rounded-2xl border border-[#4B3621]/15 bg-[#E3C565]/35 p-4 text-xs text-[#4B3621]">
-        <strong>Providers:</strong> Only University Organization-approved collaborating businesses can access this portal.
+        <strong>Providers:</strong> Only UniServe-approved collaborating businesses can access this portal.
       </div>
 
       <WireCard className="rounded-[26px] border-[#4B3621]/20 p-5 shadow-[0_18px_40px_rgba(75,54,33,0.10)] sm:p-7">
@@ -454,7 +484,7 @@ export function ProviderLogin({ navigate }: { navigate: (s: string) => void }) {
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="provider-password" className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">Password</label>
-            <input id="provider-password" type="password" autoComplete="current-password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} className="border border-[#4B3621] px-3 py-2 text-sm bg-[#E3C565] focus:outline-none focus:border-[#4B3621] w-full rounded-lg" required />
+            <PasswordInput id="provider-password" value={password} onChange={setPassword} />
           </div>
           <WireBtn type="submit" size="lg" className="w-full mt-1 bg-[#4B3621] border-gray-700" disabled={loading}>
             {loading ? "Signing in…" : "Login as Provider"}
@@ -468,7 +498,7 @@ export function ProviderLogin({ navigate }: { navigate: (s: string) => void }) {
       <div className="mt-4 flex flex-col gap-2">
         <p className="text-xs text-[#4B3621] text-center mb-1">Other login portals:</p>
         <div className="grid grid-cols-2 gap-2">
-          <WireBtn variant="secondary" size="sm" onClick={() => navigate("login")}>PUPTian</WireBtn>
+          <WireBtn variant="secondary" size="sm" onClick={() => navigate("login")}>Student</WireBtn>
           <WireBtn variant="secondary" size="sm" onClick={() => navigate("login-guest")}>Guest</WireBtn>
         </div>
         <p className="text-center text-xs text-[#4B3621] mt-1">
@@ -554,7 +584,7 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
           <div className="relative flex h-full flex-col justify-between">
             <div className="flex items-center gap-3">
               <span className="flex h-12 w-12 items-center justify-center ring-2 ring-white/20">
-                <img src={organizationLogo} alt="University Organization logo" className="h-full w-full object-contain" />
+                <img src={organizationLogo} alt="UniServe logo" className="h-full w-full object-contain" />
               </span>
               <p className="font-semibold">Student Services Hub</p>
             </div>
@@ -562,11 +592,11 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#E3C565]/30 bg-[#E3C565]/10 px-3 py-1.5 text-xs font-medium text-[#E3C565]">
                 <i className="bi bi-lock-fill" aria-hidden="true" /> Restricted access
               </div>
-              <h1 className="text-4xl font-bold leading-tight tracking-[-0.04em]">University Organization Admin Access</h1>
+              <h1 className="text-4xl font-bold leading-tight tracking-[-0.04em]">UniServe Admin Access</h1>
               <p className="mt-5 text-sm leading-6 text-[#E3C565]">Internal operations for approvals, providers, orders, and platform content.</p>
             </div>
             <div className="border-t border-white/15 pt-5 space-y-1.5">
-              <p className="text-xs text-[#4B3621]">Administrator credentials are issued by University Organization management only.</p>
+              <p className="text-xs text-[#4B3621]">Administrator credentials are issued by UniServe management only.</p>
               <p className="text-xs text-[#E3C565]/70 flex items-center gap-1.5">
                 <i className="bi bi-shield-lock-fill" aria-hidden="true" /> All admin activity is logged and monitored.
               </p>
@@ -640,7 +670,7 @@ export function AdminLogin({ navigate }: { navigate: (s: string) => void }) {
   );
 }
 
-// ─── 5. PUPTian / Provider Registration ───────────────────────────────────────
+// ─── 5. Student / Provider Registration ───────────────────────────────────────
 
 export function Register({ navigate }: { navigate: (s: string) => void }) {
   const { completeRegistration, authError, clearAuthError, authStatus } = useAuth();
@@ -786,7 +816,7 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
       title="Join the student services hub."
       subtitle="Create your account to access printing, supplies, and academic resources."
       formTitle="Create an Account"
-      formSubtitle="Join University Organization Student Services Hub"
+      formSubtitle="Join UniServe University Student Services Hub"
     >
       {/* Profile completion banner (invite / email-confirmation return) */}
       {isProfileCompletion && (
@@ -805,7 +835,7 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
       {/* Role tabs */}
       <div className="mb-5 flex overflow-hidden rounded-2xl border border-[#4B3621]/20 bg-[#E3C565] p-1 shadow-sm">
         <button type="button" onClick={() => setRole("puptian")} className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${role === "puptian" ? "bg-[#4B3621] text-white" : "text-[#4B3621] hover:bg-[#E3C565]/30"}`}>
-          PUPTian (Student)
+          Student
         </button>
         <button type="button" onClick={() => setRole("provider")} className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${role === "provider" ? "bg-[#4B3621] text-white" : "text-[#4B3621] hover:bg-[#E3C565]/30"}`}>
           Service Provider
@@ -828,7 +858,7 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
           {role === "puptian" ? (
             <div className="grid gap-4 md:grid-cols-2">
               <div className="text-xs font-semibold uppercase tracking-wide border-b border-[#4B3621] pb-2 mb-1 md:col-span-2 text-[#4B3621]">
-                PUPTian — Student Information
+                Student Information
               </div>
 
               <div className="flex flex-col gap-1">
@@ -940,17 +970,17 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
                 <>
                   <div className="flex flex-col gap-1">
                     <label htmlFor="prov-password" className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">Password</label>
-                    <input id="prov-password" type="password" autoComplete="new-password" placeholder="Minimum 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} className="border border-[#4B3621] px-3 py-2 text-sm bg-[#E3C565] focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+                    <PasswordInput id="prov-password" autoComplete="new-password" placeholder="Minimum 8 characters" value={password} onChange={setPassword} />
                   </div>
                   <div className="flex flex-col gap-1">
                     <label htmlFor="prov-confirm" className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">Confirm Password</label>
-                    <input id="prov-confirm" type="password" autoComplete="new-password" placeholder="Re-enter your password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="border border-[#4B3621] px-3 py-2 text-sm bg-[#E3C565] focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+                    <PasswordInput id="prov-confirm" autoComplete="new-password" placeholder="Re-enter your password" value={confirmPassword} onChange={setConfirmPassword} />
                   </div>
                 </>
               )}
 
               <div className="border border-dashed border-[#4B3621] bg-[#E3C565] p-3 text-xs text-[#4B3621] md:col-span-2 rounded-lg">
-                <strong>Note:</strong> Provider accounts require University Organization approval before activation.
+                <strong>Note:</strong> Provider accounts require UniServe approval before activation.
               </div>
 
               <div className="mt-1 md:col-span-2">
@@ -963,7 +993,7 @@ export function Register({ navigate }: { navigate: (s: string) => void }) {
           )}
 
           <WireBtn type="submit" size="lg" className="w-full mt-2" disabled={loading || !!successMsg || isAdminByMetadata}>
-            {loading ? "Creating account…" : isProfileCompletion ? "Complete Profile Setup" : role === "puptian" ? "Register as PUPTian" : "Submit Provider Application"}
+            {loading ? "Creating account…" : isProfileCompletion ? "Complete Profile Setup" : role === "puptian" ? "Register as Student" : "Submit Provider Application"}
           </WireBtn>
         </form>
 
@@ -1042,7 +1072,7 @@ export function GuestRegister({ navigate }: { navigate: (s: string) => void }) {
           <li>Can browse all available services</li>
           <li>Can post &ldquo;Need / Request&rdquo; posts (admin approval required)</li>
           <li>Cannot order printing or purchase supplies</li>
-          <li>Cannot create rental posts (PUPTian only)</li>
+          <li>Cannot create rental posts (Student only)</li>
         </ul>
       </div>
 
@@ -1082,12 +1112,12 @@ export function GuestRegister({ navigate }: { navigate: (s: string) => void }) {
 
             <div className="flex flex-col gap-1">
               <label htmlFor="guest-reg-pw" className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">Password</label>
-              <input id="guest-reg-pw" type="password" autoComplete="new-password" placeholder="Minimum 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} className="border border-[#4B3621] px-3 py-2 text-sm bg-[#E3C565] focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+              <PasswordInput id="guest-reg-pw" autoComplete="new-password" placeholder="Minimum 8 characters" value={password} onChange={setPassword} />
             </div>
 
             <div className="flex flex-col gap-1">
               <label htmlFor="guest-reg-confirm" className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">Confirm Password</label>
-              <input id="guest-reg-confirm" type="password" autoComplete="new-password" placeholder="Re-enter your password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="border border-[#4B3621] px-3 py-2 text-sm bg-[#E3C565] focus:outline-none focus:border-gray-500 w-full rounded-lg" required />
+              <PasswordInput id="guest-reg-confirm" autoComplete="new-password" placeholder="Re-enter your password" value={confirmPassword} onChange={setConfirmPassword} />
             </div>
 
             <div className="mt-1 md:col-span-2 flex flex-col gap-2">
@@ -1108,8 +1138,8 @@ export function GuestRegister({ navigate }: { navigate: (s: string) => void }) {
         </form>
 
         <div className="border-t border-[#4B3621] mt-4 pt-4 text-center flex flex-col gap-2">
-          <p className="text-xs text-[#4B3621]">PUP Taguig student?</p>
-          <WireBtn variant="outline" className="w-full" onClick={() => navigate("register")}>Register as PUPTian instead</WireBtn>
+          <p className="text-xs text-[#4B3621]">University student?</p>
+          <WireBtn variant="outline" className="w-full" onClick={() => navigate("register")}>Register as Student instead</WireBtn>
           <WireBtn variant="ghost" onClick={() => navigate("login-guest")} className="text-sm text-[#4B3621]">&larr; Back to Guest Login</WireBtn>
         </div>
       </WireCard>

@@ -3,6 +3,7 @@ import {
   WireBtn, WireCard, WirePlaceholder, WireBadge, WireSectionTitle,
   WireInput, WireSelect, WireTextarea, WireLabel,
 } from "../../components/WireframeUI";
+import { useAuth } from "../../context/AuthContext";
 
 const GUEST_NAV_ITEMS = [
   { label: "Dashboard", icon: "bi-grid-1x2", screen: "guest-dashboard" },
@@ -15,6 +16,13 @@ const GUEST_NAV_ITEMS = [
 
 function GuestLayout({ children, navigate, active }: { children: React.ReactNode; navigate: (s: string) => void; active: string }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const { logout } = useAuth();
+  const handleLogout = async () => {
+    setShowLogoutConfirm(false);
+    await logout();
+    navigate("landing");
+  };
   return (
     <div className="min-h-screen bg-white">
       <header className="bg-[#4B3621] text-white px-3 py-2.5 flex items-center justify-between sticky top-0 z-40 border-b border-gray-500 h-14 shrink-0">
@@ -23,11 +31,11 @@ function GuestLayout({ children, navigate, active }: { children: React.ReactNode
             <span className="block w-5 h-0.5 bg-[#E3C565]" /><span className="block w-5 h-0.5 bg-[#E3C565]" /><span className="block w-5 h-0.5 bg-[#E3C565]" />
           </button>
           <WirePlaceholder label="LOGO" className="w-7 h-7 shrink-0" />
-          <span className="font-bold text-sm hidden sm:block truncate">University Organization Student Services Hub</span>
+          <span className="font-bold text-sm hidden sm:block truncate">UniServe University Student Services Hub</span>
           <span className="text-xs bg-[#E3C565] text-[#4B3621] px-2 py-0.5 ml-1 shrink-0">GUEST</span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <WireBtn size="sm" variant="secondary" onClick={() => navigate("register")} className="hidden sm:inline-flex">Upgrade to PUPTian</WireBtn>
+          <WireBtn size="sm" variant="secondary" onClick={() => navigate("register")} className="hidden sm:inline-flex">Upgrade to Student</WireBtn>
           <WirePlaceholder label="ðŸ‘¤" className="w-7 h-7 text-xs shrink-0" />
         </div>
       </header>
@@ -49,10 +57,23 @@ function GuestLayout({ children, navigate, active }: { children: React.ReactNode
             <p className="font-semibold mb-1 text-[#4B3621]">Locked:</p>
             <p>âœ— Order Printing</p><p>âœ— Buy Supplies</p><p>âœ— Rental Posts</p>
           </div>
-          <button onClick={() => navigate("landing")} className="text-left px-4 py-2.5 text-sm text-[#4B3621] hover:bg-[#E3C565] border-t border-[#4B3621] mt-auto">â— Logout</button>
+          <button onClick={() => setShowLogoutConfirm(true)} className="text-left px-4 py-2.5 text-sm text-[#4B3621] hover:bg-[#E3C565] border-t border-[#4B3621] mt-auto">â— Logout</button>
         </aside>
         <main className="flex-1 overflow-y-auto bg-white p-4 lg:p-5">{children}</main>
       </div>
+      {showLogoutConfirm && (
+        <div role="dialog" aria-modal="true" aria-labelledby="guest-post-logout-title" className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setShowLogoutConfirm(false)} aria-hidden="true" />
+          <div className="relative w-full max-w-sm bg-[#E3C565] border border-[#4B3621] p-6">
+            <h2 id="guest-post-logout-title" className="text-base font-bold text-[#4B3621]">Sign out?</h2>
+            <p className="mt-2 text-sm text-[#4B3621]">Are you sure you want to log out of your UniServe account?</p>
+            <div className="mt-5 flex gap-2">
+              <button onClick={() => setShowLogoutConfirm(false)} className="flex-1 border border-[#4B3621] px-4 py-2.5 text-sm font-semibold text-[#4B3621]">Cancel</button>
+              <button onClick={() => void handleLogout()} className="flex-1 bg-[#000000] px-4 py-2.5 text-sm font-semibold text-white">Log out</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -74,7 +95,7 @@ export function GuestPost({ navigate }: { navigate: (s: string) => void }) {
             <li>Posts must be for legitimate academic needs only</li>
             <li>All posts are reviewed by an administrator before becoming publicly visible</li>
             <li>Guests can only post <strong>Looking For / Need</strong> requests (not &ldquo;Available for Rent&rdquo;)</li>
-            <li>Contact information will be visible to logged-in PUPTians who wish to help</li>
+            <li>Contact information will be visible to logged-in Students who wish to help</li>
           </ul>
         </div>
 
@@ -90,7 +111,7 @@ export function GuestPost({ navigate }: { navigate: (s: string) => void }) {
                 <span className="text-sm text-[#4B3621] font-medium">Looking For / Need</span>
                 <WireBadge variant="default">Guest limit</WireBadge>
               </div>
-              <p className="text-xs text-[#4B3621] mt-1">Guests can only post requests. &ldquo;Available for Rent&rdquo; requires a PUPTian account.</p>
+              <p className="text-xs text-[#4B3621] mt-1">Guests can only post requests. &ldquo;Available for Rent&rdquo; requires a Student account.</p>
             </div>
 
             <WireSelect
@@ -106,7 +127,7 @@ export function GuestPost({ navigate }: { navigate: (s: string) => void }) {
               rows={5}
             />
 
-            <WireInput label="Location / Area" placeholder="e.g. PUP Taguig Campus area, Western Bicutan, Taguig" />
+            <WireInput label="Location / Area" placeholder="e.g. University campus area" />
 
             <WireInput label="Budget / What you can offer" placeholder='e.g. "Willing to pay â‚±50/day" or "Can negotiate" or "Prefer free"' />
 

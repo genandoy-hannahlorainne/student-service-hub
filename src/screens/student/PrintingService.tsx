@@ -23,7 +23,7 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
   const steps = ["File", "Details", "Shop", "Fulfillment", "Payment"];
 
   const shops = [
-    { name: "Charie Ledesma Printing Services", location: "PUP Taguig area", services: "Printing services", fee: "TBD", available: true },
+    { name: "Charie Ledesma Printing Services", location: "University area", services: "Printing services", fee: "TBD", available: true },
   ];
 
   const addFiles = (selectedFiles: FileList | null) => {
@@ -136,8 +136,8 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
         {step === 3 && <WireCard>
           <WireSectionTitle>3. Select Printing Shop</WireSectionTitle>
           <p className="text-xs text-[#4B3621] mb-4 border border-dashed border-[#4B3621] p-2 bg-[#E3C565]">
-            Only University Organization-approved collaborating printing shops are listed below. Shops must have an
-            official agreement with University Organization to appear here.
+            Only UniServe-approved collaborating printing shops are listed below. Shops must have an
+            official agreement with UniServe to appear here.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {shops.map((shop, i) => (
@@ -199,7 +199,7 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
               <div className="flex flex-col gap-3">
                 <WireInput
                   label="Delivery Location / Address"
-                  placeholder="Room or building within PUP Taguig campus or nearby area"
+                  placeholder="Room or building within the University campus or nearby area"
                 />
                 <div className="border border-[#4B3621] p-3 bg-[#E3C565] text-sm">
                   <span className="text-[#4B3621]">Agreed Delivery Fee: </span>
@@ -211,7 +211,7 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
               <div className="border border-[#4B3621] p-3 bg-[#E3C565] text-sm">
                 <p className="text-[#4B3621]">
                   📍 Pickup Location:{" "}
-                  <strong>Charie Ledesma Printing Services — PUP Taguig area</strong>
+                  <strong>Charie Ledesma Printing Services — University area</strong>
                 </p>
                 <p className="text-xs text-[#4B3621] mt-0.5">No delivery fee for pickup orders.</p>
               </div>

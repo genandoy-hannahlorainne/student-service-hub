@@ -51,7 +51,7 @@ function ContactModal({ post, onClose }: { post: RentalPost; onClose: () => void
             <p className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">Poster Contact</p>
             <div className="border border-dashed border-[#4B3621] p-2 bg-[#E3C565] text-sm text-[#4B3621]">
               Contact details are shared after a verified request.
-              <p className="text-xs text-[#4B3621] mt-0.5">Contact info is visible to verified PUPTians only.</p>
+              <p className="text-xs text-[#4B3621] mt-0.5">Contact info is visible to verified Students only.</p>
             </div>
           </div>
 

@@ -101,15 +101,15 @@ const ADMIN_ENTRY_SCREENS = new Set<Screen>([
 const SCREEN_LABELS: Record<Screen, string> = {
   "landing": "Landing Page",
   "public-services": "Public — Services",
-  "about": "Public — About University Organization",
+  "about": "Public — About UniServe",
   "how-it-works": "Public — How It Works",
   "contact": "Public — Contact / Support",
   "provider-partnership": "Public — Provider Partnership",
-  "login": "PUPTian Login",
+  "login": "Student Login",
   "login-guest": "Guest Login",
   "login-provider": "Provider Login",
   "login-admin": "Admin Login",
-  "register": "PUPTian / Provider Register",
+  "register": "Student / Provider Register",
   "register-guest": "Guest Registration",
   "provider-pending": "Provider — Pending Approval",
   "student-dashboard": "Student Dashboard",
@@ -139,7 +139,7 @@ const GROUPS: { label: string; screens: Screen[] }[] = [
   { label: "Public", screens: ["landing", "public-services", "about", "how-it-works", "contact", "provider-partnership"] },
   { label: "Login Portals", screens: ["login", "login-guest", "login-provider", "login-admin"] },
   { label: "Registration", screens: ["register", "register-guest"] },
-  { label: "PUPTian (Student)", screens: ["student-dashboard", "browse-services", "printing-service", "printing-confirmation", "order-tracking", "school-supplies", "resource-rental", "create-rental-post", "rental-post-status", "transaction-receipt"] },
+  { label: "Student", screens: ["student-dashboard", "browse-services", "printing-service", "printing-confirmation", "order-tracking", "school-supplies", "resource-rental", "create-rental-post", "rental-post-status", "transaction-receipt"] },
   { label: "Guest (Limited Access)", screens: ["guest-dashboard", "guest-post", "guest-my-posts"] },
   { label: "Service Provider", screens: ["provider-pending", "provider-dashboard", "provider-profile"] },
   { label: "Administrator (Internal)", screens: ["admin-landing", "admin-dashboard", "admin-providers", "admin-rental-approval", "admin-orders", "admin-website"] },
@@ -149,7 +149,7 @@ const GROUP_COLORS: Record<string, string> = {
   "Public": "bg-[#4B3621]",
   "Login Portals": "bg-[#4B3621]",
   "Registration": "bg-[#E3C565]0",
-  "PUPTian (Student)": "bg-[#4B3621]",
+  "Student": "bg-[#4B3621]",
   "Guest (Limited Access)": "bg-[#E3C565]0",
   "Service Provider": "bg-[#4B3621]",
   "Administrator (Internal)": "bg-[#000000]",
@@ -524,7 +524,7 @@ function AppInner() {
         {open && (
           <div className="bg-[#E3C565] border border-[#4B3621] shadow-xl w-72 max-h-[80vh] overflow-y-auto">
             <div className="bg-[#000000] text-white text-xs font-semibold px-3 py-2 flex items-center justify-between">
-              <span>University Organization Wireframe — Screens</span>
+              <span>UniServe Wireframe — Screens</span>
               <span className="text-[#4B3621]">{Object.keys(SCREEN_LABELS).length} screens</span>
             </div>
             <div className="flex flex-col">

@@ -51,11 +51,11 @@ export default function AdminLanding({ navigate }: { navigate: (s: string) => vo
             Administrator Portal Only
           </div>
           <h1 className="text-4xl font-bold tracking-tight leading-tight">
-            University Organization<br />
+            UniServe<br />
             <span className="text-[#E3C565]">Admin Panel</span>
           </h1>
           <p className="mt-5 text-sm leading-6 text-white/50">
-            This portal is exclusively for authorised University Organization administrators.
+            This portal is exclusively for authorised UniServe administrators.
             Credentials are issued by management only and all activity is logged.
           </p>
         </div>
@@ -88,7 +88,7 @@ export default function AdminLanding({ navigate }: { navigate: (s: string) => vo
 
       {/* ── Footer ─────────────────────────────────────────────────────────── */}
       <footer className="border-t border-white/10 px-6 py-4 text-center text-[10px] text-white/20">
-        University Organization Student Services Hub &mdash; Internal Use Only
+        UniServe University Student Services Hub &mdash; Internal Use Only
       </footer>
     </div>
   );

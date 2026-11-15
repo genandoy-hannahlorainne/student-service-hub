@@ -19,14 +19,14 @@ function PublicShell({
     <div className="min-h-screen bg-white">
       <WirePublicNav navigate={navigate} />
       <header className="bg-[#4B3621] px-6 py-14 text-center text-white">
-        <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-[#E3C565]">University Organization Student Services Hub</p>
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-[#E3C565]">UniServe University Student Services Hub</p>
         <h1 className="text-3xl font-bold">{title}</h1>
         <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-gray-300">{intro}</p>
       </header>
       <main className="mx-auto max-w-5xl px-6 py-12">{children}</main>
       <footer className="border-t border-[#4B3621] bg-[#E3C565] px-6 py-8 text-center text-xs text-[#4B3621]">
-        <p className="font-semibold text-[#4B3621]">University Organization Student Services Hub</p>
-        <p className="mt-1">A student service and resource platform for PUP Taguig.</p>
+        <p className="font-semibold text-[#4B3621]">UniServe University Student Services Hub</p>
+        <p className="mt-1">A student service and resource platform for the University community.</p>
       </footer>
     </div>
   );
@@ -41,13 +41,13 @@ export function PublicServices({ navigate }: { navigate: PublicNavigate }) {
     <PublicShell
       navigate={navigate}
       title="Services"
-      intro="Explore the services available to PUP Taguig students, guests, and approved service providers."
+      intro="Explore the services available to University students, guests, and approved service providers."
     >
       <PublicCards>
         {[
           ["Printing Services", "Submit documents for printing and track your order from request to release.", "printing-service"],
-          ["School Supplies", "Browse essential school supplies from University Organization-approved providers.", "school-supplies"],
-          ["Resource Rental", "Find, rent, or post academic resources for the PUP Taguig community.", "resource-rental"],
+          ["School Supplies", "Browse essential school supplies from UniServe-approved providers.", "school-supplies"],
+          ["Resource Rental", "Find, rent, or post academic resources for the University community.", "resource-rental"],
         ].map(([title, description, screen]) => (
           <WireCard key={title} className="flex flex-col">
             <h2 className="text-lg font-bold text-[#4B3621]">{title}</h2>
@@ -59,7 +59,7 @@ export function PublicServices({ navigate }: { navigate: PublicNavigate }) {
       <WireCard className="mt-8 bg-[#E3C565]">
         <WireSectionTitle>Access by role</WireSectionTitle>
         <div className="grid gap-3 text-sm text-[#4B3621] sm:grid-cols-3">
-          <p><strong className="text-[#4B3621]">PUPTian:</strong> Full ordering and tracking access.</p>
+          <p><strong className="text-[#4B3621]">Student:</strong> Full ordering and tracking access.</p>
           <p><strong className="text-[#4B3621]">Guest:</strong> Browse services and post requests.</p>
           <p><strong className="text-[#4B3621]">Provider:</strong> Manage approved service orders.</p>
         </div>
@@ -72,15 +72,15 @@ export function About({ navigate }: { navigate: PublicNavigate }) {
   return (
     <PublicShell
       navigate={navigate}
-      title="About University Organization"
-      intro="University Organization brings everyday student services and academic resources into one organized platform."
+      title="About UniServe"
+      intro="UniServe brings everyday student services and academic resources into one organized platform."
     >
       <div className="grid gap-8 md:grid-cols-2">
         <div>
-          <WireSectionTitle>What University Organization solves</WireSectionTitle>
+          <WireSectionTitle>What UniServe solves</WireSectionTitle>
           <p className="text-sm leading-7 text-[#4B3621]">
             Students often need printing, school supplies, and academic resources at the same time.
-            University Organization gives them one trusted place to discover services, submit requests, and follow
+            UniServe gives them one trusted place to discover services, submit requests, and follow
             updates without relying on scattered messages or posts.
           </p>
         </div>
@@ -96,7 +96,7 @@ export function About({ navigate }: { navigate: PublicNavigate }) {
       </div>
       <div className="mt-10 grid gap-5 sm:grid-cols-3">
         {[
-          ["Student-first", "Designed around the daily needs of PUP Taguig students."],
+          ["Student-first", "Designed around the daily needs of University students."],
           ["Community-based", "Connects students, guests, and local service providers."],
           ["Managed", "Admin review helps keep providers and rental posts reliable."],
         ].map(([title, description]) => (
@@ -116,7 +116,7 @@ export function HowItWorks({ navigate }: { navigate: PublicNavigate }) {
     >
       <div className="grid gap-5 md:grid-cols-4">
         {[
-          ["01", "Create an account", "Choose PUPTian, Guest, or Provider access."],
+          ["01", "Create an account", "Choose Student, Guest, or Provider access."],
           ["02", "Choose a service", "Browse printing, supplies, or academic resources."],
           ["03", "Submit a request", "Provide the details needed to process your request."],
           ["04", "Track updates", "See order status and next steps in your portal."],
@@ -130,7 +130,7 @@ export function HowItWorks({ navigate }: { navigate: PublicNavigate }) {
       </div>
       <div className="mt-8 border border-dashed border-[#4B3621] bg-[#E3C565] p-5 text-sm text-[#4B3621]">
         <strong className="text-[#4B3621]">Note for guests:</strong> Guest accounts can browse services
-        and submit public requests, while ordering and purchasing are reserved for PUPTian accounts.
+        and submit public requests, while ordering and purchasing are reserved for Student accounts.
       </div>
       <WireBtn className="mt-8" onClick={() => navigate("register")}>Get started</WireBtn>
     </PublicShell>
@@ -142,7 +142,7 @@ export function Contact({ navigate }: { navigate: PublicNavigate }) {
     <PublicShell
       navigate={navigate}
       title="Contact and Support"
-      intro="Need help with an order, account, or provider request? Send the University Organization team a message."
+      intro="Need help with an order, account, or provider request? Send the UniServe team a message."
     >
       <div className="mx-auto grid max-w-4xl gap-8 md:grid-cols-2">
         <WireCard>
@@ -160,7 +160,7 @@ export function Contact({ navigate }: { navigate: PublicNavigate }) {
             <WireSectionTitle>Support channels</WireSectionTitle>
             <p className="text-sm text-[#4B3621]">For order concerns, include your order number and registered email.</p>
             <p className="mt-4 text-sm text-[#4B3621]"><strong>Email:</strong> support@uniserve.example</p>
-            <p className="mt-2 text-sm text-[#4B3621]"><strong>Location:</strong> PUP Taguig community</p>
+            <p className="mt-2 text-sm text-[#4B3621]"><strong>Location:</strong> University community</p>
           </WireCard>
           <WireCard className="bg-[#E3C565]">
             <WireSectionTitle>Already have an account?</WireSectionTitle>
@@ -188,12 +188,12 @@ export function ProviderPartnership({ navigate }: { navigate: PublicNavigate }) 
     <PublicShell
       navigate={navigate}
       title="Provider Partnership"
-      intro="Partner with University Organization to serve PUP Taguig students through a trusted, organized platform."
+      intro="Partner with UniServe to serve University students through a trusted, organized platform."
     >
       {/* Why partner */}
       <div className="grid gap-8 md:grid-cols-2">
         <div>
-          <WireSectionTitle>Why partner with University Organization?</WireSectionTitle>
+          <WireSectionTitle>Why partner with UniServe?</WireSectionTitle>
           <ul className="space-y-4 text-sm leading-6 text-[#4B3621]">
             <li>• Reach students looking for printing, supplies, and academic resources.</li>
             <li>• Receive structured orders instead of scattered chat requests.</li>
@@ -206,7 +206,7 @@ export function ProviderPartnership({ navigate }: { navigate: PublicNavigate }) 
           <ol className="space-y-3 text-sm text-[#4B3621]">
             <li><strong>1.</strong> Download and fill out the UniServe Agreement Form.</li>
             <li><strong>2.</strong> Submit the completed form along with your business email.</li>
-            <li><strong>3.</strong> University Organization reviews your application.</li>
+            <li><strong>3.</strong> UniServe reviews your application.</li>
             <li><strong>4.</strong> Approved providers receive portal access.</li>
             <li><strong>5.</strong> Start managing student service orders.</li>
           </ol>
@@ -258,7 +258,7 @@ export function ProviderPartnership({ navigate }: { navigate: PublicNavigate }) 
               </span>
               <h3 className="mt-4 text-lg font-bold text-green-800">Application submitted!</h3>
               <p className="mt-2 text-sm text-[#4B3621]">
-                We received your form and business email. The University Organization team will review your application and reach out to <strong>{businessEmail}</strong>.
+                We received your form and business email. The UniServe team will review your application and reach out to <strong>{businessEmail}</strong>.
               </p>
               <button
                 onClick={() => { setSubmitted(false); setBusinessEmail(""); setUploadedFile(null); }}

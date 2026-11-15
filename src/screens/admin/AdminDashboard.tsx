@@ -38,7 +38,7 @@ export default function AdminDashboard({ navigate }: { navigate: (s: string) => 
               </span>
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E3C565]">UniServe Admin</p>
-                <p className="text-sm font-semibold">University Organization Student Services Hub</p>
+                <p className="text-sm font-semibold">UniServe University Student Services Hub</p>
               </div>
             </div>
             <div className="relative mt-6">

@@ -256,9 +256,9 @@ export function WirePublicNav({ navigate }: { navigate: (s: string) => void }) {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center">
-            <img src={organizationLogo} alt="University Organization logo" className="h-full w-full object-contain" />
+            <img src={organizationLogo} alt="UniServe logo" className="h-full w-full object-contain" />
           </span>
-          <span className="text-sm font-bold">University Organization Student Services Hub</span>
+          <span className="text-sm font-bold">UniServe University Student Services Hub</span>
         </div>
 
         {/* Desktop links */}
@@ -351,10 +351,10 @@ function AuthHeader({ role, onMenuToggle, navigate }: { role: string; onMenuTogg
     <header className={`${isStudent ? "bg-white border-[#4B3621] text-[#4B3621]" : "bg-[#4B3621] border-[#4B3621] text-white"} px-4 py-3 flex items-center justify-between border-b h-16 shrink-0`}>
       <div className="flex items-center gap-2 min-w-0">
         <HamburgerBtn onClick={onMenuToggle} />
-        <img src={organizationLogo} alt="University Organization logo" className="h-7 w-7 shrink-0 object-contain" />
+        <img src={organizationLogo} alt="UniServe logo" className="h-7 w-7 shrink-0 object-contain" />
         <div className="min-w-0">
           <span className="block font-bold text-sm truncate">Student Services Hub</span>
-          {isStudent && <span className="hidden text-[10px] font-medium uppercase tracking-wider text-[#4B3621] sm:block">PUP Taguig student portal</span>}
+          {isStudent && <span className="hidden text-[10px] font-medium uppercase tracking-wider text-[#4B3621] sm:block">University student portal</span>}
         </div>
       </div>
       <div className="flex items-center gap-2 shrink-0">
@@ -385,6 +385,7 @@ function SidebarDrawer({
   onClose,
   collapsed,
   accentColor = "border-gray-700",
+  onLogoutRequest,
 }: {
   items: NavItem[];
   active: string;
@@ -393,11 +394,11 @@ function SidebarDrawer({
   onClose: () => void;
   collapsed: boolean;
   accentColor?: string;
+  onLogoutRequest: () => void;
 }) {
-  const { logout } = useAuth();
   const handleNav = (screen?: string) => {
     if (screen === "landing") {
-      void logout().then(() => navigate("landing"));
+      onLogoutRequest();
     } else if (screen) {
       navigate(screen);
     }
@@ -468,6 +469,12 @@ function AppLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const { logout } = useAuth();
+  const handleLogoutConfirm = useCallback(() => {
+    setShowLogoutConfirm(false);
+    void logout().then(() => navigate("landing"));
+  }, [logout, navigate]);
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <AuthHeader role={role} onMenuToggle={() => {
@@ -483,11 +490,25 @@ function AppLayout({
           onClose={() => setSidebarOpen(false)}
           collapsed={sidebarCollapsed}
           accentColor={accentColor}
+          onLogoutRequest={() => setShowLogoutConfirm(true)}
         />
         <main className="flex-1 overflow-y-auto bg-white p-4 lg:p-6">
           {children}
         </main>
       </div>
+      {showLogoutConfirm && (
+        <div role="dialog" aria-modal="true" aria-labelledby="account-logout-title" className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setShowLogoutConfirm(false)} aria-hidden="true" />
+          <div className="relative w-full max-w-sm bg-[#E3C565] border border-[#4B3621] p-6">
+            <h2 id="account-logout-title" className="text-base font-bold text-[#4B3621]">Sign out?</h2>
+            <p className="mt-2 text-sm text-[#4B3621]">Are you sure you want to log out of your UniServe account?</p>
+            <div className="mt-5 flex gap-2">
+              <button onClick={() => setShowLogoutConfirm(false)} className="flex-1 border border-[#4B3621] px-4 py-2.5 text-sm font-semibold text-[#4B3621]">Cancel</button>
+              <button onClick={handleLogoutConfirm} className="flex-1 bg-[#000000] px-4 py-2.5 text-sm font-semibold text-white">Log out</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

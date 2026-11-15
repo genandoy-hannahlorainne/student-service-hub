@@ -8,7 +8,7 @@ export default function BrowseServices({ navigate }: { navigate: (s: string) => 
         {/* ── Page header ── */}
         <div>
           <h1 className="text-xl font-bold text-[#4B3621]">Browse Services</h1>
-          <p className="text-sm text-[#4B3621] mt-1">Explore University Organization&apos;s available student services</p>
+          <p className="text-sm text-[#4B3621] mt-1">Explore UniServe&apos;s available student services</p>
         </div>
 
         {/* ── Search + filter ── */}
@@ -39,8 +39,8 @@ export default function BrowseServices({ navigate }: { navigate: (s: string) => 
             <WirePlaceholder label="Printing Services Banner" className="h-48 w-full" />
             <h2 className="text-base font-bold text-[#4B3621]">Printing Services</h2>
             <p className="text-sm text-[#4B3621] flex-1">
-              Upload your documents and have them printed by University Organization-approved printing shops near
-              PUP Taguig. Choose color or B&amp;W, paper size, and pickup or delivery options.
+              Upload your documents and have them printed by UniServe-approved printing shops near
+              the University community. Choose color or B&amp;W, paper size, and pickup or delivery options.
             </p>
             <div className="flex flex-wrap gap-1.5">
               {["File upload", "Multiple copies", "Color / B&W", "Pickup or Delivery"].map((f) => (
@@ -94,7 +94,7 @@ export default function BrowseServices({ navigate }: { navigate: (s: string) => 
           <p className="text-sm text-[#4B3621]">
             You are browsing as a <strong>Guest</strong>.{" "}
             <span className="underline cursor-pointer text-[#4B3621]" onClick={() => navigate("register")}>
-              Register as a PUPTian
+              Register as a Student
             </span>{" "}
             to place orders and access all features.
           </p>
