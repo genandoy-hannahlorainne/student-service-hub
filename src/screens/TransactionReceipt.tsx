@@ -7,13 +7,25 @@ export default function TransactionReceipt({ navigate, portal = "student" }: { n
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    void fetchTransactions(portal === "provider" ? "provider" : undefined)
-      .then(({ transactions: loaded }) => setTransactions(loaded))
+    let mounted = true;
+    const loadTransactions = () => fetchTransactions(portal === "provider" ? "provider" : undefined)
+      .then(({ transactions: loaded }) => {
+        if (mounted) {
+          setTransactions(loaded);
+          setLoadError(null);
+        }
+      })
       .catch((error: unknown) => {
         console.error("[TransactionReceipt] failed to load transactions:", error);
-        setLoadError("Transactions are temporarily unavailable.");
+        if (mounted) setLoadError("Transactions are temporarily unavailable.");
       });
-  }, []);
+    void loadTransactions();
+    const refreshTimer = window.setInterval(loadTransactions, 10000);
+    return () => {
+      mounted = false;
+      window.clearInterval(refreshTimer);
+    };
+  }, [portal]);
 
   return (
     portal === "provider" ? (

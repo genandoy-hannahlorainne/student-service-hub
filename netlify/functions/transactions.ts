@@ -38,6 +38,58 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
       return jsonResponse({ transaction: inserted.rows[0] }, 201);
     }
 
+    if (event.httpMethod === "PATCH") {
+      const body = JSON.parse(event.body ?? "{}") as {
+        reference_code?: string;
+        status?: string;
+      };
+      const allowedStatuses = ["Accepted", "Processing", "Ready for Pickup", "Out for Delivery", "Completed", "Rejected"];
+      if (!body.reference_code || !body.status || !allowedStatuses.includes(body.status)) {
+        return errorResponse(400, "A valid reference code and order status are required.");
+      }
+
+      const roleResult = await sql`
+        SELECT 1
+        FROM user_roles
+        WHERE role = 'provider'::user_role
+          AND (
+            user_id = ${identity.sub}::uuid
+            OR user_id = (
+              SELECT id FROM user_profiles WHERE email = ${identity.email} LIMIT 1
+            )
+          )
+        LIMIT 1
+      `;
+      if (roleResult.rows.length === 0 && !hasRole(identity, "provider")) {
+        return errorResponse(403, "Only service providers can update order status.");
+      }
+
+      const updated = await sql`
+        UPDATE service_transactions st
+        SET status = ${body.status}
+        WHERE st.reference_code = ${body.reference_code}
+          AND EXISTS (
+            SELECT 1
+            FROM providers p
+            JOIN user_profiles provider_profile ON provider_profile.id = p.user_id
+            WHERE p.status = 'active'::provider_status
+              AND (provider_profile.id = ${identity.sub}::uuid OR provider_profile.email = ${identity.email})
+              AND (
+                p.id = st.provider_id
+                OR (
+                  st.provider_id IS NULL
+                  AND (LOWER(p.service_type) = LOWER(st.service_type) OR LOWER(p.service_type) = 'both')
+                )
+              )
+          )
+        RETURNING id, service_type, reference_code, status, amount, payment_method, created_at, metadata
+      `;
+      if (updated.rows.length === 0) {
+        return errorResponse(404, "Order not found for this provider.");
+      }
+      return jsonResponse({ transaction: updated.rows[0] });
+    }
+
     if (event.httpMethod !== "GET") return errorResponse(405, "Method not allowed");
     const scope = new URL(event.rawUrl ?? "http://localhost").searchParams.get("scope");
     const roleResult = await sql`

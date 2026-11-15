@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchTransactions, ServiceTransaction } from "../../lib/api";
+import { fetchTransactions, ServiceTransaction, updateTransactionStatus } from "../../lib/api";
 import { useAuth } from "../../context/AuthContext";
 import {
   ProviderLayout, WireBtn, WireCard, WireBadge, WireStatCard,
@@ -114,7 +114,7 @@ function FileDownloadModal({ order, onClose }: { order: Order; onClose: () => vo
           </WireBtn>
           {downloaded && (
             <p className="text-xs text-[#4B3621] mt-2">
-              File saved. You can also re-download it from the order details anytime.
+              File saved. You can download the file again from the order details anytime.
             </p>
           )}
         </div>
@@ -137,14 +137,14 @@ function StatusModal({ order, onUpdate, onClose }: { order: Order; onUpdate: (id
       <p className="text-sm text-[#4B3621] mb-1"><strong>Student:</strong> {order.student}</p>
       <p className="text-sm text-[#4B3621] mb-3"><strong>Items:</strong> {order.items}</p>
 
-      {/* Re-download option for active orders */}
+      {/* File download option for active orders */}
       <div className="border border-[#4B3621] p-3 bg-[#E3C565] mb-4 flex items-center gap-3">
         <WirePlaceholder label="ðŸ“„" className="w-9 h-9 shrink-0" />
         <div className="flex-1 min-w-0">
           <p className="text-xs text-[#4B3621] font-medium truncate">{order.file}</p>
           <p className="text-xs text-[#4B3621]">{order.fileSize} Â· {order.filePages}</p>
         </div>
-        <WireBtn size="sm" variant="outline">â¬‡ Re-download</WireBtn>
+        <WireBtn size="sm" variant="outline">â¬‡ Download File</WireBtn>
       </div>
 
       <p className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide mb-2">Set New Status</p>
@@ -194,18 +194,35 @@ export default function ProviderDashboard({ navigate }: { navigate: (s: string) 
       .catch((error) => setLoadError(error instanceof Error ? error.message : "Could not load provider orders."));
   }, []);
 
-  const acceptOrder = (id: string) => {
+  const acceptOrder = async (id: string) => {
     const order = orders.find(o => o.id === id);
     setOrders(prev => prev.map(o => o.id === id ? { ...o, status: "Accepted" } : o));
-    if (order) setFileModal(order); // open file download modal immediately
+    if (order) {
+      try {
+        await updateTransactionStatus(id, "Accepted");
+        setFileModal({ ...order, status: "Accepted" });
+      } catch (error) {
+        setLoadError(error instanceof Error ? error.message : "Could not update the order.");
+      }
+    }
   };
 
-  const rejectOrder = (id: string) => {
+  const rejectOrder = async (id: string) => {
     setOrders(prev => prev.map(o => o.id === id ? { ...o, status: "Rejected" } : o));
+    try {
+      await updateTransactionStatus(id, "Rejected");
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : "Could not update the order.");
+    }
   };
 
-  const updateStatus = (id: string, newStatus: string) => {
+  const updateStatus = async (id: string, newStatus: string) => {
     setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus } : o));
+    try {
+      await updateTransactionStatus(id, newStatus);
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : "Could not update the order.");
+    }
   };
 
   const pending = orders.filter(o => o.status === "Pending");
@@ -251,7 +268,7 @@ export default function ProviderDashboard({ navigate }: { navigate: (s: string) 
                   </div>
                   <div className="flex gap-2 flex-wrap shrink-0">
                     {/* Accept â†’ triggers file download modal */}
-                    <WireBtn size="sm" onClick={() => acceptOrder(order.id)}>âœ“ Accept &amp; Download File</WireBtn>
+                    <WireBtn size="sm" onClick={() => void acceptOrder(order.id)}>âœ“ Accept &amp; Download File</WireBtn>
                     <WireBtn size="sm" variant="secondary" onClick={() => setRejectModal(order)}>âœ• Reject</WireBtn>
                   </div>
                 </WireCard>

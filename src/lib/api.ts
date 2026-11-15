@@ -220,6 +220,16 @@ export async function createTransaction(payload: CreateTransactionPayload): Prom
   });
 }
 
+export async function updateTransactionStatus(
+  referenceCode: string,
+  status: string
+): Promise<{ transaction: ServiceTransaction }> {
+  return apiFetch<{ transaction: ServiceTransaction }>("/transactions", {
+    method: "PATCH",
+    body: JSON.stringify({ reference_code: referenceCode, status }),
+  });
+}
+
 export interface AdminProviderData {
   id: string;
   business_name: string;
