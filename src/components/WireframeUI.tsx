@@ -345,16 +345,18 @@ function HamburgerBtn({ onClick }: { onClick: () => void }) {
 
 function AuthHeader({ role, onMenuToggle, navigate }: { role: string; onMenuToggle: () => void; navigate: (s: string) => void }) {
   const { profile } = useAuth();
-  const isStudent = role === "Student" || role !== "UniServe Admin";
+  const isStudent = role === "Student";
+  const isProvider = !isStudent && role !== "UniServe Admin";
   const displayRole = isStudent ? profile?.display_name || "Student" : role;
+  const portalLabel = isStudent ? "University student portal" : isProvider ? "Service provider portal" : "Administrator portal";
   return (
     <header className={`${isStudent ? "bg-white border-[#4B3621] text-[#4B3621]" : "bg-[#4B3621] border-[#4B3621] text-white"} px-4 py-3 flex items-center justify-between border-b h-16 shrink-0`}>
       <div className="flex items-center gap-2 min-w-0">
         <HamburgerBtn onClick={onMenuToggle} />
         <img src={organizationLogo} alt="UniServe logo" className="h-7 w-7 shrink-0 object-contain" />
         <div className="min-w-0">
-          <span className="block font-bold text-sm truncate">Student Services Hub</span>
-          {isStudent && <span className="hidden text-[10px] font-medium uppercase tracking-wider text-[#4B3621] sm:block">University student portal</span>}
+          <span className="block font-bold text-sm truncate">UniServe Services Hub</span>
+          <span className={`hidden text-[10px] font-medium uppercase tracking-wider sm:block ${isStudent ? "text-[#4B3621]" : "text-white/70"}`}>{portalLabel}</span>
         </div>
       </div>
       <div className="flex items-center gap-2 shrink-0">
@@ -532,10 +534,6 @@ export function ProviderLayout({ children, active, navigate }: { children: React
   const { providerRecord } = useAuth();
   const items: NavItem[] = [
     { label: "Dashboard", screen: "provider-dashboard", icon: "bi-grid-1x2" },
-    { label: "Orders", screen: "provider-dashboard", icon: "bi-receipt" },
-    { label: "Services", screen: "provider-profile", icon: "bi-tools" },
-    { label: "Availability", screen: "provider-profile", icon: "bi-calendar-check" },
-    { label: "Delivery Settings", screen: "provider-profile", icon: "bi-truck" },
     { label: "Transaction History", screen: "provider-transaction-history", icon: "bi-clock-history" },
     { label: "Profile", screen: "provider-profile", icon: "bi-person" },
     { label: "Logout", screen: "landing", icon: "bi-box-arrow-right" },

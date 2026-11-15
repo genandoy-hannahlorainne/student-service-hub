@@ -3,6 +3,7 @@ import {
   WireBtn, WireCard, WirePlaceholder, WireBadge, WireSectionTitle,
 } from "../../components/WireframeUI";
 import { useAuth } from "../../context/AuthContext";
+import organizationLogo from "../../assets/images/org_ssh_logo.png";
 
 const GUEST_NAV = [
   { label: "Dashboard", icon: "âŠž", screen: "guest-dashboard" },
@@ -71,7 +72,7 @@ export default function GuestDashboard({ navigate }: { navigate: (s: string) => 
             <span className="block w-5 h-0.5 bg-[#E3C565]" />
             <span className="block w-5 h-0.5 bg-[#E3C565]" />
           </button>
-          <WirePlaceholder label="LOGO" className="w-7 h-7 shrink-0" />
+          <img src={organizationLogo} alt="UniServe logo" className="h-7 w-7 shrink-0 object-contain" />
           <span className="font-bold text-sm hidden sm:block truncate">UniServe University Student Services Hub</span>
           <span className="text-xs bg-[#E3C565]0 px-2 py-0.5 ml-1 shrink-0">GUEST</span>
         </div>
