@@ -115,16 +115,16 @@ function downloadOrderFile(file: { name: string; content?: string }) {
   link.remove();
 }
 
-// Modal shown right after accepting an order â€” provider downloads the student's file
+// Modal shown right after accepting an order.
 function FileDownloadModal({ order, onClose }: { order: Order; onClose: () => void }) {
   const [downloaded, setDownloaded] = useState(false);
 
   return (
-    <WireModal title={`Order Accepted â€” ${order.id}`} onClose={onClose}>
+    <WireModal title={`Order Accepted - ${order.id}`} onClose={onClose}>
       <div className="flex flex-col gap-4">
         {/* Confirmation banner */}
         <div className="bg-[#E3C565] border border-[#4B3621] p-3 text-center">
-          <p className="text-sm font-semibold text-[#4B3621]">âœ“ Order accepted successfully</p>
+          <p className="text-sm font-semibold text-[#4B3621]"><i className="bi bi-check-circle mr-1" aria-hidden="true" />Order accepted successfully</p>
           <p className="text-xs text-[#4B3621] mt-0.5">Student <strong>{order.student}</strong> has been notified.</p>
         </div>
 
@@ -159,7 +159,7 @@ function FileDownloadModal({ order, onClose }: { order: Order; onClose: () => vo
               ["Sides", order.sides],
               ["Paper Type", order.paperType],
               ["Fulfillment", order.fulfillment],
-              ["Payment", `${order.payment} Â· ${order.amount}`],
+              ["Payment", `${order.payment} - ${order.amount}`],
             ].map(([k, v]) => (
               <div key={k} className="flex gap-2">
                 <span className="text-[#4B3621] w-24 shrink-0">{k}:</span>
@@ -177,7 +177,7 @@ function FileDownloadModal({ order, onClose }: { order: Order; onClose: () => vo
           </div>
         </div>
 
-        {/* Download button â€” main CTA */}
+        {/* Download button - main CTA */}
         <div className="border-2 border-dashed border-gray-600 p-4 text-center bg-[#E3C565]">
           <p className="text-xs text-[#4B3621] mb-3">
             Download the student&apos;s file to begin printing. You <strong>must download</strong> the file before you can process this order.
@@ -190,7 +190,7 @@ function FileDownloadModal({ order, onClose }: { order: Order; onClose: () => vo
             setDownloaded(true);
           }}
           >
-            {downloaded ? "âœ“ File Downloaded â€” Ready to Print" : "â¬‡ Download Student File"}
+            {downloaded ? "File downloaded - Ready to Print" : "Download Student File"}
           </WireBtn>
           {downloaded && (
             <p className="text-xs text-[#4B3621] mt-2">
@@ -213,7 +213,7 @@ function FileDownloadModal({ order, onClose }: { order: Order; onClose: () => vo
 // Modal for updating status of an in-progress order
 function StatusModal({ order, onUpdate, onClose }: { order: Order; onUpdate: (id: string, status: string) => void; onClose: () => void }) {
   return (
-    <WireModal title={`Update Order â€” ${order.id}`} onClose={onClose}>
+    <WireModal title={`Update Order - ${order.id}`} onClose={onClose}>
       <div className="mb-3 border border-[#4B3621] bg-[#E3C565] p-3 text-sm text-[#4B3621]">
         <p><strong>Student:</strong> {order.student}</p>
         <p><strong>Order:</strong> {order.files.length || 1} file{order.files.length === 1 ? "" : "s"} · {order.totalCopies} cop{order.totalCopies === 1 ? "y" : "ies"}</p>
@@ -242,21 +242,46 @@ function StatusModal({ order, onUpdate, onClose }: { order: Order; onUpdate: (id
           onClick={() => order.files.forEach((file) => downloadOrderFile(file))}
           disabled={!order.files.some((file) => file.content)}
         >
-          Download Files
+          <i className="bi bi-download mr-1" aria-hidden="true" />Download Files
         </WireBtn>
       </div>
 
-      <p className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide mb-2">Set New Status</p>
+      <div className="mb-2">
+        <p className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">Choose the next step</p>
+        <p className="mt-1 text-xs text-[#4B3621]">Select only the next step after the current status.</p>
+      </div>
       <div className="flex flex-col gap-2 mb-4">
-        {STATUS_FLOW.map((s) => (
+        {STATUS_FLOW.map((s, index) => {
+          const currentIndex = STATUS_FLOW.indexOf(order.status);
+          const isCurrent = order.status === s;
+          const isNext = index === currentIndex + 1;
+          const detail = STATUS_DETAILS[s];
+          return (
           <button
             key={s}
+            type="button"
+            disabled={!isNext}
             onClick={() => { onUpdate(order.id, s); onClose(); }}
-            className={`text-left px-3 py-2 border text-sm ${order.status === s ? "border-gray-700 bg-[#E3C565] font-semibold" : "border-[#4B3621] hover:bg-[#E3C565]"}`}
+            className={`flex items-center gap-3 border px-3 py-3 text-left text-sm ${
+              isCurrent
+                ? "border-[#4B3621] bg-[#4B3621] text-white"
+                : isNext
+                ? "border-[#4B3621] bg-white font-semibold text-[#4B3621] hover:bg-[#E3C565]"
+                : "cursor-not-allowed border-[#4B3621]/20 bg-[#4B3621]/5 text-[#4B3621]/50"
+            }`}
           >
-            {s}
+            <i className={`bi ${detail.icon} text-lg`} aria-hidden="true" />
+            <span className="flex-1">
+              <span className="block">{detail.label}</span>
+              <span className={`block text-xs ${isCurrent ? "text-white/80" : "text-[#4B3621]/70"}`}>
+                {isCurrent ? "Current status" : isNext ? "Click to update" : "Not available yet"}
+              </span>
+            </span>
+            {isCurrent && <i className="bi bi-check-circle-fill" aria-label="Current status" />}
+            {isNext && <i className="bi bi-arrow-right-circle" aria-label="Next status" />}
           </button>
-        ))}
+          );
+        })}
       </div>
       <WireBtn variant="secondary" className="w-full" onClick={onClose}>Cancel</WireBtn>
     </WireModal>
@@ -335,7 +360,7 @@ export default function ProviderDashboard({ navigate }: { navigate: (s: string) 
             <h1 className="text-xl font-bold text-[#4B3621]">Provider Dashboard</h1>
             <p className="text-sm text-[#4B3621] mt-0.5">{providerRecord?.business_name ?? "Service Provider"} — UniServe Collaborating Provider</p>
           </div>
-          <WireBadge variant="success">â— Active</WireBadge>
+          <WireBadge variant="success"><i className="bi bi-circle-fill mr-1 text-[8px]" aria-hidden="true" />Active</WireBadge>
         </div>
 
         {/* Stats */}
@@ -348,7 +373,7 @@ export default function ProviderDashboard({ navigate }: { navigate: (s: string) 
 
         {/* New / Pending Orders */}
         <section>
-          <WireSectionTitle>New Orders â€” Awaiting Response</WireSectionTitle>
+          <WireSectionTitle>New Orders - Awaiting Response</WireSectionTitle>
           {loadError && <p role="alert" className="mb-3 border border-[#4B3621] bg-[#E3C565] p-3 text-sm text-[#4B3621]">{loadError}</p>}
           {pending.length === 0 ? (
             <p className="text-sm text-[#4B3621] py-6 text-center border border-dashed border-[#4B3621]">No pending orders.</p>
@@ -357,18 +382,18 @@ export default function ProviderDashboard({ navigate }: { navigate: (s: string) 
               {pending.map((order) => (
                 <WireCard key={order.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex gap-3 min-w-0">
-                    <WirePlaceholder label="ðŸ“„" className="w-10 h-10 shrink-0" />
+                    <WirePlaceholder label="FILE" className="w-10 h-10 shrink-0 text-[9px]" />
                     <div className="min-w-0">
                       <span className="text-xs font-mono text-[#4B3621]">{order.id}</span>
                       <p className="font-semibold text-[#4B3621] text-sm">{order.student}</p>
                       <p className="text-xs text-[#4B3621] truncate">{order.items}</p>
-                      <p className="text-xs text-[#4B3621]">{order.fulfillment} Â· {order.payment} Â· {order.amount}</p>
+                      <p className="text-xs text-[#4B3621]">{order.fulfillment} - {order.payment} - {order.amount}</p>
                     </div>
                   </div>
                   <div className="flex gap-2 flex-wrap shrink-0">
-                    {/* Accept â†’ triggers file download modal */}
-                    <WireBtn size="sm" onClick={() => void acceptOrder(order.id)}>âœ“ Accept &amp; Download File</WireBtn>
-                    <WireBtn size="sm" variant="secondary" onClick={() => setRejectModal(order)}>âœ• Reject</WireBtn>
+                    {/* Accept opens the file download modal. */}
+                    <WireBtn size="sm" onClick={() => void acceptOrder(order.id)}><i className="bi bi-check-circle mr-1" aria-hidden="true" />Accept &amp; Download File</WireBtn>
+                    <WireBtn size="sm" variant="secondary" onClick={() => setRejectModal(order)}><i className="bi bi-x-circle mr-1" aria-hidden="true" />Reject</WireBtn>
                   </div>
                 </WireCard>
               ))}
@@ -404,7 +429,7 @@ export default function ProviderDashboard({ navigate }: { navigate: (s: string) 
         </section>
       </div>
 
-      {/* File Download Modal â€” shown immediately after accepting */}
+      {/* File Download Modal - shown immediately after accepting */}
       {fileModal && <FileDownloadModal order={fileModal} onClose={() => setFileModal(null)} />}
 
       {/* Status Update Modal */}
