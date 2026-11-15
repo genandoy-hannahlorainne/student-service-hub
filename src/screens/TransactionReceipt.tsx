@@ -3,6 +3,14 @@ import { ProviderLayout, StudentLayout, WireBadge, WireBtn, WireCard } from "../
 import { fetchTransactions, ServiceTransaction } from "../lib/api";
 
 const ORDER_STEPS = ["Pending", "Accepted", "Processing", "Ready for Pickup", "Out for Delivery", "Completed"];
+const STATUS_DETAILS: Record<string, { icon: string; label: string; help: string }> = {
+  Pending: { icon: "bi-hourglass-split", label: "Waiting for review", help: "The service provider will review your order" },
+  Accepted: { icon: "bi-check-circle", label: "Order accepted", help: "The provider accepted your order" },
+  Processing: { icon: "bi-printer", label: "Being printed", help: "Your files are currently being printed" },
+  "Ready for Pickup": { icon: "bi-box-seam", label: "Ready for pickup", help: "You can collect your order" },
+  "Out for Delivery": { icon: "bi-truck", label: "Out for delivery", help: "Your order is on the way" },
+  Completed: { icon: "bi-check2-all", label: "Completed", help: "Your order has been released" },
+};
 
 function normalizedStatus(status: string) {
   return status.toLowerCase() === "submitted" ? "Pending" : status;
@@ -21,28 +29,30 @@ function OrderStatusBar({ status }: { status: string }) {
   const isRejected = currentStatus === "Rejected";
   return (
     <div className="mt-5 border border-[#4B3621] bg-[#E3C565] p-3">
-      <p className="text-xs font-bold uppercase tracking-wide text-[#4B3621]">Order progress</p>
+      <p className="text-xs font-bold uppercase tracking-wide text-[#4B3621]">Where is my order?</p>
       {isRejected ? (
-        <p className="mt-2 border border-[#4B3621] bg-white px-3 py-2 text-sm font-semibold text-[#4B3621]">Order rejected</p>
+        <p className="mt-2 flex items-center gap-2 border border-[#4B3621] bg-white px-3 py-2 text-sm font-semibold text-[#4B3621]">
+          <i className="bi bi-x-circle text-lg" aria-hidden="true" /> Order rejected
+        </p>
       ) : (
-        <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
           {ORDER_STEPS.map((step, index) => {
+            const detail = STATUS_DETAILS[step];
             const completed = currentIndex >= index;
             const current = currentStatus === step;
             return (
-              <div key={step} className="text-center">
-                <div className={`mx-auto flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold ${
-                  completed ? "border-[#4B3621] bg-[#4B3621] text-white" : "border-[#4B3621] bg-white text-[#4B3621]"
-                }`}>
-                  {completed ? "✓" : index + 1}
+              <div key={step} className={`flex items-start gap-2 border p-2 ${current ? "border-[#4B3621] bg-white" : completed ? "border-[#4B3621]/40 bg-[#4B3621]/5" : "border-[#4B3621]/20 bg-white/60"}`}>
+                <i className={`bi ${detail.icon} mt-0.5 text-lg text-[#4B3621]`} aria-hidden="true" />
+                <div>
+                  <p className={`text-xs text-[#4B3621] ${current ? "font-bold" : "font-semibold"}`}>{detail.label}</p>
+                  <p className="text-[10px] leading-tight text-[#4B3621]">{detail.help}</p>
                 </div>
-                <p className={`mt-1 text-[10px] leading-tight text-[#4B3621] ${current ? "font-bold" : ""}`}>{step}</p>
               </div>
             );
           })}
         </div>
       )}
-      <p className="mt-3 text-sm text-[#4B3621]">Current status: <strong>{currentStatus}</strong></p>
+      <p className="mt-3 text-sm text-[#4B3621]">Current status: <strong>{STATUS_DETAILS[currentStatus]?.label ?? currentStatus}</strong></p>
     </div>
   );
 }
@@ -60,6 +70,9 @@ function PrintOrderSummary({ transaction }: { transaction: ServiceTransaction })
         <p><strong>Total copies:</strong> {totalCopies || 1}</p>
         <p><strong>Fulfillment:</strong> {fulfillment}</p>
         <p><strong>Payment:</strong> {transaction.payment_method || "Not specified"}</p>
+        <p><strong>Print color:</strong> {typeof metadata.print_color === "string" ? metadata.print_color : "Not specified"}</p>
+        <p><strong>Paper:</strong> {typeof metadata.paper_size === "string" ? metadata.paper_size : "Not specified"}</p>
+        <p><strong>Sides:</strong> {typeof metadata.sides === "string" ? metadata.sides : "Not specified"}</p>
       </div>
       <div className="mt-3 border-t border-[#4B3621] pt-2">
         <p className="font-semibold">Files to print</p>

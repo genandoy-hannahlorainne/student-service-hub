@@ -86,11 +86,11 @@ export function WireInput({
   );
 }
 
-export function WireSelect({ label, options, className = "" }: { label?: string; options: string[]; className?: string }) {
+export function WireSelect({ label, options, className = "", value, onChange }: { label?: string; options: string[]; className?: string; value?: string; onChange?: (event: ChangeEvent<HTMLSelectElement>) => void }) {
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
       {label && <label className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide">{label}</label>}
-      <select className="border border-[#4B3621] px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#4B3621] w-full">
+      <select value={value} onChange={onChange} className="border border-[#4B3621] px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#4B3621] w-full">
         {options.map((o) => <option key={o}>{o}</option>)}
       </select>
     </div>

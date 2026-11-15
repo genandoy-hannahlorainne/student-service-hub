@@ -8,7 +8,7 @@ import {
 } from "../../components/WireframeUI";
 
 export default function PrintingService({ navigate }: { navigate: (s: string) => void }) {
-  const [files, setFiles] = useState<Array<{ id: number; name: string; size: number }>>([]);
+  const [files, setFiles] = useState<Array<{ id: number; name: string; size: number; type: string; content: string }>>([]);
   const [copies, setCopies] = useState<Record<number, number>>({});
   const [notes, setNotes] = useState("");
   const [fulfillment, setFulfillment] = useState<"pickup" | "delivery">("pickup");
@@ -16,6 +16,10 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
   const [paymentMethod, setPaymentMethod] = useState("Cash on Pickup/Delivery");
   const [paymentProof, setPaymentProof] = useState("");
   const [paymentReference, setPaymentReference] = useState("");
+  const [printColor, setPrintColor] = useState("Black & White");
+  const [paperSize, setPaperSize] = useState("Short (8.5×11)");
+  const [sides, setSides] = useState("Single-Sided");
+  const [paperType, setPaperType] = useState("Standard (80gsm)");
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -26,13 +30,20 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
     { name: "Charie Ledesma Printing Services", location: "University area", services: "Printing services", fee: "TBD", available: true },
   ];
 
-  const addFiles = (selectedFiles: FileList | null) => {
+  const addFiles = async (selectedFiles: FileList | null) => {
     if (!selectedFiles) return;
-    const additions = Array.from(selectedFiles).map((file, index) => ({
+    const additions = await Promise.all(Array.from(selectedFiles).map(async (file, index) => ({
       id: Date.now() + index,
       name: file.name,
       size: file.size,
-    }));
+      type: file.type || "application/octet-stream",
+      content: await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error(`Could not read ${file.name}.`));
+        reader.readAsDataURL(file);
+      }),
+    })));
     setFiles((current) => [...current, ...additions]);
     setCopies((current) => additions.reduce((next, file) => ({ ...next, [file.id]: 1 }), current));
   };
@@ -55,8 +66,18 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
         amount: fulfillment === "delivery" ? 70 : 40,
         payment_method: paymentMethod,
         metadata: {
-          files: files.map((file) => ({ name: file.name, size: file.size, copies: copies[file.id] ?? 1 })),
+          files: files.map((file) => ({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            content: file.content,
+            copies: copies[file.id] ?? 1,
+          })),
           notes,
+          print_color: printColor,
+          paper_size: paperSize,
+          sides,
+          paper_type: paperType,
           shop: selectedShop === null ? null : shops[selectedShop].name,
           fulfillment,
           payment_proof: paymentProof || null,
@@ -90,7 +111,17 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
                 <WirePlaceholder label="PDF, DOCX, JPEG, or PNG" className="h-20 w-full mb-3" />
                 <label className="inline-flex cursor-pointer items-center justify-center border border-[#4B3621] bg-white px-4 py-2 text-sm font-medium text-[#4B3621] hover:bg-[#E3C565]">
                   + Add file{files.length > 0 ? "s" : ""}
-                  <input type="file" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" className="hidden" onChange={(event) => addFiles(event.target.files)} />
+                  <input
+                    type="file"
+                    multiple
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    className="hidden"
+                    onChange={(event) => {
+                      void addFiles(event.target.files).catch((error: unknown) => {
+                        setSubmitError(error instanceof Error ? error.message : "Could not read the selected files.");
+                      });
+                    }}
+                  />
                 </label>
                 <p className="text-xs text-[#4B3621] mt-2">Max file size: 20MB · Supported: PDF, DOCX, JPG, PNG</p>
               </div>
@@ -125,10 +156,10 @@ export default function PrintingService({ navigate }: { navigate: (s: string) =>
                   <WireInput label="Copies" type="number" min="1" value={copies[file.id] ?? 1} onChange={(event) => setCopies((current) => ({ ...current, [file.id]: Math.max(1, Number(event.target.value) || 1) }))} />
                 </div>
               ))}
-              <WireSelect label="Print Color" options={["Black & White", "Full Color"]} />
-              <WireSelect label="Paper Size" options={["Short (8.5×11)", "Long (8.5×13)", "A4 (8.27×11.69)"]} />
-              <WireSelect label="Sides" options={["Single-Sided", "Double-Sided"]} />
-              <WireSelect label="Paper Type" options={["Standard (80gsm)", "Thick (120gsm)", "Glossy", "Matte"]} />
+              <WireSelect label="Print Color" options={["Black & White", "Full Color"]} value={printColor} onChange={(event) => setPrintColor(event.target.value)} />
+              <WireSelect label="Paper Size" options={["Short (8.5×11)", "Long (8.5×13)", "A4 (8.27×11.69)"]} value={paperSize} onChange={(event) => setPaperSize(event.target.value)} />
+              <WireSelect label="Sides" options={["Single-Sided", "Double-Sided"]} value={sides} onChange={(event) => setSides(event.target.value)} />
+              <WireSelect label="Paper Type" options={["Standard (80gsm)", "Thick (120gsm)", "Glossy", "Matte"]} value={paperType} onChange={(event) => setPaperType(event.target.value)} />
             </div>
           </WireCard>
         )}

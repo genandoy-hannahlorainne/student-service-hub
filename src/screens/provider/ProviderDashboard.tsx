@@ -8,21 +8,34 @@ import {
 
 const STATUS_FLOW = ["Accepted", "Processing", "Ready for Pickup", "Out for Delivery", "Completed"];
 const STATUS_STEPS = ["Pending", ...STATUS_FLOW];
+const STATUS_DETAILS: Record<string, { icon: string; label: string; help: string }> = {
+  Pending: { icon: "bi-hourglass-split", label: "New order", help: "Review and accept this order" },
+  Accepted: { icon: "bi-check-circle", label: "Accepted", help: "You accepted the order" },
+  Processing: { icon: "bi-printer", label: "Printing", help: "The files are being printed" },
+  "Ready for Pickup": { icon: "bi-box-seam", label: "Ready", help: "Student can collect the order" },
+  "Out for Delivery": { icon: "bi-truck", label: "On the way", help: "Order is being delivered" },
+  Completed: { icon: "bi-check2-all", label: "Completed", help: "Order has been released" },
+};
 
 type Order = {
   id: string;
   student: string;
   service: string;
   items: string;
-  files: Array<{ name: string; size: number; copies: number }>;
+  files: Array<{ name: string; size: number; copies: number; type?: string; content?: string }>;
   file: string;
   fileSize: string;
   filePages: string;
   totalCopies: number;
+  createdAt: string;
   date: string;
   amount: string;
   payment: string;
   fulfillment: string;
+  printColor: string;
+  paperSize: string;
+  sides: string;
+  paperType: string;
   status: string;
 };
 
@@ -35,15 +48,23 @@ function OrderStatusBar({ status }: { status: string }) {
   const currentIndex = STATUS_STEPS.indexOf(status);
   return (
     <div className="mt-3 border-t border-[#4B3621]/30 pt-3">
-      <p className="text-[10px] font-bold uppercase tracking-wide text-[#4B3621]">Order progress</p>
-      <div className="mt-2 grid grid-cols-3 gap-1 sm:grid-cols-6">
-        {STATUS_STEPS.map((step, index) => (
-          <div key={step} className="text-center">
-            <div className={`mx-auto h-2 w-full rounded-full border border-[#4B3621] ${currentIndex >= index ? "bg-[#4B3621]" : "bg-white"}`} />
-            <p className={`mt-1 text-[9px] leading-tight text-[#4B3621] ${status === step ? "font-bold" : ""}`}>{step}</p>
+      <p className="text-xs font-bold uppercase tracking-wide text-[#4B3621]">What happens next</p>
+      <div className="mt-2 grid gap-2 sm:grid-cols-3">
+        {STATUS_STEPS.map((step, index) => {
+          const detail = STATUS_DETAILS[step];
+          const active = status === step;
+          return (
+          <div key={step} className={`flex items-start gap-2 border p-2 ${active ? "border-[#4B3621] bg-[#E3C565]" : currentIndex > index ? "border-[#4B3621]/40 bg-[#4B3621]/5" : "border-[#4B3621]/20 bg-white"}`}>
+            <i className={`bi ${detail.icon} mt-0.5 text-lg text-[#4B3621]`} aria-hidden="true" />
+            <div>
+              <p className={`text-xs text-[#4B3621] ${active ? "font-bold" : "font-semibold"}`}>{detail.label}</p>
+              <p className="text-[10px] leading-tight text-[#4B3621]">{detail.help}</p>
+            </div>
           </div>
-        ))}
+          );
+        })}
       </div>
+      <p className="mt-2 text-xs text-[#4B3621]">Current status: <strong>{STATUS_DETAILS[status]?.label ?? status}</strong></p>
     </div>
   );
 }
@@ -51,10 +72,12 @@ function OrderStatusBar({ status }: { status: string }) {
 function toOrder(transaction: ServiceTransaction): Order {
   const metadata = transaction.metadata ?? {};
   const files = Array.isArray(metadata.files)
-    ? (metadata.files as Array<{ name?: string; size?: number; copies?: number }>).map((file) => ({
+    ? (metadata.files as Array<{ name?: string; size?: number; copies?: number; type?: string; content?: string }>).map((file) => ({
       name: file.name ?? "Uploaded file",
       size: file.size ?? 0,
       copies: file.copies ?? 1,
+      type: file.type,
+      content: file.content,
     }))
     : [];
   const firstFile = files[0] ?? { name: "Uploaded files", size: 0, copies: 1 };
@@ -69,12 +92,27 @@ function toOrder(transaction: ServiceTransaction): Order {
     fileSize: firstFile.size ? `${(firstFile.size / 1024 / 1024).toFixed(2)} MB` : "Size unavailable",
     filePages: `${files.length || 1} file${files.length === 1 ? "" : "s"}`,
     totalCopies,
+    createdAt: transaction.created_at,
     date: new Date(transaction.created_at).toLocaleDateString(),
     amount: `₱${Number(transaction.amount).toFixed(2)}`,
     payment: transaction.payment_method ?? "Not specified",
     fulfillment: typeof metadata.fulfillment === "string" ? metadata.fulfillment : "Not specified",
+    printColor: typeof metadata.print_color === "string" ? metadata.print_color : "Not specified",
+    paperSize: typeof metadata.paper_size === "string" ? metadata.paper_size : "Not specified",
+    sides: typeof metadata.sides === "string" ? metadata.sides : "Not specified",
+    paperType: typeof metadata.paper_type === "string" ? metadata.paper_type : "Not specified",
     status: displayStatus(transaction.status),
   };
+}
+
+function downloadOrderFile(file: { name: string; content?: string }) {
+  if (!file.content) return;
+  const link = document.createElement("a");
+  link.href = file.content;
+  link.download = file.name;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
 }
 
 // Modal shown right after accepting an order â€” provider downloads the student's file
@@ -116,10 +154,10 @@ function FileDownloadModal({ order, onClose }: { order: Order; onClose: () => vo
             {[
               ["Files", `${order.files.length || 1} file${order.files.length === 1 ? "" : "s"}`],
               ["Total copies", `${order.totalCopies} cop${order.totalCopies === 1 ? "y" : "ies"}`],
-              ["Paper Size", "Short (8.5Ã—11)"],
-              ["Color", "Black & White"],
-              ["Sides", "Single-Sided"],
-              ["Paper Type", "Standard (80gsm)"],
+              ["Paper Size", order.paperSize],
+              ["Color", order.printColor],
+              ["Sides", order.sides],
+              ["Paper Type", order.paperType],
               ["Fulfillment", order.fulfillment],
               ["Payment", `${order.payment} Â· ${order.amount}`],
             ].map(([k, v]) => (
@@ -147,7 +185,10 @@ function FileDownloadModal({ order, onClose }: { order: Order; onClose: () => vo
           <WireBtn
             size="lg"
             className={`w-full ${downloaded ? "bg-[#E3C565]0 border-gray-500" : "bg-[#000000] border-gray-900"}`}
-            onClick={() => setDownloaded(true)}
+          onClick={() => {
+            order.files.forEach((file) => downloadOrderFile(file));
+            setDownloaded(true);
+          }}
           >
             {downloaded ? "âœ“ File Downloaded â€” Ready to Print" : "â¬‡ Download Student File"}
           </WireBtn>
@@ -194,7 +235,15 @@ function StatusModal({ order, onUpdate, onClose }: { order: Order; onUpdate: (id
             </div>
           ))}
         </div>
-        <WireBtn size="sm" variant="outline" className="mt-3">Download File</WireBtn>
+        <WireBtn
+          size="sm"
+          variant="outline"
+          className="mt-3"
+          onClick={() => order.files.forEach((file) => downloadOrderFile(file))}
+          disabled={!order.files.some((file) => file.content)}
+        >
+          Download Files
+        </WireBtn>
       </div>
 
       <p className="text-xs font-semibold text-[#4B3621] uppercase tracking-wide mb-2">Set New Status</p>
@@ -294,7 +343,7 @@ export default function ProviderDashboard({ navigate }: { navigate: (s: string) 
           <WireStatCard label="New Orders" value={pending.length} />
           <WireStatCard label="Active Orders" value={active.length} />
           <WireStatCard label="Ready / Out" value={orders.filter(o => ["Ready for Pickup","Out for Delivery"].includes(o.status)).length} />
-          <WireStatCard label="Completed (month)" value="28" />
+          <WireStatCard label="Completed (month)" value={orders.filter((order) => order.status === "Completed" && new Date(order.createdAt).getMonth() === new Date().getMonth() && new Date(order.createdAt).getFullYear() === new Date().getFullYear()).length} />
         </div>
 
         {/* New / Pending Orders */}
